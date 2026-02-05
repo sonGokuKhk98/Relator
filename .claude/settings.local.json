@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/usr/local/bin/python3:*)",
+      "Bash(tee:*)",
+      "Bash(/Users/hiteshkaushik/dynamic_filtering/venv/bin/python:*)",
+      "Bash(curl:*)"
+    ]
+  }
+}

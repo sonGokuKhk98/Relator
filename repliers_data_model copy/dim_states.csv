@@ -1,0 +1,18 @@
+state_id,state_code,state_name,region
+1,AL,Alabama,South
+2,CO,Colorado,West
+3,FL,Florida,South
+4,GA,Georgia,South
+5,IL,Illinois,Midwest
+6,KS,Kansas,Midwest
+7,KY,Kentucky,South
+8,MO,Missouri,Midwest
+9,MT,Montana,West
+10,NC,North Carolina,South
+11,PR,Puerto Rico,Other
+12,SC,South Carolina,South
+13,TN,Tennessee,South
+14,TX,Texas,South
+15,VA,Virginia,South
+16,WA,Washington,West
+17,WY,Wyoming,West

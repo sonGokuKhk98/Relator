@@ -1,0 +1,1659 @@
+city_id,city_name,state_id,state_code,county_area
+1,AGUADILLA,11,PR,Aguadilla
+2,ALACHUA,3,FL,Alachua
+3,ALTAMONTE SPRINGS,3,FL,Seminole
+4,ALTOONA,3,FL,Lake
+5,ANNA MARIA,3,FL,Manatee
+6,APOLLO BEACH,3,FL,Hillsborough
+7,APOPKA,3,FL,Orange
+8,ARCADIA,3,FL,DeSoto
+9,ARCHER,3,FL,Alachua
+10,AUBURNDALE,3,FL,Polk
+11,AVON PARK,3,FL,Highlands
+12,Adams,13,TN,"Robertson County, TN"
+13,Addison,5,IL,Du Page
+14,Adkins,14,TX,Bexar
+15,Adrian,8,MO,Bates
+16,Advance,10,NC,Davie
+17,Agate,2,CO,Elbert
+18,Akron,2,CO,Washington
+19,Alamosa,2,CO,Alamosa
+20,Albemarle,10,NC,Stanly
+21,Alexander,10,NC,Buncombe
+22,Alexandria,13,TN,"Dekalb County, TN"
+23,Allenspark,2,CO,Boulder
+24,Alma,2,CO,Park
+25,Alma,8,MO,Lafayette
+26,Alpine,14,TX,Brewster
+27,Altamont,6,KS,Labette
+28,Altamont,8,MO,Daviess
+29,Altamont,13,TN,"Grundy County, TN"
+30,Alton,5,IL,Madison-IL
+31,Amazonia,8,MO,Andrew
+32,Amboy,5,IL,Lee
+33,Amsterdam,8,MO,Bates
+34,Anderson,12,SC,Anderson
+35,Andrews,10,NC,CherokeeNC
+36,Ansonville,10,NC,Anson
+37,Antioch,13,TN,"Davidson County, TN"
+38,Arden,10,NC,Buncombe
+39,Ardmore,13,TN,"Giles County, TN"
+40,Arlington,15,WA,Snohomish
+41,Arma,6,KS,"Crawford, KS"
+42,Arnold,8,MO,Jefferson
+43,Arrington,13,TN,"Williamson County, TN"
+44,Arvada,2,CO,Jefferson
+45,Asheboro,10,NC,Randolph
+46,Asheville,10,NC,Buncombe
+47,Ashland City,13,TN,"Cheatham County, TN"
+48,Atchison,6,KS,"Atchison, KS"
+49,Athens,13,TN,"McMinn County, TN"
+50,Auburn,15,WA,King
+51,Augusta,8,MO,St Charles
+52,Ault,2,CO,Weld
+53,Aurora,2,CO,Arapahoe
+54,Aurora,5,IL,Kane
+55,Austin,14,TX,Travis
+56,Avon,2,CO,Eagle
+57,BABSON PARK,3,FL,Polk
+58,BARTOW,3,FL,Polk
+59,BAYAMON,11,PR,Bayamón
+60,BELLEAIR BEACH,3,FL,Pinellas
+61,BELLEAIR BLUFFS,3,FL,Pinellas
+62,BELLEAIR,3,FL,Pinellas
+63,BELLEVIEW,3,FL,Marion
+64,BEVERLY HILLS,3,FL,Citrus
+65,BOCA GRANDE,3,FL,Lee
+66,BOCA RATON,3,FL,Palm Beach
+67,BOKEELIA,3,FL,Lee
+68,BRADENTON BEACH,3,FL,Manatee
+69,BRADENTON,3,FL,Manatee
+70,BRANDON,3,FL,Hillsborough
+71,BROOKSVILLE,3,FL,Hernando
+72,BUNNELL,3,FL,Flagler
+73,Badin Lake,10,NC,Montgomery
+74,Badin,10,NC,Stanly
+75,Bailey,2,CO,Park
+76,Bakersville,10,NC,Mitchell
+77,Baldwin City,6,KS,"Douglas, KS"
+78,Balsam Grove,10,NC,Transylvania
+79,Balsam,10,NC,Jackson
+80,Banner Elk,10,NC,Avery
+81,Barnardsville,10,NC,Buncombe
+82,Barnard,8,MO,Nodaway
+83,Barnwell,12,SC,Barnwell
+84,Bartlett,14,TX,Bell
+85,Basehor,6,KS,Leavenworth
+86,Bastrop,14,TX,Bastrop
+87,Batavia,5,IL,Kane
+88,Bates City,8,MO,Lafayette
+89,Bath Springs,13,TN,"Decatur County, TN"
+90,Baxter Springs,6,KS,"Cherokee, KS"
+91,Baxter,13,TN,"Putnam County, TN"
+92,Beaufort,12,SC,BeaufortSC
+93,Bee Cave,14,TX,Travis
+94,Beech Mountain,10,NC,Watauga
+95,Beechgrove,13,TN,"Coffee County, TN"
+96,Bell Buckle,13,TN,"Bedford County, TN"
+97,Bellevue,15,WA,King
+98,Bellvue,2,CO,Larimer
+99,Bellwood,5,IL,Cook
+100,Belmont,10,NC,Gaston
+101,Belton,8,MO,Cass
+102,Belton,14,TX,Bell
+103,Belvidere,5,IL,Boone
+104,Belvidere,13,TN,"Franklin County, TN"
+105,Bennettsville,12,SC,Marlboro
+106,Bennett,2,CO,Adams
+107,Berthoud,2,CO,Larimer
+108,Bertram,14,TX,Burnet
+109,Berwyn,5,IL,Cook
+110,Bessemer City,10,NC,Gaston
+111,Bethalto,5,IL,Madison-IL
+112,Bethpage,13,TN,"Trousdale County, TN"
+113,Big Lake,8,MO,Holt
+114,Big Rock,13,TN,"Stewart County, TN"
+115,Big Sandy,13,TN,"Benton County, TN"
+116,Biltmore Forest,10,NC,Buncombe
+117,Biltmore Lake,10,NC,Buncombe
+118,Birch Tree,8,MO,Shannon
+119,Biscoe,10,NC,Montgomery
+120,Black Hawk,2,CO,Gilpin
+121,Black Mountain,10,NC,Buncombe
+122,Blacksburg,12,SC,York
+123,Blair,12,SC,Fairfield
+124,Blanca,2,CO,Costilla
+125,Blanco,14,TX,Blanco
+126,Bloomingdale,5,IL,Du Page
+127,Bloomington,5,IL,Mc Lean
+128,Blowing Rock,10,NC,Watauga
+129,Blue Springs,8,MO,Jackson
+130,Boerne,14,TX,Comal
+131,Bogard,8,MO,Carroll
+132,Boiling Springs,12,SC,Spartanburg
+133,Bon Aqua,13,TN,"Dickson County, TN"
+134,Bonne Terre,8,MO,St Francois
+135,Bonner Springs,6,KS,Wyandotte
+136,Bonney Lake,15,WA,Pierce
+137,Boomer,10,NC,Wilkes
+138,Boone,2,CO,Pueblo
+139,Boone,10,NC,Watauga
+140,Boonville,10,NC,Yadkin
+141,Bostic,10,NC,Rutherford
+142,Bothell,15,WA,Snohomish
+143,Boulder,2,CO,Boulder
+144,Bourbonnais,5,IL,Kankakee
+145,Bradyville,13,TN,"Cannon County, TN"
+146,Brady,14,TX,McCulloch
+147,Branson West,8,MO,Stone
+148,Branson,8,MO,Taney
+149,Brasstown,10,NC,Clay
+150,Braymer,8,MO,Caldwell
+151,Breckenridge,2,CO,Summit
+152,Bremerton,15,WA,Kitsap
+153,Brenham,14,TX,Washington
+154,Brentwood,8,MO,St Louis
+155,Brentwood,13,TN,"Williamson County, TN"
+156,Brevard,10,NC,Transylvania
+157,Bridgeview,5,IL,Cook
+158,Briggs,14,TX,Burnet
+159,Brighton,2,CO,Adams
+160,Bronaugh,8,MO,Vernon
+161,Bronson,6,KS,Bourbon
+162,Brookfield,5,IL,Cook
+163,Broomfield,2,CO,Broomfield
+164,Brownwood,14,TX,Brown
+165,Bruceton,13,TN,"Carroll County, TN"
+166,Brush Creek,13,TN,"Smith County, TN"
+167,Brush,2,CO,Morgan
+168,Bryson City,10,NC,Swain
+169,Buchanan,13,TN,Henry
+170,Buckner,8,MO,Jackson
+171,Bucyrus,6,KS,Miami
+172,Buda,14,TX,Hays
+173,Buena Vista,2,CO,Chaffee
+174,Buffalo Valley,13,TN,"Putnam County, TN"
+175,Bulverde,14,TX,Comal
+176,Bumpus Mills,13,TN,"Stewart County, TN"
+177,Burbank,5,IL,Cook
+178,Burgaw,10,NC,Pender
+179,Burlington,2,CO,Kit Carson
+180,Burlington,6,KS,Coffey
+181,Burlington,14,TX,Milam
+182,Burnet,14,TX,Burnet
+183,Burnsville,10,NC,Yancey
+184,Burns,13,TN,"Dickson County, TN"
+185,Burr Ridge,5,IL,Du Page
+186,Butler,8,MO,Bates
+187,Byers,2,CO,Adams
+188,Byrdstown,13,TN,"Pickett County, TN"
+189,CABO ROJO,11,PR,Cabo Rojo
+190,CAGUAS,11,PR,Caguas
+191,CAMUY,11,PR,Camuy
+192,CAPE CORAL,3,FL,Lee
+193,CAROLINA,11,PR,Carolina
+194,CARRABELLE,3,FL,Franklin
+195,CARYVILLE,3,FL,Washington
+196,CASSELBERRY,3,FL,Seminole
+197,CEDAR KEY,3,FL,Levy
+198,CELEBRATION,3,FL,Osceola
+199,CHAMPIONS GATE,3,FL,Osceola
+200,CHATTANOOGA,13,TN,Other County
+201,CHIEFLAND,3,FL,Levy
+202,CHIPLEY,3,FL,Washington
+203,CIDRA,11,PR,Cidra
+204,CITRA,3,FL,Marion
+205,CITRUS SPRINGS,3,FL,Citrus
+206,CLEARWATER BEACH,3,FL,Pinellas
+207,CLEARWATER,3,FL,Pinellas
+208,CLERMONT,3,FL,Lake
+209,COCOA BEACH,3,FL,Brevard
+210,COCOA,3,FL,Brevard
+211,CORAL SPRINGS,3,FL,Broward
+212,COTTONDALE,3,FL,Jackson
+213,CRESCENT CITY,3,FL,Putnam
+214,CRYSTAL BEACH,3,FL,Pinellas
+215,CRYSTAL RIVER,3,FL,Citrus
+216,CULEBRA,11,PR,Culebra
+217,Cadet,8,MO,Washington
+218,Cadiz,7,KY,"Trigg County, KY"
+219,Cainsville,8,MO,Harrison
+220,Calabash,10,NC,Brunswick
+221,Caldwell,14,TX,Burleson
+222,Calhan,2,CO,El Paso
+223,Camden,8,MO,Ray
+224,Camden,12,SC,Kershaw
+225,Camden,13,TN,"Benton County, TN"
+226,Cameron,8,MO,Dekalb
+227,Cameron,14,TX,Milam
+228,Candler,10,NC,Buncombe
+229,Candor,10,NC,Montgomery
+230,Caney,6,KS,"Montgomery, KS"
+231,Canon City,2,CO,Fremont
+232,Canton,10,NC,Haywood
+233,Canyon Lake,14,TX,Comal
+234,Cape Girardeau,8,MO,Cape Girardeau
+235,Carbondale,5,IL,Jackson-IL
+236,Carlinville,5,IL,Macoupin-IL
+237,Carrollton,5,IL,Greene-IL
+238,Carrollton,8,MO,Carroll
+239,Carr,2,CO,Weld
+240,Carthage,10,NC,Moore
+241,Carthage,13,TN,"Smith County, TN"
+242,Casar,10,NC,Cleveland
+243,Cashiers,10,NC,Jackson
+244,Cassatt,12,SC,Kershaw
+245,Castalian Springs,13,TN,"Sumner County, TN"
+246,Castle Pines,2,CO,Douglas
+247,Castle Rock,2,CO,Douglas
+248,Catawba,10,NC,Catawba
+249,Catawba,12,SC,York
+250,Cedar Creek,14,TX,Bastrop
+251,Cedar Grove,13,TN,"Henderson County, TN"
+252,Cedar Hill,13,TN,"Robertson County, TN"
+253,Cedar Park,14,TX,Williamson
+254,Centennial,2,CO,Arapahoe
+255,Centerview,8,MO,"Johnson, MO"
+256,Centerville,13,TN,"Hickman County, TN"
+257,Centerville,14,TX,Leon
+258,Chanute,6,KS,Neosho
+259,Chapel Hill,13,TN,"Marshall County, TN"
+260,Chapmansboro,13,TN,"Cheatham County, TN"
+261,Charlotte,10,NC,Mecklenburg
+262,Charlotte,13,TN,"Cheatham County, TN"
+263,Chattanooga,13,TN,"Hamilton County, TN"
+264,Chelan,15,WA,Chelan
+265,Cheraw,12,SC,Chesterfield
+266,Cherokee Falls,12,SC,Chesterfield
+267,Cherokee,6,KS,"Crawford, KS"
+268,Cherokee,10,NC,CherokeeNC
+269,Cherry Hills Village,2,CO,Arapahoe
+270,Cherryvale,6,KS,"Montgomery, KS"
+271,Cherryville,10,NC,Gaston
+272,Chesterfield,8,MO,St Louis
+273,Chesterfield,12,SC,Chesterfield
+274,Chester,12,SC,Chester
+275,Chetopa,6,KS,Labette
+276,Cheyenne Wells,2,CO,Cheyenne
+277,Chicago,5,IL,Cook
+278,Chickamauga,4,GA,"Walker County, GA"
+279,Chilhowee,8,MO,"Johnson, MO"
+280,Chimney Rock,10,NC,Rutherford
+281,China Grove,10,NC,Rowan
+282,Christiana,13,TN,"Rutherford County, TN"
+283,Cicero,5,IL,Cook
+284,Claremont,10,NC,Catawba
+285,Clarendon Hills,5,IL,Du Page
+286,Clarksdale,8,MO,Dekalb
+287,Clarksville,13,TN,"Montgomery County, TN"
+288,Clay Center,6,KS,"Clay, KS"
+289,Clayton,10,NC,Johnston
+290,Cle Elum,15,WA,Kittitas
+291,Clemmons,10,NC,Forsyth
+292,Cleveland,8,MO,Cass
+293,Cleveland,10,NC,Rowan
+294,Cleveland,12,SC,Greenville
+295,Cleveland,13,TN,"Bradley County, TN"
+296,Clifton,13,TN,"Wayne County, TN"
+297,Clinton,7,KY,Hickman
+298,Clinton,8,MO,Henry
+299,Clover,12,SC,York
+300,Clyde,10,NC,Haywood
+301,Coalmont,13,TN,"Grundy County, TN"
+302,Coffeyville,6,KS,"Montgomery, KS"
+303,Cole Camp,8,MO,Benton
+304,College Grove,13,TN,"Williamson County, TN"
+305,College Station,14,TX,Brazos
+306,Collettsville,10,NC,Caldwell
+307,Collinsville,5,IL,Madison-IL
+308,Collins,8,MO,St. Clair
+309,Colony,6,KS,Anderson
+310,Colorado Springs,2,CO,El Paso
+311,Columbia,8,MO,Boone
+312,Columbia,12,SC,Richland
+313,Columbia,13,TN,"Maury County, TN"
+314,Columbus,6,KS,"Cherokee, KS"
+315,Columbus,10,NC,Polk
+316,Comanche,14,TX,Comanche
+317,Comfort,14,TX,Kendall
+318,Commerce City,2,CO,Adams
+319,Como,2,CO,Park
+320,Concordia,8,MO,Lafayette
+321,Concord,10,NC,Cabarrus
+322,Conifer,2,CO,Jefferson
+323,Connelly Springs,10,NC,Burke
+324,Conover,10,NC,Catawba
+325,Cookeville,13,TN,"Putnam County, TN"
+326,Copperas Cove,14,TX,Coryell
+327,Cornelius,10,NC,Mecklenburg
+328,Corpus Christi,14,TX,Nueces
+329,Cosby,13,TN,"Cocke County, TN"
+330,Cotopaxi,2,CO,Fremont
+331,Cottontown,13,TN,"Sumner County, TN"
+332,Cottonwood Shores,14,TX,Burnet
+333,Country Club,8,MO,Andrew
+334,Coupland,14,TX,Williamson
+335,Cowgill,8,MO,Ray
+336,Craig,8,MO,Holt
+337,Cramerton,10,NC,Gaston
+338,Crawford,13,TN,"Overton County, TN"
+339,Creede,2,CO,Mineral
+340,Creighton,8,MO,Cass
+341,Crested Butte,2,CO,Gunnison
+342,Crestone,2,CO,Saguache
+343,Creston,10,NC,Ashe
+344,Crestwood,8,MO,St Louis
+345,Cripple Creek,2,CO,Teller
+346,Crofton,7,KY,"Christian County, KY"
+347,Crook,2,CO,Logan
+348,Cross Plains,13,TN,"Robertson County, TN"
+349,Crossville,13,TN,"Cumberland County, TN"
+350,Cross,12,SC,Berkeley
+351,Crouse,10,NC,Lincoln
+352,Crystal Beach,14,TX,Galveston
+353,Culleoka,13,TN,"Maury County, TN"
+354,Cullowhee,10,NC,Jackson
+355,Cumberland City,13,TN,"Houston County, TN"
+356,Cumberland Furnace,13,TN,"Dickson County, TN"
+357,Cunningham,13,TN,"Montgomery County, TN"
+358,DADE CITY,3,FL,Hernando
+359,DANDRIDGE,13,TN,Other County
+360,DAVENPORT,3,FL,Polk
+361,DAYTONA BEACH SHORES,3,FL,Volusia
+362,DAYTONA BEACH,3,FL,Volusia
+363,DE LEON SPRINGS,3,FL,Volusia
+364,DEBARY,3,FL,Volusia
+365,DEFUNIAK SPRINGS,3,FL,Walton
+366,DELAND,3,FL,Volusia
+367,DELRAY BEACH,3,FL,Palm Beach
+368,DELTONA,3,FL,Volusia
+369,DICKSON,13,TN,Other County
+370,DORADO,11,PR,Dorado
+371,DOVER,3,FL,Hillsborough
+372,DUNDEE,3,FL,Polk
+373,DUNEDIN,3,FL,Pinellas
+374,DUNNELLON,3,FL,Marion
+375,Dacono,2,CO,Weld
+376,Dale,14,TX,Bastrop
+377,Dallas,10,NC,Gaston
+378,Dalton,4,GA,"Whitfield County, GA"
+379,Dandridge,13,TN,"Jefferson County, TN"
+380,Darien,5,IL,Du Page
+381,Davidson,10,NC,Mecklenburg
+382,Dayton,13,TN,"Rhea County, TN"
+383,De Kalb,8,MO,Platte
+384,De Soto,6,KS,"Johnson, KS"
+385,DeKalb,5,IL,De Kalb
+386,Dearborn,8,MO,Platte
+387,Decaturville,13,TN,"Decatur County, TN"
+388,Decatur,13,TN,"Meigs County, TN"
+389,Decherd,13,TN,"Franklin County, TN"
+390,Deepwater,8,MO,Henry
+391,Deer Lodge,13,TN,"Morgan County, TN"
+392,Deer Trail,2,CO,Arapahoe
+393,Defiance,8,MO,St Charles
+394,Del Valle,14,TX,Travis
+395,Dellrose,13,TN,"Lincoln County, TN"
+396,Delta,2,CO,Delta
+397,Dennis,6,KS,Labette
+398,Denton,10,NC,Davidson
+399,Denver,2,CO,Denver
+400,Denver,10,NC,Lincoln
+401,Des Plaines,5,IL,Cook
+402,Dickson,13,TN,"Dickson County, TN"
+403,Dilley,14,TX,Frio
+404,Dillon,2,CO,Summit
+405,Dillsboro,10,NC,Jackson
+406,Dobson,10,NC,Surry
+407,Dolton,5,IL,Cook
+408,Dover,13,TN,"Stewart County, TN"
+409,Dowelltown,13,TN,"Dekalb County, TN"
+410,Downers Grove,5,IL,Du Page
+411,Doyle,13,TN,"Van Buren County, TN"
+412,Drake,2,CO,Larimer
+413,Dresden,13,TN,Weakley
+414,Drexel,8,MO,Cass
+415,Drexel,10,NC,Burke
+416,Driftwood,14,TX,Hays
+417,Dripping Springs,14,TX,Hays
+418,Duck River,13,TN,"Hickman County, TN"
+419,Ducktown,13,TN,"Polk County, TN"
+420,Dukedom,13,TN,Weakley
+421,Dunlap,13,TN,"Sequatchie County, TN"
+422,Dunnegan,8,MO,Cedar
+423,Dupo,5,IL,St Clair-IL
+424,Durham,10,NC,Durham
+425,Dyersburg,13,TN,"Dyer County, TN"
+426,EAGLE LAKE,3,FL,Polk
+427,EATONVILLE,3,FL,Orange
+428,EDGEWATER,3,FL,Volusia
+429,ELLENTON,3,FL,Manatee
+430,ENGLEWOOD,3,FL,Charlotte
+431,ENSENADA,11,PR,Guánica
+432,ESTERO,3,FL,Lee
+433,EUSTIS,3,FL,Lake
+434,Eads,2,CO,Kiowa
+435,Eagleville,8,MO,Harrison
+436,Eagleville,13,TN,"Rutherford County, TN"
+437,Earl,10,NC,Cleveland
+438,East Bend,10,NC,Yadkin
+439,East Flat Rock,10,NC,Henderson
+440,East Spencer,10,NC,Rowan
+441,Easton,6,KS,Leavenworth
+442,Eatonville,15,WA,Pierce
+443,Eaton,2,CO,Weld
+444,Edgemoor,12,SC,Chester
+445,Edgerton,6,KS,"Johnson, KS"
+446,Edgerton,8,MO,Platte
+447,Edgewater,2,CO,Jefferson
+448,Edwardsville,6,KS,Wyandotte
+449,Edwards,2,CO,Eagle
+450,Edward,10,NC,BeaufortNC
+451,El Dorado Springs,8,MO,Cedar
+452,Elbert,2,CO,Elbert
+453,Eldorado Springs,2,CO,Boulder
+454,Elgin,5,IL,Kane
+455,Elgin,12,SC,Kershaw
+456,Elgin,14,TX,Bastrop
+457,Elizabeth,2,CO,Elbert
+458,Elk City,6,KS,"Montgomery, KS"
+459,Elk Park,10,NC,Avery
+460,Ellenboro,10,NC,Rutherford
+461,Ellensburg,15,WA,Kittitas
+462,Ellerbe,10,NC,Richmond
+463,Elma,15,WA,Grays Harbor
+464,Elmhurst,5,IL,Du Page
+465,Elmwood Park,5,IL,Cook
+466,Elmwood,13,TN,"Smith County, TN"
+467,Elsah,5,IL,Jersey-IL
+468,Elsberry,8,MO,Lincoln
+469,Elsmore,6,KS,Allen
+470,Elwood,6,KS,Doniphan
+471,Englewood,2,CO,Arapahoe
+472,Enumclaw,15,WA,King
+473,Erie,2,CO,Boulder
+474,Erin,13,TN,"Houston County, TN"
+475,Estes Park,2,CO,Larimer
+476,Estill Springs,13,TN,"Franklin County, TN"
+477,Ethridge,13,TN,"Lawrence County, TN"
+478,Etowah,10,NC,Henderson
+479,Eudora,6,KS,"Douglas, KS"
+480,Eureka,8,MO,St Louis
+481,Evanston,5,IL,Cook
+482,Evans,2,CO,Weld
+483,Evant,14,TX,Lampasas
+484,Evergreen,2,CO,Jefferson
+485,Excelsior Springs,8,MO,Ray
+486,FERN PARK,3,FL,Seminole
+487,FLAGLER BEACH,3,FL,Flagler
+488,FLORAHOME,3,FL,Putnam
+489,FORT MC COY,3,FL,Marion
+490,FORT MEADE,3,FL,Polk
+491,FORT MYERS,3,FL,Lee
+492,FORT PIERCE,3,FL,St Lucie
+493,FORT WHITE,3,FL,Columbia
+494,FREEPORT,3,FL,Walton
+495,FROSTPROOF,3,FL,Polk
+496,FRUITLAND PARK,3,FL,Lake
+497,Fairplay,2,CO,Park
+498,Fairport,8,MO,Dekalb
+499,Fairview Heights,5,IL,St Clair-IL
+500,Fairview,10,NC,Buncombe
+501,Fairview,13,TN,"Williamson County, TN"
+502,Fairway,6,KS,"Johnson, KS"
+503,Faith,10,NC,Rowan
+504,Farley,8,MO,Platte
+505,Faucett,8,MO,Buchanan
+506,Fayetteville,10,NC,Cumberland
+507,Fayetteville,13,TN,"Lincoln County, TN"
+508,Federal Heights,2,CO,Adams
+509,Festus,8,MO,Jefferson
+510,Fillmore,8,MO,Andrew
+511,Firestone,2,CO,Weld
+512,Fischer,14,TX,Comal
+513,Fisher,5,IL,Champaign
+514,Flagler,2,CO,Kit Carson
+515,Flanagan,5,IL,Livingston
+516,Flat Rock,1,AL,"Jackson County, AL"
+517,Flat Rock,10,NC,Henderson
+518,Flatonia,14,TX,Fayette
+519,Fleetwood,10,NC,Ashe
+520,Flemington,8,MO,Polk
+521,Fletcher,10,NC,Henderson
+522,Flintstone,4,GA,"Walker County, GA"
+523,Flintville,13,TN,"Lincoln County, TN"
+524,Florence,1,AL,"Lauderdale County, AL"
+525,Florence,2,CO,Fremont
+526,Florence,12,SC,Florence
+527,Florence,14,TX,Williamson
+528,Florissant,2,CO,Teller
+529,Florissant,8,MO,St Louis
+530,Fontana,6,KS,Miami
+531,Forest City,10,NC,Rutherford
+532,Fort Collins,2,CO,Larimer
+533,Fort Garland,2,CO,Costilla
+534,Fort Lawn,12,SC,Chester
+535,Fort Lupton,2,CO,Weld
+536,Fort Mill,12,SC,York
+537,Fort Morgan,2,CO,Morgan
+538,Fort Scott,6,KS,Bourbon
+539,Fountain,2,CO,El Paso
+540,Fox Island,15,WA,Pierce
+541,Frankewing,13,TN,"Lincoln County, TN"
+542,Franklin,7,KY,"Simpson County, KY"
+543,Franklin,10,NC,Macon
+544,Franklin,13,TN,"Williamson County, TN"
+545,Franklin,14,TX,Robertson
+546,Franktown,2,CO,Douglas
+547,Fraser,2,CO,Grand
+548,Fredericksburg,14,TX,Gillespie
+549,Frederick,2,CO,Weld
+550,Fredonia,6,KS,Wilson
+551,Freeman,8,MO,Cass
+552,Frisco,2,CO,Summit
+553,Frontenac,6,KS,"Crawford, KS"
+554,Fulton,7,KY,Fulton
+555,Fulton,8,MO,Callaway
+556,Fuquay-Varina,10,NC,Harnett
+557,GAINESVILLE,3,FL,Alachua
+558,GENEVA,3,FL,Seminole
+559,GIBSONTON,3,FL,Hillsborough
+560,GOODLETTSVILLE,13,TN,Other County
+561,GRACEVILLE,3,FL,Jackson
+562,GRAND ISLAND,3,FL,Lake
+563,GREAT FALLS,9,MT,Other County
+564,GROVELAND,3,FL,Lake
+565,GUAYNABO,11,PR,Guaynabo
+566,GULFPORT,3,FL,Pinellas
+567,GURABO,11,PR,Gurabo
+568,Gaffney,12,SC,CherokeeSC
+569,Gainesboro,13,TN,"Jackson County, TN"
+570,Galena,6,KS,"Cherokee, KS"
+571,Galeton,2,CO,Weld
+572,Gallatin,8,MO,Daviess
+573,Gallatin,13,TN,"Sumner County, TN"
+574,Galt,8,MO,Grundy
+575,Galveston,14,TX,Galveston
+576,Garden City,8,MO,Cass
+577,Gardner,6,KS,"Johnson, KS"
+578,Garnett,6,KS,Anderson
+579,Gastonia,10,NC,Gaston
+580,Gaston,10,NC,Gaston
+581,Gas,6,KS,Allen
+582,Gatesville,14,TX,Coryell
+583,Gatlinburg,13,TN,"Sevier County, TN"
+584,Gause,14,TX,Milam
+585,Geneva,5,IL,Kane
+586,Georgetown,2,CO,Clear Creek
+587,Georgetown,12,SC,Georgetown
+588,Georgetown,13,TN,"Bradley County, TN"
+589,Georgetown,14,TX,Williamson
+590,Gerton,10,NC,Henderson
+591,Giddings,14,TX,Lee
+592,Gig Harbor,15,WA,Pierce
+593,Gilberts,5,IL,Kane
+594,Gilcrest,2,CO,Weld
+595,Gilman City,8,MO,Harrison
+596,Girard,6,KS,"Crawford, KS"
+597,Gladstone,8,MO,Clay
+598,Gleason,13,TN,Weakley
+599,Glen Ellyn,5,IL,Du Page
+600,Glen Haven,2,CO,Larimer
+601,Glendale Heights,5,IL,Du Page
+602,Glenview,5,IL,Cook
+603,Glenville,10,NC,Jackson
+604,Gold Hill,10,NC,Rowan
+605,Golden,2,CO,Jefferson
+606,Goldsboro,10,NC,Wayne
+607,Goldthwaite,14,TX,Mills
+608,Gonzales,14,TX,Gonzales
+609,Goodlettsville,13,TN,"Davidson County, TN"
+610,Gordonsville,13,TN,"Smith County, TN"
+611,Gower,8,MO,Clinton
+612,Grain Valley,8,MO,Jackson
+613,Granby,2,CO,Grand
+614,Grand Junction,2,CO,Mesa
+615,Grand Lake,2,CO,Grand
+616,Grandview,8,MO,Jackson
+617,Granger,14,TX,Williamson
+618,Granite City,5,IL,Madison-IL
+619,Granite Falls,10,NC,Caldwell
+620,Granite Quarry,10,NC,Rowan
+621,Granite Shoals,14,TX,Burnet
+622,Grassy Creek,10,NC,Ashe
+623,Grayslake,5,IL,Lake
+624,Great Falls,12,SC,Chester
+625,Greeley,2,CO,Weld
+626,Green Mountain,10,NC,Mitchell
+627,Greenbrier,13,TN,"Robertson County, TN"
+628,Greenfield,13,TN,Weakley
+629,Greensboro,10,NC,Guilford
+630,Greenville,5,IL,Bond-IL
+631,Greenwood Village,2,CO,Arapahoe
+632,Greenwood,8,MO,Jackson
+633,Greenwood,12,SC,Greenwood
+634,Gridley,6,KS,Coffey
+635,Grimsley,13,TN,"Fentress County, TN"
+636,Grover,10,NC,Cleveland
+637,Gruetli Laager,13,TN,"Grundy County, TN"
+638,Guffey,2,CO,Park
+639,HAINES CITY,3,FL,Polk
+640,HAWTHORNE,3,FL,Putnam
+641,HERNANDO BEACH,3,FL,Hernando
+642,HERNANDO,3,FL,Citrus
+643,HIGH SPRINGS,3,FL,Alachua
+644,HOLIDAY,3,FL,Pasco
+645,HOLLY HILL,3,FL,Volusia
+646,HOLMES BEACH,3,FL,Manatee
+647,HOMOSASSA,3,FL,Citrus
+648,HOWEY IN THE HILLS,3,FL,Lake
+649,HUDSON,3,FL,Pasco
+650,HUMACAO,11,PR,Humacao
+651,Hallettsville,14,TX,Lavaca
+652,Hamel,5,IL,Madison-IL
+653,Hamilton,8,MO,Caldwell
+654,Hamilton,14,TX,Hamilton
+655,Hamlet,10,NC,Richmond
+656,Hampshire,13,TN,"Maury County, TN"
+657,Hamptonville,10,NC,Yadkin
+658,Hardin,8,MO,Ray
+659,Harker Heights,14,TX,Bell
+660,Harmony,10,NC,Iredell
+661,Harper,14,TX,Gillespie
+662,Harrisburg,10,NC,Cabarrus
+663,Harrisonville,8,MO,Cass
+664,Harrison,13,TN,"Hamilton County, TN"
+665,Hartsel,2,CO,Park
+666,Hartsville,12,SC,Darlington
+667,Hartsville,13,TN,"Trousdale County, TN"
+668,Havana,6,KS,"Montgomery, KS"
+669,Haxtun,2,CO,Phillips
+670,Hayesville,10,NC,Clay
+671,Heath Springs,12,SC,Lancaster
+672,Hendersonville,10,NC,Henderson
+673,Hendersonville,13,TN,"Sumner County, TN"
+674,Henderson,10,NC,Vance
+675,Henderson,13,TN,"Chester County, TN"
+676,Henderson,14,TX,Rusk
+677,Herculaneum,8,MO,Jefferson
+678,Hermann,8,MO,Gasconade
+679,Hermitage,13,TN,"Davidson County, TN"
+680,Hiawatha,6,KS,Brown
+681,Hickman,13,TN,"Smith County, TN"
+682,Hickory Grove,12,SC,York
+683,Hickory,10,NC,Catawba
+684,Hiddenite,10,NC,Alexander
+685,Higginsville,8,MO,Lafayette
+686,High Point,10,NC,Guilford
+687,Highland Haven,14,TX,Burnet
+688,Highland Park,5,IL,Lake
+689,Highlands Ranch,2,CO,Douglas
+690,Highlands,10,NC,Macon
+691,Highland,5,IL,Madison-IL
+692,Highland,6,KS,Doniphan
+693,Hildebran,10,NC,Burke
+694,Hilham,13,TN,"Clay County, TN"
+695,Hillsboro,8,MO,Jefferson
+696,Hillsboro,13,TN,"Coffee County, TN"
+697,Hixson,13,TN,"Hamilton County, TN"
+698,Hohenwald,13,TN,"Lewis County, TN"
+699,Holden,8,MO,"Johnson, MO"
+700,Holladay,13,TN,"Benton County, TN"
+701,Holland,14,TX,Bell
+702,Holt,8,MO,Clay
+703,Holyoke,2,CO,Phillips
+704,Hooper,2,CO,Alamosa
+705,Hope Mills,10,NC,Cumberland
+706,Hopkinsville,7,KY,"Christian County, KY"
+707,Hopkins,8,MO,Nodaway
+708,Hornbeak,13,TN,Obion
+709,Horse Shoe,10,NC,Henderson
+710,Horseshoe Bay,14,TX,Llano
+711,Horton,6,KS,Brown
+712,Hot Springs,10,NC,Madison
+713,Hot Sulphur Springs,2,CO,Grand
+714,House Springs,8,MO,Jefferson
+715,Houston,14,TX,Harris
+716,Howard,2,CO,Fremont
+717,Hudson,2,CO,Weld
+718,Hudson,10,NC,Caldwell
+719,Hugo,2,CO,Lincoln
+720,Humansville,8,MO,Polk
+721,Humboldt,6,KS,Allen
+722,Huntersville,10,NC,Mecklenburg
+723,Huntingdon,13,TN,"Carroll County, TN"
+724,Huntland,13,TN,"Franklin County, TN"
+725,Hunt,14,TX,Kerr
+726,Hurricane Mills,13,TN,"Humphreys County, TN"
+727,Hutto,14,TX,Williamson
+728,INDIALANTIC,3,FL,Brevard
+729,INDIAN LAKE ESTATES,3,FL,Polk
+730,INDIAN ROCKS BEACH,3,FL,Pinellas
+731,INDIAN SHORES,3,FL,Pinellas
+732,INTERLACHEN,3,FL,Putnam
+733,INVERNESS,3,FL,Citrus
+734,Idaho Springs,2,CO,Clear Creek
+735,Independence,6,KS,"Montgomery, KS"
+736,Independence,8,MO,Jackson
+737,Indian Hills,2,CO,Jefferson
+738,Indian Land,12,SC,Lancaster
+739,Indian Mound,13,TN,"Stewart County, TN"
+740,Indian Trail,10,NC,Union
+741,Inman,12,SC,Spartanburg
+742,Iola,6,KS,Allen
+743,Iron City,13,TN,"Wayne County, TN"
+744,Iron Station,10,NC,Lincoln
+745,Ironton,8,MO,Iron
+746,Itasca,5,IL,Du Page
+747,JACKSONVILLE,3,FL,Duval
+748,JOHNSON CITY,13,TN,Out of Area
+749,Jackson Springs,10,NC,Montgomery
+750,Jacksonville,14,TX,Cherokee
+751,Jackson,8,MO,Cape Girardeau
+752,Jackson,13,TN,"Madison County, TN"
+753,Jamestown,10,NC,Guilford
+754,Jamestown,13,TN,"Fentress County, TN"
+755,Jarrell,14,TX,Williamson
+756,Jasper,13,TN,"Marion County, TN"
+757,Jefferson City,8,MO,Cole
+758,Jefferson,2,CO,Park
+759,Jefferson,10,NC,Ashe
+760,Jefferson,12,SC,Chesterfield
+761,Jerico Springs,8,MO,Cedar
+762,Jerseyville,5,IL,Jersey-IL
+763,Joelton,13,TN,"Cheatham County, TN"
+764,Johnson City,14,TX,Blanco
+765,Johnston,12,SC,Edgefield
+766,Johnstown,2,CO,Weld
+767,Joliet,5,IL,Will
+768,Jonestown,14,TX,Travis
+769,Jonesville,10,NC,Yadkin
+770,Jonesville,12,SC,UnionSC
+771,Junction,14,TX,Kimble
+772,KATHLEEN,3,FL,Polk
+773,KEYSTONE HEIGHTS,3,FL,Clay
+774,KINGSPORT,13,TN,Other County
+775,KISSIMMEE,3,FL,Osceola
+776,Kankakee,5,IL,Kankakee
+777,Kannapolis,10,NC,Cabarrus
+778,Kansas City,6,KS,Wyandotte
+779,Kansas City,8,MO,Jackson
+780,Katy,14,TX,Harris
+781,Kearney,8,MO,Clay
+782,Keenesburg,2,CO,Weld
+783,Kelso,13,TN,"Lincoln County, TN"
+784,Kelso,15,WA,Cowlitz
+785,Kempner,14,TX,Lampasas
+786,Kent,15,WA,King
+787,Kernersville,10,NC,Forsyth
+788,Kerrville,14,TX,Kerr
+789,Kersey,2,CO,Weld
+790,Kershaw,12,SC,Kershaw
+791,Keystone,2,CO,Summit
+792,Kidder,8,MO,Caldwell
+793,Killeen,14,TX,Bell
+794,King City,8,MO,Dekalb
+795,Kings Mountain,10,NC,Cleveland
+796,Kingsbury,14,TX,Guadalupe
+797,Kingsland,14,TX,Llano
+798,Kingston Springs,13,TN,"Cheatham County, TN"
+799,Kingsville,8,MO,Jackson
+800,King,10,NC,Stokes
+801,Kinston,10,NC,Lenoir
+802,Kirkland,15,WA,King
+803,Kit Carson,2,CO,Cheyenne
+804,Kittredge,2,CO,Jefferson
+805,Knob Noster,8,MO,"Johnson, MO"
+806,Knoxville,13,TN,"Knox County, TN"
+807,Kodak,13,TN,"Sevier County, TN"
+808,Kyle,14,TX,Hays
+809,LA VERGNE,13,TN,"Rutherford County, TN"
+810,LABELLE,3,FL,Hendry
+811,LADY LAKE,3,FL,Lake
+812,LAJAS,11,PR,Lajas
+813,LAKE ALFRED,3,FL,Polk
+814,LAKE BUTLER,3,FL,Union
+815,LAKE CITY,3,FL,Columbia
+816,LAKE HAMILTON,3,FL,Polk
+817,LAKE MARY,3,FL,Seminole
+818,LAKE PANASOFFKEE,3,FL,Sumter
+819,LAKE PLACID,3,FL,Highlands
+820,LAKE WALES,3,FL,Polk
+821,LAKELAND,3,FL,Polk
+822,LAKESHORE,3,FL,Polk
+823,LAKEWOOD RANCH,3,FL,Manatee
+824,LAND O LAKES,3,FL,Pasco
+825,LARGO,3,FL,Pinellas
+826,LECANTO,3,FL,Citrus
+827,LEESBURG,3,FL,Lake
+828,LEE,3,FL,Madison
+829,LEHIGH ACRES,3,FL,Lee
+830,LIMESTONE,13,TN,Other County
+831,LITHIA,3,FL,Hillsborough
+832,LIVE OAK,3,FL,Suwannee
+833,LOIZA,11,PR,Loíza
+834,LONGBOAT KEY,3,FL,Sarasota
+835,LONGWOOD,3,FL,Seminole
+836,LUQUILLO,11,PR,Luquillo
+837,LUTZ,3,FL,Pasco
+838,La Cygne,6,KS,"Linn, KS"
+839,La Grange,14,TX,Fayette
+840,La Russell,8,MO,Lawrence
+841,La Salle,2,CO,Weld
+842,La Vernia,14,TX,Wilson
+843,Labadie,8,MO,Franklin
+844,Lacygne,6,KS,"Linn, KS"
+845,Ladue,8,MO,St Louis
+846,Lafayette,2,CO,Boulder
+847,Lafayette,13,TN,"Macon County, TN"
+848,Lago Vista,14,TX,Travis
+849,Lake Barrington,5,IL,Lake
+850,Lake George,2,CO,Park
+851,Lake Junaluska,10,NC,Haywood
+852,Lake Lafayette,8,MO,Lafayette
+853,Lake Lotawana,8,MO,Jackson
+854,Lake Lure,10,NC,Rutherford
+855,Lake Quivira,6,KS,"Johnson, KS"
+856,Lake St Louis,8,MO,St Charles
+857,Lake Tapps,15,WA,Pierce
+858,Lake Toxaway,10,NC,Transylvania
+859,Lake Waukomis,8,MO,Platte
+860,Lake Winnebago,8,MO,Cass
+861,Lake Wylie,12,SC,York
+862,Lakeway,14,TX,Travis
+863,Lakewood,2,CO,Jefferson
+864,Lakewood,15,WA,Pierce
+865,Lamar,8,MO,"Barton, MO"
+866,Lampasas,14,TX,Burnet
+867,Lancaster,12,SC,Lancaster
+868,Lancaster,13,TN,"Smith County, TN"
+869,Landis,10,NC,Rowan
+870,Landrum,12,SC,Spartanburg
+871,Lane,6,KS,Miami
+872,Lansing,6,KS,Leavenworth
+873,Lansing,10,NC,Ashe
+874,Laporte,2,CO,Larimer
+875,Larkspur,2,CO,Douglas
+876,Lascassas,13,TN,"Wilson County, TN"
+877,Lathrop,8,MO,Clinton
+878,Laurel Park,10,NC,Henderson
+879,Laurens,12,SC,Laurens
+880,Lawndale,10,NC,Cleveland
+881,Lawrenceburg,13,TN,"Lawrence County, TN"
+882,Lawrence,6,KS,"Douglas, KS"
+883,Lawson,8,MO,Ray
+884,LeRoy,6,KS,Coffey
+885,Leadville,2,CO,Lake
+886,Leakey,14,TX,Real
+887,Leander,14,TX,Williamson
+888,Leavenworth,6,KS,Leavenworth
+889,Leawood,6,KS,"Johnson, KS"
+890,Lebanon,8,MO,Laclede
+891,Lebanon,13,TN,"Wilson County, TN"
+892,Lee's Summit,8,MO,Jackson
+893,Leeton,8,MO,"Johnson, MO"
+894,Leicester,10,NC,Buncombe
+895,Lenexa,6,KS,"Johnson, KS"
+896,Lenoir City,10,NC,Caldwell
+897,Lenoir,10,NC,Caldwell
+898,Leoma,13,TN,"Lawrence County, TN"
+899,Lewisburg,13,TN,"Marshall County, TN"
+900,Lewisville,10,NC,Forsyth
+901,Lexington,8,MO,Lafayette
+902,Lexington,10,NC,Davidson
+903,Liberty Hill,12,SC,Kershaw
+904,Liberty Hill,14,TX,Williamson
+905,Liberty,8,MO,Clay
+906,Liberty,13,TN,"Dekalb County, TN"
+907,Lilesville,10,NC,Anson
+908,Lincolnton,10,NC,Lincoln
+909,Lincoln,8,MO,Benton
+910,Lincoln,14,TX,Lee
+911,Linden,13,TN,"Perry County, TN"
+912,Linn Creek,8,MO,Camden
+913,Linn Valley,6,KS,"Linn, KS"
+914,Linville Falls,10,NC,McDowell
+915,Linwood,6,KS,Leavenworth
+916,Little Switzerland,10,NC,Mitchell
+917,Littleton,2,CO,Jefferson
+918,Livermore,2,CO,Larimer
+919,Livingston,5,IL,Madison-IL
+920,Livingston,13,TN,"Overton County, TN"
+921,Llano,14,TX,Llano
+922,Lobelville,13,TN,"Perry County, TN"
+923,Lochbuie,2,CO,Adams
+924,Lockhart,14,TX,Caldwell
+925,Locust,10,NC,Cabarrus
+926,Lometa,14,TX,Lampasas
+927,Lone Jack,8,MO,Jackson
+928,Lone Tree,2,CO,Douglas
+929,Longbranch,15,WA,Pierce
+930,Longmont,2,CO,Boulder
+931,Longton,6,KS,Elk
+932,Lorena,14,TX,McLennan
+933,Louisburg,6,KS,Miami
+934,Louisiana,8,MO,Pike
+935,Louisville,2,CO,Boulder
+936,Loveland,2,CO,Larimer
+937,Lowell,10,NC,Gaston
+938,Lowgap,10,NC,Surry
+939,Luling,14,TX,Caldwell
+940,Lumberton,10,NC,Robeson
+941,Lyles,13,TN,"Hickman County, TN"
+942,Lyman,12,SC,Spartanburg
+943,Lynchburg,13,TN,"Moore County, TN"
+944,Lynnville,13,TN,"Giles County, TN"
+945,Lynn,10,NC,Polk
+946,Lyons,2,CO,Boulder
+947,MADEIRA BEACH,3,FL,Pinellas
+948,MADISON,3,FL,Madison
+949,MAITLAND,3,FL,Orange
+950,MARIANNA,3,FL,Jackson
+951,MARTIN,13,TN,Weakley
+952,MASCOTTE,3,FL,Lake
+953,MAUNABO,11,PR,Maunabo
+954,MAYAGUEZ,11,PR,Mayagüez
+955,MC EWEN,13,TN,"Humphreys County, TN"
+956,MELBOURNE,3,FL,Brevard
+957,MERRITT ISLAND,3,FL,Brevard
+958,MIAMI,3,FL,Miami-Dade
+959,MIDWAY,3,FL,Gadsden
+960,MIMS,3,FL,Brevard
+961,MINNEOLA,3,FL,Lake
+962,MOORESBURG,13,TN,Other County
+963,MORRISTON,3,FL,Levy
+964,MOUNT DORA,3,FL,Orange
+965,MULBERRY,3,FL,Polk
+966,MYAKKA CITY,3,FL,Manatee
+967,Madison,13,TN,"Davidson County, TN"
+968,Maggie Valley,10,NC,Haywood
+969,Maiden,10,NC,Lincoln
+970,Manchaca,14,TX,Travis
+971,Manchester,8,MO,St Louis
+972,Manchester,13,TN,"Coffee County, TN"
+973,Manhattan,6,KS,Riley
+974,Manor,14,TX,Travis
+975,Marble Falls,14,TX,Travis
+976,Marble Hill,8,MO,Bollinger
+977,Marion,10,NC,McDowell
+978,Marion,14,TX,Guadalupe
+979,Mars Hill,10,NC,Madison
+980,Marshall,8,MO,"Saline, MO"
+981,Marshall,10,NC,Madison
+982,Marshville,10,NC,Union
+983,Martindale,14,TX,Caldwell
+984,Martinsville,8,MO,Harrison
+985,Martin,13,TN,Weakley
+986,Marvin,10,NC,Union
+987,Maryville,8,MO,Nodaway
+988,Maryville,13,TN,"Blount County, TN"
+989,Mason,14,TX,Mason
+990,Matthews,10,NC,Union
+991,Maxwell,14,TX,Hays
+992,Maynardville,13,TN,"Union County, TN"
+993,Maysville,8,MO,Dekalb
+994,Mayview,8,MO,Lafayette
+995,Maywood,5,IL,Cook
+996,Mc Minnville,13,TN,"Warren County, TN"
+997,McAdenville,10,NC,Gaston
+998,McBee,12,SC,Chesterfield
+999,McConnells,12,SC,York
+1000,McDade,14,TX,Bastrop
+1001,McGrady,10,NC,Wilkes
+1002,McLeansville,10,NC,Guilford
+1003,McLouth,6,KS,Leavenworth
+1004,Meadowlakes,14,TX,Burnet
+1005,Mead,2,CO,Weld
+1006,Mebane,10,NC,Caswell
+1007,Medina,13,TN,Weakley
+1008,Memphis,13,TN,"Shelby County, TN"
+1009,Menlo,4,GA,"Walker County, GA"
+1010,Merriam,6,KS,"Johnson, KS"
+1011,Metamora,5,IL,Woodford
+1012,Michie,13,TN,"Hardin County, TN"
+1013,Middlebrook,8,MO,Iron
+1014,Midland,10,NC,Cabarrus
+1015,Midlothian,5,IL,Cook
+1016,Milano,14,TX,Milam
+1017,Mill Spring,10,NC,Polk
+1018,Millers Creek,10,NC,Wilkes
+1019,Milliken,2,CO,Weld
+1020,Mills River,10,NC,Henderson
+1021,Milton,13,TN,"Rutherford County, TN"
+1022,Mint Hill,10,NC,Mecklenburg
+1023,Misenheimer,10,NC,Stanly
+1024,Mission Hills,6,KS,"Johnson, KS"
+1025,Mission,6,KS,"Johnson, KS"
+1026,Moberly,8,MO,Monroe
+1027,Mocksville,10,NC,Davie
+1028,Moffat,2,CO,Saguache
+1029,Mokena,5,IL,Will
+1030,Monroe,10,NC,Union
+1031,Monroe,13,TN,"Pickett County, TN"
+1032,Monteagle,13,TN,"Marion County, TN"
+1033,Monterey,13,TN,"Putnam County, TN"
+1034,Montesano,15,WA,Grays Harbor
+1035,Montgomery,14,TX,Montgomery
+1036,Monument,2,CO,El Paso
+1037,Mooresboro,10,NC,Rutherford
+1038,Mooresville,10,NC,Iredell
+1039,Moran,6,KS,Allen
+1040,Moravian Falls,10,NC,Wilkes
+1041,Morganton,10,NC,Burke
+1042,Morrison,2,CO,Jefferson
+1043,Morrison,13,TN,"Warren County, TN"
+1044,Morrisville,10,NC,Iredell
+1045,Morris,5,IL,Grundy
+1046,Morven,10,NC,Anson
+1047,Mosca,2,CO,Alamosa
+1048,Moss,13,TN,"Clay County, TN"
+1049,Mound City,6,KS,"Linn, KS"
+1050,Mound City,8,MO,Holt
+1051,Mound Valley,6,KS,Labette
+1052,Moundville,8,MO,Vernon
+1053,Mount Airy,10,NC,Surry
+1054,Mount Gilead,10,NC,Montgomery
+1055,Mount Holly,10,NC,Gaston
+1056,Mount Juliet,13,TN,"Wilson County, TN"
+1057,Mount Olive,5,IL,Macoupin-IL
+1058,Mount Pleasant,10,NC,Cabarrus
+1059,Mount Pleasant,13,TN,"Maury County, TN"
+1060,Mount Prospect,5,IL,Cook
+1061,Mountain City,14,TX,Hays
+1062,Mt Croghan,12,SC,Chesterfield
+1063,Mt Ulla,10,NC,Rowan
+1064,Muldoon,14,TX,Fayette
+1065,Murfreesboro,13,TN,"Rutherford County, TN"
+1066,Murphysboro,5,IL,Jackson-IL
+1067,Murphy,10,NC,CherokeeNC
+1068,Mustang Ridge,14,TX,Travis
+1069,Myrtle Beach,12,SC,Horry
+1070,NEW PORT RICHEY,3,FL,Pasco
+1071,NEW SMYRNA BEACH,3,FL,Volusia
+1072,NEWBERRY,3,FL,Alachua
+1073,NOKOMIS,3,FL,Sarasota
+1074,NORTH FORT MYERS,3,FL,Lee
+1075,NORTH PORT,3,FL,Sarasota
+1076,NORTH VENICE,3,FL,Sarasota
+1077,Naperville,5,IL,Du Page
+1078,Napoleon,8,MO,Lafayette
+1079,Nashville,13,TN,"Davidson County, TN"
+1080,Nebo,10,NC,McDowell
+1081,Nederland,2,CO,Boulder
+1082,Neodesha,6,KS,Wilson
+1083,Nevada,8,MO,Vernon
+1084,New Bern,10,NC,Craven
+1085,New Braunfels,14,TX,Guadalupe
+1086,New Johnsonville,13,TN,"Humphreys County, TN"
+1087,New London,10,NC,Montgomery
+1088,Newbern,13,TN,Dyer
+1089,Newberry,12,SC,Newberry
+1090,Newland,10,NC,Avery
+1091,Newton,10,NC,Catawba
+1092,Niwot,2,CO,Boulder
+1093,Nolensville,13,TN,"Davidson County, TN"
+1094,None/County,6,KS,Harvey
+1095,Normal,5,IL,Mc Lean
+1096,Normandy,13,TN,"Bedford County, TN"
+1097,North Aurora,5,IL,Kane
+1098,North Kansas City,8,MO,Clay
+1099,North Myrtle Beach,12,SC,Horry
+1100,North Wilkesboro,10,NC,Wilkes
+1101,Northbrook,5,IL,Cook
+1102,Northglenn,2,CO,Adams
+1103,North,12,SC,Orangeburg
+1104,Norwood,10,NC,Stanly
+1105,Nunnelly,13,TN,"Hickman County, TN"
+1106,Nunn,2,CO,Weld
+1107,O'Fallon,8,MO,St Charles
+1108,OAKLAND,3,FL,Orange
+1109,OCALA,3,FL,Marion
+1110,OCKLAWAHA,3,FL,Marion
+1111,OCOEE,3,FL,Orange
+1112,ODESSA,3,FL,Hillsborough
+1113,OKEECHOBEE,3,FL,Okeechobee
+1114,OLDSMAR,3,FL,Pinellas
+1115,ORANGE CITY,3,FL,Volusia
+1116,ORLANDO,3,FL,Orange
+1117,ORMOND BEACH,3,FL,Volusia
+1118,OSPREY,3,FL,Sarasota
+1119,OVIEDO,3,FL,Seminole
+1120,OXFORD,3,FL,Sumter
+1121,Oak Grove,7,KY,"Christian County, KY"
+1122,Oak Grove,8,MO,Jackson
+1123,Oak Island,10,NC,Brunswick
+1124,Oak Park,5,IL,Cook
+1125,Oakalla,14,TX,Burnet
+1126,Oakboro,10,NC,Stanly
+1127,Ocean Shores,15,WA,Grays Harbor
+1128,Odessa,8,MO,Lafayette
+1129,Olathe,6,KS,"Johnson, KS"
+1130,Old Fort,10,NC,McDowell
+1131,Old Hickory,13,TN,"Davidson County, TN"
+1132,Olin,10,NC,Iredell
+1133,Omak,15,WA,Okanogan
+1134,Only,13,TN,"Hickman County, TN"
+1135,Ooltewah,13,TN,"Hamilton County, TN"
+1136,Orangeburg,12,SC,Orangeburg
+1137,Orcas Island,15,WA,San Juan
+1138,Oregon,8,MO,Holt
+1139,Orland Park,5,IL,Cook
+1140,Orlinda,13,TN,"Robertson County, TN"
+1141,Orrick,8,MO,Ray
+1142,Osage City,6,KS,"Osage, KS"
+1143,Osawatomie,6,KS,Miami
+1144,Osborn,8,MO,Dekalb
+1145,Osceola,8,MO,St. Clair
+1146,Oskaloosa,6,KS,"Jefferson, KS"
+1147,Othello,15,WA,Adams
+1148,Other,6,KS,Leavenworth
+1149,Other,8,MO,Texas
+1150,Ottawa,6,KS,"Franklin, KS"
+1151,Otterville,8,MO,Cooper
+1152,Overland Park,6,KS,"Johnson, KS"
+1153,Owensville,8,MO,Gasconade
+1154,Oxford,10,NC,Granville
+1155,Ozawkie,6,KS,"Jefferson, KS"
+1156,PAHOKEE,3,FL,Marion
+1157,PAISLEY,3,FL,Lake
+1158,PALM BAY,3,FL,Brevard
+1159,PALM COAST,3,FL,Flagler
+1160,PALM HARBOR,3,FL,Pinellas
+1161,PALMETTO,3,FL,Manatee
+1162,PANAMA CITY,3,FL,Bay
+1163,PARRISH,3,FL,Manatee
+1164,PEMBROKE PINES,3,FL,Broward
+1165,PENSACOLA,3,FL,Escambia
+1166,PINELLAS PARK,3,FL,Pinellas
+1167,PLACIDA,3,FL,Charlotte
+1168,PLANT CITY,3,FL,Hillsborough
+1169,POINCIANA,3,FL,Polk
+1170,POLK CITY,3,FL,Polk
+1171,POMONA PARK,3,FL,Putnam
+1172,PONCE INLET,3,FL,Volusia
+1173,PORT CHARLOTTE,3,FL,Charlotte
+1174,PORT ORANGE,3,FL,Volusia
+1175,PORT RICHEY,3,FL,Pasco
+1176,PORT SAINT LUCIE,3,FL,St Lucie
+1177,PORT ST LUCIE,3,FL,St Lucie
+1178,PUNTA GORDA,3,FL,Charlotte
+1179,Pacolet,12,SC,Spartanburg
+1180,Pageland,12,SC,Chesterfield
+1181,Pagosa Springs,2,CO,Archuleta
+1182,Paige,14,TX,Bastrop
+1183,Palatine,5,IL,Cook
+1184,Palestine,14,TX,Anderson
+1185,Palmer Lake,2,CO,El Paso
+1186,Palmview,14,TX,Hidalgo
+1187,Palmyra,13,TN,"Montgomery County, TN"
+1188,Paola,6,KS,Miami
+1189,Paris,13,TN,"Henry County, TN"
+1190,Parker,2,CO,Douglas
+1191,Parker,6,KS,"Linn, KS"
+1192,Parkville,8,MO,Platte
+1193,Parsons,6,KS,Labette
+1194,Parsons,13,TN,"Decatur County, TN"
+1195,Pattonsburg,8,MO,Gentry
+1196,Pauline,12,SC,Spartanburg
+1197,Peachland,10,NC,Anson
+1198,Pearsall,14,TX,Frio
+1199,Peculiar,8,MO,Cass
+1200,Pegram,13,TN,"Cheatham County, TN"
+1201,Pelham,13,TN,"Grundy County, TN"
+1202,Pendleton,12,SC,Anderson
+1203,Penrose,2,CO,Fremont
+1204,Penrose,10,NC,Transylvania
+1205,Perry,8,MO,Ralls
+1206,Petersburg,13,TN,"Lincoln County, TN"
+1207,Peyton,2,CO,El Paso
+1208,Pfafftown,10,NC,Forsyth
+1209,Pflugerville,14,TX,Travis
+1210,Pierce,2,CO,Weld
+1211,Pikeville,13,TN,"Bledsoe County, TN"
+1212,Pilot Mountain,10,NC,Surry
+1213,Pinckneyville,5,IL,Perry-IL
+1214,Pineville,10,NC,Mecklenburg
+1215,Piney Creek,10,NC,Alleghany
+1216,Pine,2,CO,Jefferson
+1217,Pinnacle,10,NC,Surry
+1218,Pisgah Forest,10,NC,Transylvania
+1219,Pittsburg,6,KS,"Crawford, KS"
+1220,Pittsburg,8,MO,Hickory
+1221,Platte City,8,MO,Platte
+1222,Platteville,2,CO,Weld
+1223,Plattsburg,8,MO,Clinton
+1224,Pleasant Garden,10,NC,Randolph
+1225,Pleasant Hill,8,MO,Cass
+1226,Pleasant Shade,13,TN,"Macon County, TN"
+1227,Pleasant Valley,8,MO,Clay
+1228,Pleasant View,13,TN,"Cheatham County, TN"
+1229,Pleasanton,6,KS,"Linn, KS"
+1230,Point Venture,14,TX,Travis
+1231,Polkton,10,NC,Anson
+1232,Polo,8,MO,Ray
+1233,Pomona,6,KS,"Franklin, KS"
+1234,Poncha Springs,2,CO,Chaffee
+1235,Poplar Grove,5,IL,Boone
+1236,Port Lavaca,14,TX,Calhoun
+1237,Port Orchard,15,WA,Kitsap
+1238,Portland,13,TN,"Sumner County, TN"
+1239,Posen,5,IL,Cook
+1240,Potosi,8,MO,Washington
+1241,Poulsbo,15,WA,Kitsap
+1242,Powderhorn,2,CO,Gunnison
+1243,Powhattan,6,KS,Brown
+1244,Prairie Du Rocher,5,IL,Randolph-IL
+1245,Prairie Village,6,KS,"Johnson, KS"
+1246,Princeton,6,KS,"Franklin, KS"
+1247,Princeton,8,MO,Mercer
+1248,Prospect,13,TN,"Giles County, TN"
+1249,Pueblo West,2,CO,Pueblo
+1250,Pueblo,2,CO,Pueblo
+1251,Pulaski,13,TN,"Giles County, TN"
+1252,Purlear,10,NC,Wilkes
+1253,Quebeck,13,TN,"White County, TN"
+1254,Quincy,15,WA,Grant
+1255,REDINGTON BEACH,3,FL,Pinellas
+1256,REDINGTON SHORES,3,FL,Pinellas
+1257,REUNION,3,FL,Osceola
+1258,RIDGE MANOR,3,FL,Hernando
+1259,RINCON,11,PR,Rincón
+1260,RIO GRANDE,11,PR,Río Grande
+1261,RIVER RANCH,3,FL,Polk
+1262,RIVERVIEW,3,FL,Hillsborough
+1263,ROCKLEDGE,3,FL,Brevard
+1264,ROTONDA WEST,3,FL,Charlotte
+1265,RUSKIN,3,FL,Hillsborough
+1266,Raeford Township,10,NC,Hoke
+1267,Raleigh,10,NC,Wake
+1268,Ravenwood,8,MO,Nodaway
+1269,Raymore,8,MO,Cass
+1270,Raytown,8,MO,Jackson
+1271,Rayville,8,MO,Ray
+1272,Readyville,13,TN,"Rutherford County, TN"
+1273,Red Boiling Springs,13,TN,"Macon County, TN"
+1274,Red Cross,10,NC,Stanly
+1275,Red Feather Lakes,2,CO,Larimer
+1276,Red Rock,14,TX,Caldwell
+1277,Redmond,15,WA,King
+1278,Renton,15,WA,King
+1279,Rhodhiss,10,NC,Caldwell
+1280,Riceville,13,TN,"McMinn County, TN"
+1281,Rich Hill,8,MO,Bates
+1282,Richburg,12,SC,Chester
+1283,Richfield,10,NC,Rowan
+1284,Richland Springs,14,TX,San Saba
+1285,Richmond,8,MO,Ray
+1286,Riddleton,13,TN,"Smith County, TN"
+1287,Ridgely,13,TN,Lake
+1288,Ridgeway,12,SC,Kershaw
+1289,Rifle,2,CO,Garfield
+1290,Ringgold,4,GA,"Catoosa County, GA"
+1291,River Forest,5,IL,Cook
+1292,River Grove,5,IL,Cook
+1293,Riverside,8,MO,Platte
+1294,Rives,13,TN,Obion
+1295,Roaring Gap,10,NC,Alleghany
+1296,Roaring River,10,NC,Wilkes
+1297,Robbinsville,10,NC,Graham
+1298,Robinson,14,TX,McLennan
+1299,Rock Hill,12,SC,York
+1300,Rock Island,13,TN,"Warren County, TN"
+1301,Rockdale,14,TX,Milam
+1302,Rockingham,10,NC,Richmond
+1303,Rockport,14,TX,Aransas
+1304,Rockton,5,IL,Winnebago
+1305,Rockvale,13,TN,"Rutherford County, TN"
+1306,Rockwell,10,NC,Rowan
+1307,Rocky Mount,10,NC,Nash
+1308,Roeland Park,6,KS,"Johnson, KS"
+1309,Rogers,14,TX,Bell
+1310,Roggen,2,CO,Weld
+1311,Rome,4,GA,"Floyd County, GA"
+1312,Rosanky,14,TX,Bastrop
+1313,Rosebud,14,TX,Falls
+1314,Rosendale,8,MO,Andrew
+1315,Rosman,10,NC,Transylvania
+1316,Rossville,4,GA,"Walker County, GA"
+1317,Round Mountain,14,TX,Blanco
+1318,Round Rock,14,TX,Williamson
+1319,Round Top,14,TX,Fayette
+1320,Rural Hall,10,NC,Forsyth
+1321,Rushville,8,MO,Platte
+1322,Rush,2,CO,Lincoln
+1323,Rutherfordton,10,NC,Rutherford
+1324,Rutherford,13,TN,Gibson
+1325,SAFETY HARBOR,3,FL,Pinellas
+1326,SAINT CLOUD,3,FL,Osceola
+1327,SAN ANTONIO,3,FL,Pasco
+1328,SAN JUAN,11,PR,San Juan
+1329,SANFORD,3,FL,Seminole
+1330,SANTA ROSA BEACH,3,FL,Walton
+1331,SARASOTA,3,FL,Sarasota
+1332,SATELLITE BEACH,3,FL,Brevard
+1333,SEBRING,3,FL,Highlands
+1334,SEFFNER,3,FL,Hillsborough
+1335,SEMINOLE,3,FL,Pinellas
+1336,SEVIERVILLE,13,TN,Out of Area
+1337,SHERIDAN,16,WY,Other County
+1338,SILVER SPRINGS,3,FL,Marion
+1339,SORRENTO,3,FL,Lake
+1340,SOUTH DAYTONA,3,FL,Volusia
+1341,SOUTH PASADENA,3,FL,Pinellas
+1342,SPRING HILL,3,FL,Hernando
+1343,ST AUGUSTINE,3,FL,St Johns
+1344,ST CLOUD,3,FL,Osceola
+1345,ST JOHNS,3,FL,St Johns
+1346,ST PETE BEACH,3,FL,Pinellas
+1347,ST PETERSBURG,3,FL,Pinellas
+1348,STARKE,3,FL,Bradford
+1349,STEVENSVILLE,9,MT,Other County
+1350,SUMMERFIELD,3,FL,Marion
+1351,SUMTERVILLE,3,FL,Sumter
+1352,SUN CITY CENTER,3,FL,Hillsborough
+1353,Saguache,2,CO,Saguache
+1354,Saint Joseph,13,TN,"Lawrence County, TN"
+1355,Salado,14,TX,Bell
+1356,Sale Creek,13,TN,"Hamilton County, TN"
+1357,Salida,2,CO,Chaffee
+1358,Salisbury,10,NC,Rowan
+1359,Saluda,10,NC,Polk
+1360,San Antonio,14,TX,Bexar
+1361,San Marcos,14,TX,Hays
+1362,San Saba,14,TX,San Saba
+1363,Santa Fe,13,TN,"Maury County, TN"
+1364,Sapphire,10,NC,Jackson
+1365,Savannah,8,MO,Andrew
+1366,Savannah,13,TN,"Hardin County, TN"
+1367,Schertz,14,TX,Guadalupe
+1368,Schulenburg,14,TX,Fayette
+1369,Scotts Hill,13,TN,"Decatur County, TN"
+1370,Scottsboro,1,AL,"Jackson County, AL"
+1371,Seattle,15,WA,King
+1372,Sedalia,8,MO,Pettis
+1373,Seguin,14,TX,Guadalupe
+1374,Seven Devils,10,NC,Watauga
+1375,Severance,2,CO,Weld
+1376,Sevierville,13,TN,"Sevier County, TN"
+1377,Sewanee,13,TN,"Franklin County, TN"
+1378,Sharon,12,SC,York
+1379,Shawnee Mission,6,KS,"Johnson, KS"
+1380,Shawnee,6,KS,"Johnson, KS"
+1381,Shelbyville,13,TN,"Bedford County, TN"
+1382,Shelby,10,NC,Cleveland
+1383,Sheldon,8,MO,Vernon
+1384,Sheridan,2,CO,Arapahoe
+1385,Sherrills Ford,10,NC,Catawba
+1386,Shoreline,15,WA,King
+1387,Sibley,8,MO,Jackson
+1388,Signal Mountain,13,TN,"Sequatchie County, TN"
+1389,Silver Cliff,2,CO,Custer
+1390,Silver Lake,6,KS,Shawnee
+1391,Silver Point,13,TN,"Dekalb County, TN"
+1392,Silverthorne,2,CO,Summit
+1393,Simla,2,CO,Elbert
+1394,Skokie,5,IL,Cook
+1395,Smithboro,5,IL,Bond-IL
+1396,Smiths Grove,7,KY,"Warren County, KY"
+1397,Smithville,8,MO,Clay
+1398,Smithville,13,TN,"Dekalb County, TN"
+1399,Smithville,14,TX,Bastrop
+1400,Smyrna,13,TN,"Rutherford County, TN"
+1401,Soddy Daisy,13,TN,"Hamilton County, TN"
+1402,Somerville,14,TX,Burleson
+1403,Sophia,10,NC,Randolph
+1404,South Elgin,5,IL,Kane
+1405,South Fork,2,CO,Rio Grande
+1406,South Fulton,13,TN,Obion
+1407,South Padre Island,14,TX,Cameron
+1408,South Pittsburg,13,TN,"Marion County, TN"
+1409,Southport,10,NC,Brunswick
+1410,Southside,13,TN,"Montgomery County, TN"
+1411,Spartanburg,12,SC,Spartanburg
+1412,Sparta,13,TN,"White County, TN"
+1413,Spencer,10,NC,Rowan
+1414,Spencer,13,TN,"Van Buren County, TN"
+1415,Spicewood,14,TX,Travis
+1416,Spickard,8,MO,Grundy
+1417,Spindale,10,NC,Rutherford
+1418,Spokane,15,WA,Spokane
+1419,Spring Branch,14,TX,Comal
+1420,Spring Hill,6,KS,"Johnson, KS"
+1421,Spring Hill,13,TN,"Maury County, TN"
+1422,Springfield,8,MO,Greene
+1423,Springfield,13,TN,"Robertson County, TN"
+1424,Springville,13,TN,"Henry County, TN"
+1425,Spruce Pine,10,NC,Mitchell
+1426,St James,8,MO,Phelps
+1427,St Joseph,8,MO,Buchanan
+1428,St Louis,8,MO,St Louis
+1429,St Peters,8,MO,St Charles
+1430,St Robert,8,MO,Pulaski
+1431,St. Charles,5,IL,Kane
+1432,Stallings,10,NC,Union
+1433,Stanberry,8,MO,Gentry
+1434,Stanfield,10,NC,Stanly
+1435,Stanley,10,NC,Gaston
+1436,Star,10,NC,Montgomery
+1437,State Road,10,NC,Surry
+1438,Statesville,10,NC,Iredell
+1439,Ste Genevieve,8,MO,Ste Genevieve
+1440,Sterling,2,CO,Logan
+1441,Stewart,13,TN,"Houston County, TN"
+1442,Stilwell,6,KS,"Johnson, KS"
+1443,Stockton,8,MO,Cedar
+1444,Stonewall,14,TX,Gillespie
+1445,Stony Point,10,NC,Iredell
+1446,Stover,8,MO,Morgan
+1447,Strasburg,2,CO,Adams
+1448,Streamwood,5,IL,Cook
+1449,Sugar Creek,8,MO,Jackson
+1450,Sugar Mountain,10,NC,Avery
+1451,Sugar Tree,13,TN,"Decatur County, TN"
+1452,Sullivan,8,MO,Franklin
+1453,Sultan,15,WA,Snohomish
+1454,Summertown,13,TN,"Lawrence County, TN"
+1455,Summit,5,IL,Cook
+1456,Sumner,14,TX,Lamar
+1457,Sunrise Beach,8,MO,Camden
+1458,Sunrise Beach,14,TX,Llano
+1459,Sunset Valley,14,TX,Travis
+1460,Superior,2,CO,Boulder
+1461,Supply,10,NC,Brunswick
+1462,Swannanoa,10,NC,Buncombe
+1463,Sweet Springs,8,MO,"Saline, MO"
+1464,Sycamore,5,IL,De Kalb
+1465,Sylva,10,NC,Jackson
+1466,TAMPA,3,FL,Hillsborough
+1467,TARPON SPRINGS,3,FL,Pinellas
+1468,TAVARES,3,FL,Lake
+1469,TEMPLE TERRACE,3,FL,Hillsborough
+1470,THE VILLAGES,3,FL,Sumter
+1471,THONOTOSASSA,3,FL,Hillsborough
+1472,TIERRA VERDE,3,FL,Pinellas
+1473,TITUSVILLE,3,FL,Brevard
+1474,TOWNSEND,13,TN,Other County
+1475,TREASURE ISLAND,3,FL,Pinellas
+1476,TRENTON,3,FL,Levy
+1477,TRINITY,3,FL,Pasco
+1478,Tabernash,2,CO,Grand
+1479,Tacoma,15,WA,Pierce
+1480,Taft,13,TN,"Lincoln County, TN"
+1481,Taylorsville,10,NC,Alexander
+1482,Taylor,14,TX,Williamson
+1483,Tecumseh,6,KS,Shawnee
+1484,Tega Cay,12,SC,York
+1485,Temple,14,TX,Bell
+1486,Tennessee Ridge,13,TN,"Houston County, TN"
+1487,Terlingua,14,TX,Brewster
+1488,Terrell,10,NC,Catawba
+1489,Thayer,6,KS,Neosho
+1490,The Hills,14,TX,Travis
+1491,Thomasville,10,NC,Davidson
+1492,Thompsons Station,13,TN,"Williamson County, TN"
+1493,Thorndale,14,TX,Milam
+1494,Thornton,2,CO,Adams
+1495,Thrall,14,TX,Williamson
+1496,Thurmond,10,NC,Surry
+1497,Timnath,2,CO,Larimer
+1498,Tinley Park,5,IL,Cook
+1499,Todd,10,NC,Ashe
+1500,Tomball,14,TX,Harris
+1501,Tonganoxie,6,KS,Leavenworth
+1502,Topeka,6,KS,Shawnee
+1503,Topton,10,NC,Macon
+1504,Town and Country,8,MO,St Louis
+1505,Tracy City,13,TN,"Grundy County, TN"
+1506,Traphill,10,NC,Wilkes
+1507,Trenton,4,GA,"Dade County, GA"
+1508,Trenton,7,KY,"Todd County, KY"
+1509,Trenton,8,MO,Grundy
+1510,Trimble,8,MO,Clinton
+1511,Trinidad,2,CO,Las Animas
+1512,Trinity,10,NC,Randolph
+1513,Troutman,10,NC,Iredell
+1514,Troy,6,KS,Doniphan
+1515,Troy,10,NC,Montgomery
+1516,Troy,13,TN,Obion
+1517,Troy,14,TX,Bell
+1518,Tryon,10,NC,Polk
+1519,Tuckasegee,10,NC,Jackson
+1520,Tullahoma,13,TN,"Coffee County, TN"
+1521,Turney,8,MO,Clinton
+1522,Twin Lakes,2,CO,Lake
+1523,Tyler,14,TX,Smith
+1524,UMATILLA,3,FL,Marion
+1525,UNIVERSITY PARK,3,FL,Manatee
+1526,Uhland,14,TX,Hays
+1527,Union City,13,TN,Obion
+1528,Union Grove,10,NC,Iredell
+1529,Union Mills,10,NC,Rutherford
+1530,Union Star,8,MO,Dekalb
+1531,Uniontown,6,KS,Bourbon
+1532,Unionville,13,TN,"Rutherford County, TN"
+1533,Union,12,SC,UnionSC
+1534,Universal City,14,TX,Bexar
+1535,Urbana,5,IL,Champaign
+1536,Urich,8,MO,Henry
+1537,VALRICO,3,FL,Hillsborough
+1538,VENICE,3,FL,Sarasota
+1539,VERO BEACH,3,FL,Indian River
+1540,VIERA,3,FL,Brevard
+1541,Vail,2,CO,Eagle
+1542,Valdese,10,NC,Burke
+1543,Vale,10,NC,Lincoln
+1544,Valley Falls,6,KS,"Jefferson, KS"
+1545,Vanceboro,10,NC,Pitt
+1546,Vancouver,15,WA,Clark
+1547,Vandalia,8,MO,Audrain
+1548,Vanleer,13,TN,"Dickson County, TN"
+1549,Vashon,15,WA,King
+1550,Victoria,14,TX,Victoria
+1551,Vilas,10,NC,Watauga
+1552,Volente,14,TX,Travis
+1553,WAUCHULA,3,FL,Hardee
+1554,WEBSTER,3,FL,Sumter
+1555,WEEKI WACHEE,3,FL,Hernando
+1556,WEIRSDALE,3,FL,Marion
+1557,WESLEY CHAPEL,3,FL,Pasco
+1558,WEST PALM BEACH,3,FL,Palm Beach
+1559,WHITEFISH,9,MT,Other County
+1560,WILDWOOD,3,FL,Sumter
+1561,WILLISTON,3,FL,Levy
+1562,WIMAUMA,3,FL,Hillsborough
+1563,WINDERMERE,3,FL,Orange
+1564,WINTER GARDEN,3,FL,Orange
+1565,WINTER HAVEN,3,FL,Polk
+1566,WINTER PARK,3,FL,Seminole
+1567,WINTER SPRINGS,3,FL,Seminole
+1568,Waco,14,TX,McLennan
+1569,Wadesboro,10,NC,Anson
+1570,Waelder,14,TX,Fayette
+1571,Walden,2,CO,Jackson
+1572,Wallace,12,SC,Marlboro
+1573,Walling,13,TN,"White County, TN"
+1574,Walsenburg,2,CO,Huerfano
+1575,Warrensburg,8,MO,"Johnson, MO"
+1576,Warsaw,8,MO,Benton
+1577,Wartrace,13,TN,"Bedford County, TN"
+1578,Washington,8,MO,Franklin
+1579,Watertown,13,TN,"Wilson County, TN"
+1580,Wathena,6,KS,Doniphan
+1581,Watkins,2,CO,Arapahoe
+1582,Watson,8,MO,"Atchison, MO"
+1583,Wauconda,5,IL,Lake
+1584,Waukegan,5,IL,Lake
+1585,Waverly,6,KS,Coffey
+1586,Waverly,13,TN,"Humphreys County, TN"
+1587,Waxahachie,14,TX,Ellis
+1588,Waxhaw,10,NC,Union
+1589,Waynesboro,13,TN,"Wayne County, TN"
+1590,Waynesville,8,MO,Pulaski
+1591,Waynesville,10,NC,Haywood
+1592,Weatherby Lake,8,MO,Platte
+1593,Weatherby,8,MO,Daviess
+1594,Weaverville,10,NC,Buncombe
+1595,Weddington,10,NC,Union
+1596,Welda,6,KS,Anderson
+1597,Wellington,2,CO,Larimer
+1598,Wellsville,6,KS,"Franklin, KS"
+1599,Wesley Chapel,10,NC,Union
+1600,West End,10,NC,Moore
+1601,West Jefferson,10,NC,Ashe
+1602,West Lake Hills,14,TX,Travis
+1603,West Point,14,TX,Fayette
+1604,Westcliffe,2,CO,Custer
+1605,Westminster,2,CO,Adams
+1606,Westminster,12,SC,Oconee
+1607,Westmont,5,IL,Du Page
+1608,Westmoreland,13,TN,"Macon County, TN"
+1609,Weston,8,MO,Platte
+1610,Westpoint,13,TN,"Lawrence County, TN"
+1611,Westport,15,WA,Grays Harbor
+1612,Wheat Ridge,2,CO,Jefferson
+1613,Wheatland,8,MO,Hickory
+1614,Whitakers,10,NC,Nash
+1615,White Bluff,13,TN,"Dickson County, TN"
+1616,White House,13,TN,"Robertson County, TN"
+1617,White Oak,10,NC,Bladen
+1618,Whites Creek,13,TN,"Davidson County, TN"
+1619,Whitsett,10,NC,Guilford
+1620,Whittier,10,NC,Jackson
+1621,Whitwell,13,TN,"Marion County, TN"
+1622,Wichita,6,KS,Sedgwick
+1623,Wiggins,2,CO,Morgan
+1624,Wildwood,4,GA,"Dade County, GA"
+1625,Wilkesboro,10,NC,Wilkes
+1626,Williamsburg,6,KS,"Franklin, KS"
+1627,Williamsport,13,TN,"Maury County, TN"
+1628,Willow Springs,8,MO,Texas
+1629,Wilmette,5,IL,Cook
+1630,Wimberley,14,TX,Hays
+1631,Winchester,13,TN,"Franklin County, TN"
+1632,Windsor,2,CO,Weld
+1633,Windsor,8,MO,Henry
+1634,Winfield,5,IL,Du Page
+1635,Wingate,10,NC,Union
+1636,Winnabow,10,NC,Brunswick
+1637,Winnsboro,12,SC,Fairfield
+1638,Winston Salem,10,NC,Forsyth
+1639,Winston,8,MO,Daviess
+1640,Winter Park,2,CO,Grand
+1641,Wood Dale,5,IL,Du Page
+1642,Woodbury,13,TN,"Cannon County, TN"
+1643,Woodland Park,2,CO,Teller
+1644,Woodlawn,13,TN,"Montgomery County, TN"
+1645,Woodleaf,10,NC,Rowan
+1646,Woodstock,5,IL,Mc Henry
+1647,Wright City,8,MO,Warren
+1648,YALAHA,3,FL,Lake
+1649,Yadkinville,10,NC,Davie
+1650,Yakima,15,WA,Yakima
+1651,Yates Center,6,KS,Woodson
+1652,Yoder,2,CO,El Paso
+1653,York,12,SC,York
+1654,Yuma,2,CO,Yuma
+1655,ZELLWOOD,3,FL,Orange
+1656,ZEPHYRHILLS,3,FL,Pasco
+1657,Zion,5,IL,Lake
+1658,Zirconia,10,NC,Henderson

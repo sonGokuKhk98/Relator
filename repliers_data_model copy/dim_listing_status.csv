@@ -1,0 +1,13 @@
+status_id,status_code,status_name,is_active,is_sold
+1,A,Active,True,False
+2,Cs,Coming Soon,True,False
+3,Exp,Expired,False,False
+4,Lc,Lease Contingent,False,False
+5,Lsd,Leased,False,True
+6,New,New Listing,True,False
+7,P,Pending,False,False
+8,S,Sold,False,True
+9,Sc,Sale Contingent,False,False
+10,Sld,Sold,False,True
+11,Ter,Terminated,False,False
+12,U,Under Contract,False,False

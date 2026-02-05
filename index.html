@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dubai Proptech Explorer</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        bg: '#030712',
+                        surface: '#0f172a',
+                        surface2: '#1e293b',
+                        primary: '#6366f1',
+                        primary_dim: '#4f46e5',
+                        accent: '#8b5cf6',
+                    },
+                    boxShadow: {
+                        'glow': '0 0 20px rgba(99, 102, 241, 0.15)',
+                        'glow-lg': '0 0 30px rgba(99, 102, 241, 0.25)',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.4s ease-out forwards',
+                        'slide-up': 'slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        body {
+            background-color: #030712;
+            color: #f8fafc;
+            background-image:
+                radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+        }
+
+        .panel {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .panel-hover:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            background: rgba(15, 23, 42, 0.8);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.2); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.4); }
+
+        .shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+        .shimmer::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; bottom: 0; left: 0;
+            transform: translateX(-100%);
+            background-image: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0) 0,
+                rgba(255, 255, 255, 0.03) 20%,
+                rgba(255, 255, 255, 0.06) 60%,
+                rgba(255, 255, 255, 0)
+            );
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+
+        .data-table {
+            font-size: 11px;
+        }
+        .data-table th {
+            position: sticky;
+            top: 0;
+            background: #0f172a;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="h-screen overflow-hidden text-sm antialiased selection:bg-primary selection:text-white">
+
+    <div id="root" class="h-full flex flex-col"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useCallback } = React;
+        const API_URL = "http://localhost:8000/api";
+
+        // --- Visual Graph Component ---
+        function GraphCanvas({ tables, edges, activeTables, onNodeClick }) {
+            const canvasRef = useRef(null);
+            const containerRef = useRef(null);
+            const animationRef = useRef(null);
+            const nodesRef = useRef([]);
+            const timeRef = useRef(0);
+            const mouseRef = useRef({ x: 0, y: 0, hovering: null });
+
+            useEffect(() => {
+                if (tables.length === 0) return;
+
+                const radius = 180;
+                nodesRef.current = tables.map((t, i) => {
+                    const angle = (i / tables.length) * Math.PI * 2;
+                    return {
+                        name: t.name,
+                        angle,
+                        baseX: 0, baseY: 0,
+                        x: 0, y: 0,
+                        vx: 0, vy: 0,
+                        radius: activeTables.has(t.name) ? 30 : 5,
+                        targetRadius: 5
+                    };
+                });
+            }, [tables]);
+
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+
+                const resize = () => {
+                    const rect = containerRef.current.getBoundingClientRect();
+                    const dpr = window.devicePixelRatio || 1;
+                    canvas.width = rect.width * dpr;
+                    canvas.height = rect.height * dpr;
+                    canvas.style.width = `${rect.width}px`;
+                    canvas.style.height = `${rect.height}px`;
+                    ctx.scale(dpr, dpr);
+                };
+                resize();
+                window.addEventListener('resize', resize);
+
+                const animate = () => {
+                    timeRef.current += 0.01;
+                    const width = canvas.width / (window.devicePixelRatio || 1);
+                    const height = canvas.height / (window.devicePixelRatio || 1);
+                    const cx = width / 2;
+                    const cy = height / 2;
+
+                    ctx.clearRect(0, 0, width, height);
+
+                    nodesRef.current.forEach((node, i) => {
+                        const isActive = activeTables.has(node.name);
+                        const isHovered = mouseRef.current.hovering === node.name;
+
+                        const floatX = Math.cos(timeRef.current + i) * 10;
+                        const floatY = Math.sin(timeRef.current + i * 0.8) * 10;
+                        const layoutR = Math.min(width, height) * 0.35;
+
+                        node.baseX = cx + Math.cos(node.angle) * layoutR;
+                        node.baseY = cy + Math.sin(node.angle) * layoutR;
+
+                        node.x += (node.baseX + floatX - node.x) * 0.1;
+                        node.y += (node.baseY + floatY - node.y) * 0.1;
+
+                        node.targetRadius = isActive ? 24 : (isHovered ? 12 : 6);
+                        node.radius += (node.targetRadius - node.radius) * 0.15;
+                    });
+
+                    // Draw Edges
+                    ctx.globalCompositeOperation = 'screen';
+                    edges.forEach(edge => {
+                        const n1 = nodesRef.current.find(n => n.name === edge.from);
+                        const n2 = nodesRef.current.find(n => n.name === edge.to);
+                        if (!n1 || !n2) return;
+
+                        const active1 = activeTables.has(edge.from);
+                        const active2 = activeTables.has(edge.to);
+                        const bothActive = active1 && active2;
+
+                        ctx.beginPath();
+                        ctx.moveTo(n1.x, n1.y);
+                        ctx.lineTo(n2.x, n2.y);
+
+                        if (bothActive) {
+                            ctx.strokeStyle = `rgba(99, 102, 241, ${0.4 + Math.sin(timeRef.current * 3) * 0.2})`;
+                            ctx.lineWidth = 2;
+                            const t = (timeRef.current * 0.5) % 1;
+                            const px = n1.x + (n2.x - n1.x) * t;
+                            const py = n1.y + (n2.y - n1.y) * t;
+
+                            const grad = ctx.createRadialGradient(px, py, 0, px, py, 4);
+                            grad.addColorStop(0, 'rgba(255,255,255,0.9)');
+                            grad.addColorStop(1, 'rgba(255,255,255,0)');
+                            ctx.fillStyle = grad;
+                            ctx.fillRect(px-1, py-1, 2, 2);
+                        } else if (active1 || active2) {
+                            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                            ctx.lineWidth = 1;
+                        } else {
+                            ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+                            ctx.lineWidth = 0.5;
+                        }
+                        ctx.stroke();
+                    });
+
+                    // Draw Nodes
+                    ctx.globalCompositeOperation = 'source-over';
+                    nodesRef.current.forEach(node => {
+                        const isActive = activeTables.has(node.name);
+
+                        if (isActive) {
+                            const grad = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, node.radius * 2.5);
+                            grad.addColorStop(0, 'rgba(99, 102, 241, 0.3)');
+                            grad.addColorStop(1, 'rgba(99, 102, 241, 0)');
+                            ctx.fillStyle = grad;
+                            ctx.beginPath(); ctx.arc(node.x, node.y, node.radius * 2.5, 0, Math.PI * 2); ctx.fill();
+                        }
+
+                        ctx.beginPath();
+                        ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+                        ctx.fillStyle = isActive ? '#6366f1' : '#1e293b';
+                        ctx.fill();
+
+                        ctx.strokeStyle = isActive ? '#a5b4fc' : '#475569';
+                        ctx.lineWidth = isActive ? 2 : 1;
+                        ctx.stroke();
+
+                        if (isActive || node.radius > 8) {
+                            ctx.fillStyle = isActive ? '#fff' : '#94a3b8';
+                            ctx.font = `${isActive ? '600' : '400'} 10px "Plus Jakarta Sans"`;
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            const displayName = node.name.replace('lkp_', '').replace('bayut_', '').replace('_', ' ');
+                            ctx.fillText(displayName, node.x, node.y + node.radius + 12);
+                        }
+                    });
+
+                    animationRef.current = requestAnimationFrame(animate);
+                };
+                animate();
+                return () => {
+                    cancelAnimationFrame(animationRef.current);
+                    window.removeEventListener('resize', resize);
+                };
+            }, [activeTables, tables, edges]);
+
+            const handleMouseMove = (e) => {
+                const rect = canvasRef.current.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                let hit = null;
+                for (let n of nodesRef.current) {
+                    const dx = x - n.x;
+                    const dy = y - n.y;
+                    if (dx*dx + dy*dy < 900) {
+                        hit = n.name;
+                        break;
+                    }
+                }
+                mouseRef.current.hovering = hit;
+                canvasRef.current.style.cursor = hit ? 'pointer' : 'default';
+            };
+
+            const handleClick = () => {
+                if (mouseRef.current.hovering) {
+                    onNodeClick(mouseRef.current.hovering);
+                }
+            };
+
+            return (
+                <div ref={containerRef} className="w-full h-full relative">
+                    <canvas
+                        ref={canvasRef}
+                        className="block"
+                        onMouseMove={handleMouseMove}
+                        onClick={handleClick}
+                    />
+                    <div className="absolute bottom-4 left-4 text-[10px] text-slate-500 font-mono tracking-wider opacity-60 pointer-events-none">
+                        DUBAI PROPTECH GRAPH
+                    </div>
+                </div>
+            );
+        }
+
+        // --- Data Table Component ---
+        function DataTable({ data, columns }) {
+            if (!data || data.length === 0) {
+                return (
+                    <div className="text-center py-8 text-slate-500">
+                        No results found
+                    </div>
+                );
+            }
+
+            const formatValue = (val, col) => {
+                if (val === null || val === undefined) return '-';
+                if ((col.includes('worth') || col.includes('amount') || col.includes('value') || col.includes('price')) && typeof val === 'number') {
+                    return 'AED ' + val.toLocaleString();
+                }
+                if (typeof val === 'number' && val > 1000) {
+                    return val.toLocaleString();
+                }
+                if (typeof val === 'string' && val.length > 50) {
+                    return val.substring(0, 50) + '...';
+                }
+                return String(val);
+            };
+
+            return (
+                <div className="overflow-auto max-h-[400px] rounded-lg border border-slate-800">
+                    <table className="data-table w-full">
+                        <thead>
+                            <tr>
+                                {columns.map(col => (
+                                    <th key={col} className="px-3 py-2 text-left text-slate-400 font-medium border-b border-slate-800 whitespace-nowrap">
+                                        {col.replace(/_/g, ' ')}
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {data.map((row, i) => (
+                                <tr key={i} className="hover:bg-slate-800/50 transition-colors">
+                                    {columns.map(col => (
+                                        <td key={col} className="px-3 py-2 border-b border-slate-800/50 text-slate-300 whitespace-nowrap">
+                                            {formatValue(row[col], col)}
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            );
+        }
+
+        // --- Main App Component ---
+        function App() {
+            const [query, setQuery] = useState("");
+            const [schema, setSchema] = useState([]);
+            const [edges, setEdges] = useState([]);
+            const [activeTables, setActiveTables] = useState(new Set());
+            const [activeFilters, setActiveFilters] = useState([]);
+            const [expandedFilters, setExpandedFilters] = useState(new Set());
+            const [orderBy, setOrderBy] = useState(null);
+            const [generatedSql, setGeneratedSql] = useState("");
+            const [queryResults, setQueryResults] = useState(null);
+            const [isLoading, setIsLoading] = useState(false);
+            const [error, setError] = useState("");
+            const [stats, setStats] = useState(null);
+            const [activeTab, setActiveTab] = useState("sql"); // "sql" or "results"
+
+            useEffect(() => {
+                fetch(`${API_URL}/init`)
+                    .then(res => res.json())
+                    .then(data => {
+                        setSchema(data.tables);
+                        setEdges(data.edges || []);
+                        setError("");
+                    })
+                    .catch(() => setError("API Offline - Start the server with: python app.py"));
+
+                fetch(`${API_URL}/stats`)
+                    .then(res => res.json())
+                    .then(data => setStats(data))
+                    .catch(() => {});
+
+                // Fetch categorical values for dropdowns
+                fetch(`${API_URL}/categorical_columns`)
+                    .then(res => res.json())
+                    .then(data => setCategoricalValues(data))
+                    .catch(() => {});
+            }, []);
+
+            const lastQueryRef = useRef("");
+
+            useEffect(() => {
+                const timer = setTimeout(() => {
+                    if (query.length > 2 && query !== lastQueryRef.current) {
+                        lastQueryRef.current = query;
+
+                        fetch(`${API_URL}/suggest_filters`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ query })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            setActiveTables(prev => {
+                                const newTables = new Set(prev);
+                                data.detected_tables.forEach(t => newTables.add(t));
+                                return newTables;
+                            });
+
+                            if (data.chips && data.chips.length > 0) {
+                                setActiveFilters(prev => {
+                                    const existingIds = new Set(prev.map(f => f.id).filter(Boolean));
+                                    const newChips = data.chips.filter(chip => !existingIds.has(chip.id));
+                                    return newChips.length > 0 ? [...prev, ...newChips] : prev;
+                                });
+                            }
+
+                            if (data.order_by) {
+                                setOrderBy(data.order_by);
+                            }
+                        })
+                        .catch(console.error);
+                    }
+                }, 500);
+                return () => clearTimeout(timer);
+            }, [query]);
+
+            useEffect(() => {
+                if (activeTables.size === 0) {
+                    setGeneratedSql("");
+                    return;
+                }
+                const normalizedFilters = activeFilters
+                    .map(f => {
+                        if (f && f.filter) return f.filter;
+                        if (f && f.table && f.column) return f;
+                        return null;
+                    })
+                    .filter(Boolean);
+
+                fetch(`${API_URL}/generate_sql`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ tables: Array.from(activeTables), filters: normalizedFilters, order_by: orderBy })
+                })
+                .then(res => res.json())
+                .then(data => setGeneratedSql(data.sql))
+                .catch(console.error);
+            }, [activeTables, activeFilters, orderBy]);
+
+            const executeQuery = async () => {
+                if (!generatedSql) return;
+
+                setIsLoading(true);
+                setActiveTab("results");
+
+                try {
+                    const res = await fetch(`${API_URL}/query`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ sql: generatedSql, limit: 100 })
+                    });
+                    const data = await res.json();
+
+                    if (data.detail) {
+                        setError(data.detail);
+                        setQueryResults(null);
+                    } else {
+                        setQueryResults(data);
+                        setError("");
+                    }
+                } catch (e) {
+                    setError(e.message);
+                    setQueryResults(null);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            const toggleTable = (name) => {
+                const s = new Set(activeTables);
+                s.has(name) ? s.delete(name) : s.add(name);
+                setActiveTables(s);
+            };
+
+            // Smart suggestions based on Dubai Proptech data
+            const COLUMN_SUGGESTIONS = {
+                'actual_worth': { q: "Transaction value?", table: "transactions", type: "numeric" },
+                'area_name_en': { q: "Filter by area?", table: "transactions", type: "categorical" },
+                'property_type_en': { q: "Property type?", table: "transactions", type: "categorical" },
+                'trans_group_en': { q: "Transaction type?", table: "transactions", type: "categorical" },
+                'rooms_en': { q: "Number of rooms?", table: "transactions", type: "categorical" },
+                'developer_name': { q: "Developer?", table: "bayut_transactions", type: "text" },
+                'transaction_amount': { q: "Bayut price?", table: "bayut_transactions", type: "numeric" },
+                'completion_status': { q: "Ready/Off-plan?", table: "bayut_transactions", type: "categorical" },
+            };
+
+            // State for categorical values
+            const [categoricalValues, setCategoricalValues] = useState({});
+
+            const CHIP_COLOR_CLASSES = {
+                blue: "border-blue-400/30 text-blue-200 bg-blue-500/10",
+                green: "border-green-400/30 text-green-200 bg-green-500/10",
+                purple: "border-purple-400/30 text-purple-200 bg-purple-500/10",
+                orange: "border-orange-400/30 text-orange-200 bg-orange-500/10",
+                red: "border-red-400/30 text-red-200 bg-red-500/10",
+                gray: "border-slate-500/30 text-slate-200 bg-slate-600/10"
+            };
+
+            const buildDisplayText = (filter) => {
+                if (!filter) return "";
+                const value = filter.value !== undefined && filter.value !== null ? filter.value : "";
+                return `${filter.column} ${filter.operator} ${value}`.trim();
+            };
+
+            const updateFilterAt = (idx, updater) => {
+                setActiveFilters(prev => prev.map((item, i) => {
+                    if (i !== idx) return item;
+                    return updater(item);
+                }));
+            };
+
+            const toggleFilterExpanded = (key) => {
+                setExpandedFilters(prev => {
+                    const next = new Set(prev);
+                    next.has(key) ? next.delete(key) : next.add(key);
+                    return next;
+                });
+            };
+
+            return (
+                <div className="flex h-full">
+
+                    {/* Sidebar */}
+                    <div className="w-64 border-r border-slate-800 bg-[#02040a]/80 flex flex-col z-20">
+                        <div className="p-5">
+                            <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                                <div className="w-6 h-6 rounded bg-gradient-to-tr from-primary to-accent"></div>
+                                Dubai Proptech
+                            </h1>
+                            <div className="mt-1 text-xs text-slate-500">Property Data Explorer</div>
+                        </div>
+
+                        {/* Stats */}
+                        {stats && (
+                            <div className="px-5 pb-4 grid grid-cols-2 gap-2">
+                                <div className="bg-slate-900/50 rounded-lg p-2 text-center">
+                                    <div className="text-lg font-bold text-primary">{(stats.table_counts?.transactions || 0).toLocaleString()}</div>
+                                    <div className="text-[10px] text-slate-500">Transactions</div>
+                                </div>
+                                <div className="bg-slate-900/50 rounded-lg p-2 text-center">
+                                    <div className="text-lg font-bold text-emerald-400">{stats.unique_areas || 0}</div>
+                                    <div className="text-[10px] text-slate-500">Areas</div>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="px-5 pb-4 flex-1 overflow-y-auto">
+                            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Tables</div>
+                            <div className="space-y-1">
+                                {schema.map(t => (
+                                    <button
+                                        key={t.name}
+                                        onClick={() => toggleTable(t.name)}
+                                        className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-all duration-200 flex items-center justify-between group ${
+                                            activeTables.has(t.name)
+                                                ? 'bg-primary/10 text-primary-300'
+                                                : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
+                                        }`}
+                                    >
+                                        <span className="truncate">{t.name}</span>
+                                        <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${activeTables.has(t.name) ? 'bg-primary shadow-[0_0_8px_rgba(99,102,241,0.6)]' : 'bg-slate-700 group-hover:bg-slate-500'}`}></div>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="p-4 border-t border-slate-800">
+                             {error ? (
+                                <div className="text-xs text-red-400 bg-red-900/20 p-2 rounded border border-red-900/50">
+                                    {error}
+                                </div>
+                             ) : (
+                                <div className="text-xs text-emerald-400 bg-emerald-900/20 p-2 rounded border border-emerald-900/50 flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    Connected
+                                </div>
+                             )}
+                        </div>
+                    </div>
+
+                    {/* Main Content */}
+                    <div className="flex-1 flex flex-col relative z-10 overflow-hidden">
+
+                        {/* Top Bar */}
+                        <div className="h-16 border-b border-slate-800 bg-[#02040a]/50 flex items-center px-6 gap-4">
+                            <div className="flex-1 relative max-w-2xl">
+                                <input
+                                    type="text"
+                                    value={query}
+                                    onChange={e => setQuery(e.target.value)}
+                                    placeholder="Try: 'villas in Dubai Marina' or '2 bedroom apartments in Business Bay'"
+                                    className="w-full bg-slate-900/50 border border-slate-700 rounded-full py-2.5 px-5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all shadow-lg"
+                                />
+                            </div>
+                            <button
+                                onClick={executeQuery}
+                                disabled={!generatedSql || isLoading}
+                                className="px-6 py-2.5 bg-primary hover:bg-primary_dim disabled:opacity-50 disabled:cursor-not-allowed rounded-full text-white text-sm font-medium transition-all shadow-lg shadow-primary/20"
+                            >
+                                {isLoading ? 'Running...' : 'Run Query'}
+                            </button>
+                        </div>
+
+                        {/* Split View */}
+                        <div className="flex-1 flex overflow-hidden">
+
+                            {/* Left: Graph & Filters */}
+                            <div className="flex-1 flex flex-col min-w-0 p-6 overflow-y-auto">
+
+                                {/* Graph Area */}
+                                <div className="h-64 panel rounded-2xl mb-6 overflow-hidden relative group">
+                                    <GraphCanvas tables={schema} edges={edges} activeTables={activeTables} onNodeClick={toggleTable} />
+                                    <div className="absolute top-4 right-4 flex gap-2">
+                                        <div className="px-2 py-1 bg-slate-900/80 rounded border border-slate-700 text-[10px] text-slate-400 backdrop-blur-md">
+                                            {activeTables.size} Tables Active
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Filters Section */}
+                                <div className="panel rounded-2xl p-6 flex-1 flex flex-col">
+                                    <div className="flex items-center justify-between mb-5">
+                                        <h2 className="text-sm font-semibold text-white tracking-wide">FILTERS</h2>
+                                        {activeFilters.length > 0 && (
+                                            <button
+                                                onClick={() => {
+                                                    setActiveFilters([]);
+                                                    lastQueryRef.current = "";
+                                                }}
+                                                className="text-[10px] text-red-400 hover:text-red-300 font-mono uppercase tracking-wider transition-colors"
+                                            >
+                                                Clear All
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {/* Active Filters */}
+                                    <div className="space-y-2.5 mb-6">
+                                        {activeFilters.length === 0 ? (
+                                            <div className="text-center py-6 border-2 border-dashed border-slate-800 rounded-xl">
+                                                <div className="text-slate-600 text-xs">Type in the search box or click suggestions below</div>
+                                            </div>
+                                        ) : (
+                                            activeFilters.map((f, i) => {
+                                                const isChip = Boolean(f.display_text);
+                                                const filterData = f.filter ? f.filter : f;
+                                                const label = isChip ? f.display_text : buildDisplayText(filterData);
+                                                const colorClass = isChip
+                                                    ? (CHIP_COLOR_CLASSES[f.color] || CHIP_COLOR_CLASSES.gray)
+                                                    : "border-slate-700/50 text-slate-200 bg-slate-900/60";
+                                                const canEdit = Boolean(filterData && filterData.operator);
+                                                const tableName = filterData?.table;
+                                                const key = f.id || `filter-${i}`;
+                                                const isExpanded = expandedFilters.has(key);
+
+                                                return (
+                                                    <div
+                                                        key={key}
+                                                        className={`flex flex-col gap-2 border p-2 rounded-lg animate-slide-up group ${colorClass}`}
+                                                    >
+                                                        <div className="flex items-center gap-3">
+                                                            {tableName && (
+                                                                <div className="px-2 py-1 bg-slate-800/70 rounded text-[10px] font-mono text-slate-300">
+                                                                    {tableName.replace('lkp_', '').replace('bayut_', '')}
+                                                                </div>
+                                                            )}
+                                                            <div className="text-xs font-medium">{label}</div>
+                                                            {canEdit && (
+                                                                <button
+                                                                    onClick={() => toggleFilterExpanded(key)}
+                                                                    className="ml-auto text-[10px] uppercase tracking-wider text-slate-400 hover:text-slate-200"
+                                                                >
+                                                                    {isExpanded ? "Hide" : "Edit"}
+                                                                </button>
+                                                            )}
+                                                            <button
+                                                                onClick={() => setActiveFilters(prev => prev.filter((item, idx) => (item.id || idx) !== (f.id || i)))}
+                                                                className="text-slate-600 hover:text-red-400 transition-colors p-1"
+                                                            >x</button>
+                                                        </div>
+
+                                                        {canEdit && isExpanded && (() => {
+                                                            const colValues = categoricalValues[tableName]?.[filterData.column];
+                                                            const isCategorical = colValues && colValues.length > 0;
+
+                                                            return (
+                                                                <div className="flex items-center gap-3 bg-slate-900/50 border border-slate-800/60 rounded-lg px-2 py-1.5">
+                                                                    {tableName && (
+                                                                        <div className="px-2 py-1 bg-slate-800 rounded text-[10px] font-mono text-slate-400">
+                                                                            {tableName.replace('lkp_', '').replace('bayut_', '')}
+                                                                        </div>
+                                                                    )}
+                                                                    <div className="text-xs font-medium text-primary-300">{filterData.column}</div>
+
+                                                                    <select
+                                                                        value={filterData.operator}
+                                                                        onChange={e => {
+                                                                            updateFilterAt(i, item => {
+                                                                                if (item.filter) {
+                                                                                    const updatedFilter = { ...item.filter, operator: e.target.value };
+                                                                                    return { ...item, filter: updatedFilter, display_text: buildDisplayText(updatedFilter) };
+                                                                                }
+                                                                                return { ...item, operator: e.target.value };
+                                                                            });
+                                                                        }}
+                                                                        className="bg-slate-800 text-slate-300 text-xs font-mono border border-slate-700 rounded px-1 py-0.5 focus:ring-1 focus:ring-primary cursor-pointer hover:text-white"
+                                                                    >
+                                                                        <option>=</option>
+                                                                        <option>&gt;</option>
+                                                                        <option>&lt;</option>
+                                                                        <option>&gt;=</option>
+                                                                        <option>&lt;=</option>
+                                                                        <option>LIKE</option>
+                                                                        <option>IN</option>
+                                                                    </select>
+
+                                                                    {isCategorical ? (
+                                                                        <select
+                                                                            value={filterData.value ?? ""}
+                                                                            onChange={e => {
+                                                                                updateFilterAt(i, item => {
+                                                                                    if (item.filter) {
+                                                                                        const updatedFilter = { ...item.filter, value: e.target.value };
+                                                                                        return { ...item, filter: updatedFilter, display_text: buildDisplayText(updatedFilter) };
+                                                                                    }
+                                                                                    return { ...item, value: e.target.value };
+                                                                                });
+                                                                            }}
+                                                                            className="flex-1 bg-slate-800 text-sm text-white border border-slate-700 rounded px-2 py-1 focus:ring-1 focus:ring-primary focus:outline-none"
+                                                                        >
+                                                                            <option value="">Select value...</option>
+                                                                            {colValues.map(val => (
+                                                                                <option key={val} value={val}>{val}</option>
+                                                                            ))}
+                                                                        </select>
+                                                                    ) : (
+                                                                        <input
+                                                                            type="text"
+                                                                            value={filterData.value ?? ""}
+                                                                            onChange={e => {
+                                                                                updateFilterAt(i, item => {
+                                                                                    if (item.filter) {
+                                                                                        const updatedFilter = { ...item.filter, value: e.target.value };
+                                                                                        return { ...item, filter: updatedFilter, display_text: buildDisplayText(updatedFilter) };
+                                                                                    }
+                                                                                    return { ...item, value: e.target.value };
+                                                                                });
+                                                                            }}
+                                                                            className="flex-1 bg-transparent text-sm text-white focus:outline-none placeholder-slate-600"
+                                                                            placeholder="value..."
+                                                                        />
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })()}
+                                                    </div>
+                                                );
+                                            })
+                                        )}
+                                    </div>
+
+                                    {/* Quick Filters */}
+                                    <div className="mt-auto">
+                                        <div className="text-[10px] font-bold text-slate-600 uppercase mb-3">Quick Filters</div>
+                                        <div className="flex flex-wrap gap-2">
+                                            {Object.entries(COLUMN_SUGGESTIONS).map(([col, info]) => (
+                                                <button
+                                                    key={col}
+                                                    onClick={() => {
+                                                        setActiveTables(prev => new Set([...prev, info.table]));
+                                                        const newFilterId = `quick-${col}-${Date.now()}`;
+                                                        setActiveFilters(prev => [...prev, {
+                                                            id: newFilterId,
+                                                            table: info.table,
+                                                            column: col,
+                                                            operator: info.type === 'numeric' ? '>=' : '=',
+                                                            value: ''
+                                                        }]);
+                                                        // Auto-expand the new filter
+                                                        setExpandedFilters(prev => new Set([...prev, newFilterId]));
+                                                    }}
+                                                    className="px-3 py-1.5 bg-slate-800/80 hover:bg-primary/20 border border-slate-700/50 hover:border-primary/30 rounded-lg text-xs text-slate-300 hover:text-white transition-all"
+                                                >
+                                                    {info.q}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Right: SQL & Results */}
+                            <div className="w-[500px] border-l border-slate-800 bg-[#0b0e14] flex flex-col overflow-hidden">
+
+                                {/* Tabs */}
+                                <div className="flex border-b border-slate-800">
+                                    <button
+                                        onClick={() => setActiveTab("sql")}
+                                        className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === "sql" ? "text-white border-b-2 border-primary" : "text-slate-500 hover:text-slate-300"}`}
+                                    >
+                                        SQL Query
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveTab("results")}
+                                        className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === "results" ? "text-white border-b-2 border-primary" : "text-slate-500 hover:text-slate-300"}`}
+                                    >
+                                        Results {queryResults && `(${queryResults.row_count})`}
+                                    </button>
+                                </div>
+
+                                <div className="flex-1 overflow-auto p-6">
+                                    {activeTab === "sql" ? (
+                                        <div className="rounded-xl bg-[#050505] border border-slate-800 p-5 font-mono text-sm leading-relaxed overflow-auto h-full">
+                                            {generatedSql ? (
+                                                <div className="animate-fade-in">
+                                                    <pre className="whitespace-pre-wrap">
+                                                        <span dangerouslySetInnerHTML={{
+                                                            __html: generatedSql
+                                                                .replace(/\b(SELECT|FROM|WHERE|JOIN|ON|AND|OR|ORDER BY|LIMIT|INNER|LEFT|GROUP BY|HAVING)\b/g, '<span class="text-primary font-bold">$1</span>')
+                                                                .replace(/\b(\w+)\./g, '<span class="text-slate-400">$1.</span>')
+                                                        }}></span>
+                                                    </pre>
+                                                </div>
+                                            ) : (
+                                                <div className="h-full flex flex-col items-center justify-center text-slate-700">
+                                                    <svg className="w-12 h-12 mb-3 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" /></svg>
+                                                    <span className="text-xs">Select tables or type a query...</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="h-full">
+                                            {isLoading ? (
+                                                <div className="flex items-center justify-center h-full">
+                                                    <div className="text-slate-500">Loading...</div>
+                                                </div>
+                                            ) : queryResults ? (
+                                                <DataTable data={queryResults.data} columns={queryResults.columns} />
+                                            ) : (
+                                                <div className="flex flex-col items-center justify-center h-full text-slate-600">
+                                                    <svg className="w-12 h-12 mb-3 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" /></svg>
+                                                    <span className="text-xs">Click "Run Query" to see results</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

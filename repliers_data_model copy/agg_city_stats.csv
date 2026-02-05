@@ -1,0 +1,1001 @@
+city_name,listing_count
+Charlotte,3581
+Austin,1955
+Nashville,1005
+Kansas City,904
+Denver,885
+Clarksville,650
+Gastonia,553
+Asheville,550
+Mooresville,468
+Hendersonville,437
+Concord,418
+Georgetown,414
+Statesville,392
+Rock Hill,370
+Murfreesboro,359
+Aurora,333
+Hickory,329
+Salisbury,291
+Orlando,290
+Fort Mill,289
+Monroe,271
+Round Rock,268
+Sarasota,256
+Huntersville,251
+Spring Hill,251
+Kannapolis,246
+Leander,244
+Kyle,227
+Kissimmee,218
+Tampa,216
+Franklin,215
+Lancaster,215
+Lebanon,215
+Independence,213
+Shelby,204
+Gallatin,195
+Waynesville,192
+Bradenton,185
+Boulder,183
+Columbia,180
+Ocala,180
+Olathe,180
+Colorado Springs,176
+Morganton,176
+Liberty Hill,175
+Pflugerville,172
+Fort Collins,169
+Troutman,165
+Littleton,162
+Matthews,155
+San Marcos,154
+Waxhaw,154
+Lee'S Summit,153
+St Petersburg,153
+Indian Trail,150
+Lenoir,148
+Belmont,144
+Lincolnton,144
+Longmont,138
+Port Charlotte,138
+York,137
+Cornelius,136
+Venice,134
+Windsor,131
+Davenport,130
+Punta Gorda,130
+Mount Juliet,126
+Parker,126
+Brevard,122
+Chicago,122
+Hutto,122
+Loveland,122
+Englewood,121
+Smyrna,121
+Albemarle,120
+Davidson,119
+Fletcher,119
+Overland Park,116
+Lago Vista,115
+Greeley,114
+St Joseph,114
+Black Mountain,113
+Buda,113
+Indian Land,113
+Antioch,108
+North Port,108
+Manor,106
+Arvada,105
+Bastrop,105
+Fairview,105
+Marion,105
+Clover,104
+Lake Lure,104
+Lakeland,104
+Castle Rock,101
+Mount Holly,101
+Johnstown,99
+Rutherfordton,97
+The Villages,97
+Lakewood,95
+Hermitage,94
+Palm Coast,94
+Sherrills Ford,92
+Elgin,90
+Brentwood,89
+Lexington,89
+Dripping Springs,88
+Newton,86
+Thornton,84
+Burnsville,83
+Cedar Park,82
+Parrish,81
+Smithville,81
+Commerce City,80
+Dallas,80
+Mint Hill,80
+Haines City,79
+Blue Springs,78
+Kings Mountain,78
+Brighton,77
+Mars Hill,77
+Conover,76
+Granite Falls,76
+Arden,75
+Weaverville,75
+Marshall,74
+Chester,73
+Jarrell,73
+Sylva,73
+Candler,72
+Canton,70
+Clyde,70
+Harrisburg,70
+Highlands Ranch,70
+Madison,70
+Hudson,69
+Spicewood,69
+Connelly Springs,68
+Nebo,68
+Broomfield,66
+Horseshoe Bay,66
+Lafayette,66
+Chattanooga,65
+Erie,65
+Stanley,65
+Maxwell,64
+Taylorsville,64
+Wesley Chapel,64
+Wimberley,64
+Riverview,63
+Clearwater,59
+Leicester,59
+New Braunfels,59
+Raytown,59
+La Vergne,58
+Bessemer City,57
+Forest City,57
+Shelbyville,57
+Belton,56
+Centennial,56
+Leavenworth,56
+Maggie Valley,56
+New Port Richey,55
+Winter Haven,55
+Land O Lakes,54
+Westminster,54
+Winter Garden,54
+White House,53
+Dickson,52
+Gainesville,52
+Goodlettsville,52
+Manchester,52
+Leesburg,51
+Lenexa,51
+Maiden,51
+Saint Cloud,51
+Cherryville,50
+Mill Spring,50
+New London,50
+Portland,50
+St Louis,50
+Taylor,50
+Mount Dora,49
+Old Hickory,49
+Zephyrhills,49
+Locust,48
+China Grove,47
+Apopka,46
+Burnet,46
+Mills River,46
+Oak Grove,46
+Shawnee,46
+Warrensburg,46
+Bryson City,45
+Tega Cay,45
+Leawood,44
+Mount Gilead,44
+Palmetto,44
+Tullahoma,44
+Lakeway,43
+Pineville,43
+Berthoud,42
+Catawba,42
+Cookeville,42
+Deland,42
+Killeen,42
+Mc Minnville,42
+Nolensville,42
+Timnath,42
+Columbus,41
+Lewisburg,41
+Lockhart,41
+Springfield,41
+Valdese,41
+New Smyrna Beach,40
+San Antonio,40
+Wadesboro,40
+Cleveland,39
+Maryville,39
+Old Fort,39
+Raymore,39
+Severance,39
+Winchester,39
+Basehor,38
+Clermont,38
+Flat Rock,38
+Liberty,38
+Pittsburg,38
+Lake Wylie,37
+Thompsons Station,37
+Estes Park,36
+Jonestown,36
+Kershaw,35
+Troy,35
+Marshville,34
+Mooresboro,34
+Terrell,34
+Deltona,33
+Lake Wales,33
+Mount Pleasant,33
+Norwood,33
+Sparta,33
+Spruce Pine,33
+Wellington,33
+Mocksville,32
+Sanford,32
+Vale,32
+Bostic,31
+Del Valle,31
+Elizabeth,31
+Lampasas,31
+Paola,31
+Rotonda West,31
+Swannanoa,31
+Altamonte Springs,30
+Edgewater,30
+Lakewood Ranch,30
+Lawrence,30
+Pisgah Forest,30
+Tryon,30
+Ashland City,29
+Bakersville,29
+Bertram,29
+Cedar Creek,29
+Denton,29
+Dunnellon,29
+Fayetteville,29
+Grain Valley,29
+Harrisonville,29
+Midland,29
+Pueblo,29
+Summerfield,29
+Sun City Center,29
+Whittier,29
+Wimauma,29
+Brooksville,28
+Chapel Hill,28
+College Grove,28
+Lake Toxaway,28
+Louisville,28
+Nokomis,28
+Union Mills,28
+Grandview,27
+Iron Station,27
+Mound City,27
+Wingate,27
+Winston Salem,27
+Cullowhee,26
+Debary,26
+Evans,26
+Gardner,26
+Lawrenceburg,26
+Marble Falls,26
+Odessa,26
+Platte City,26
+Spencer,26
+Wheat Ridge,26
+Crossville,25
+Fort Lupton,25
+Morrison,25
+Saluda,25
+Brandon,24
+Decherd,24
+Largo,24
+Lutz,24
+Palm Harbor,24
+Plant City,24
+Richburg,24
+Ruskin,24
+Zirconia,24
+Bartow,23
+Cameron,23
+Cramerton,23
+Pulaski,23
+St Cloud,23
+Winter Park,23
+Apollo Beach,22
+Bennett,22
+Claremont,22
+Daytona Beach,22
+Martin,22
+Pageland,22
+Parsons,22
+Seguin,22
+Temple,22
+Auburndale,21
+Christiana,21
+Etowah,21
+Fredericksburg,21
+Herculaneum,21
+Holden,21
+Holiday,21
+Marvin,21
+Nevada,21
+Rockdale,21
+Trinity,21
+Atchison,20
+Boone,20
+Dunedin,20
+Groveland,20
+Hilham,20
+Longboat Key,20
+Pleasant Hill,20
+Salado,20
+Sebring,20
+Tonganoxie,20
+Blanco,19
+Clinton,19
+Excelsior Springs,19
+Florence,19
+Fraser,19
+Golden,19
+Linn Valley,19
+Ormond Beach,19
+Ottawa,19
+Platteville,19
+Rockwell,19
+Seminole,19
+Superior,19
+Tarpon Springs,19
+Valrico,19
+Bell Buckle,18
+Blacksburg,18
+Driftwood,18
+Hohenwald,18
+Inverness,18
+Joelton,18
+Lone Tree,18
+Lowell,18
+Luling,18
+Murphy,18
+Oldsmar,18
+Peculiar,18
+Poinciana,18
+Stony Point,18
+Alexander,17
+Centerville,17
+Crystal River,17
+Dover,17
+Evergreen,17
+Hopkinsville,17
+Kearney,17
+Mead,17
+Placida,17
+Pleasant View,17
+Port Richey,17
+Rosman,17
+Salida,17
+Sedalia,17
+Stanfield,17
+Union City,17
+Waverly,17
+Canyon Lake,16
+Eustis,16
+Frederick,16
+Hot Springs,16
+Kingsland,16
+Ocklawaha,16
+Peyton,16
+Pinellas Park,16
+Port Orange,16
+San Juan,16
+Tuckasegee,16
+Banner Elk,15
+Belleview,15
+Dade City,15
+Firestone,15
+Fort Morgan,15
+Gladstone,15
+Jefferson,15
+Johnson City,15
+Penrose,15
+Savannah,15
+Spring Branch,15
+Summertown,15
+Arrington,14
+Ellenboro,14
+Fort Scott,14
+Fountain,14
+Garden City,14
+Garnett,14
+Greenbrier,14
+Hartsel,14
+Hartsville,14
+Homosassa,14
+Kempner,14
+Lady Lake,14
+Milliken,14
+Newland,14
+Nunnelly,14
+Prairie Village,14
+Union,14
+Weeki Wachee,14
+Blowing Rock,13
+Cape Coral,13
+Coffeyville,13
+Dale,13
+Eagle Lake,13
+Flagler Beach,13
+Lochbuie,13
+Monument,13
+Okeechobee,13
+Richmond,13
+Spindale,13
+Sterling,13
+Woodbury,13
+Buena Vista,12
+Burns,12
+Camden,12
+Carthage,12
+Celebration,12
+Copperas Cove,12
+Greenwood Village,12
+Longwood,12
+Mascotte,12
+Northglenn,12
+Parkville,12
+Sapphire,12
+St Pete Beach,12
+White Bluff,12
+Windermere,12
+Beech Mountain,11
+Cocoa,11
+Cottontown,11
+Edgemoor,11
+El Dorado Springs,11
+Estill Springs,11
+Fairplay,11
+Fort Myers,11
+Hiddenite,11
+Higginsville,11
+Lake Mary,11
+Landis,11
+Linden,11
+Louisburg,11
+Melbourne,11
+Mission,11
+Oakboro,11
+Stallings,11
+Stilwell,11
+Trenton,11
+Warsaw,11
+Badin Lake,10
+Bon Aqua,10
+Chanute,10
+Cheraw,10
+Gaffney,10
+Gulfport,10
+Harmony,10
+Heath Springs,10
+Iola,10
+Knob Noster,10
+Lathrop,10
+Lawndale,10
+Lone Jack,10
+Neodesha,10
+Nunn,10
+Ocoee,10
+Oviedo,10
+Palm Bay,10
+Peachland,10
+Point Venture,10
+Reunion,10
+Silverthorne,10
+Sorrento,10
+Titusville,10
+Winnsboro,10
+Arcadia,9
+Breckenridge,9
+Casselberry,9
+Chesterfield,9
+Citrus Springs,9
+Collettsville,9
+De Soto,9
+Ethridge,9
+Festus,9
+Fruitland Park,9
+Fulton,9
+Gibsonton,9
+Hamilton,9
+Inman,9
+Interlachen,9
+Jamestown,9
+Lascassas,9
+Livermore,9
+Paige,9
+Richfield,9
+Rockvale,9
+San Saba,9
+Seattle,9
+Soddy Daisy,9
+Thomasville,9
+Uhland,9
+Watertown,9
+Wellsville,9
+Westcliffe,9
+Westmoreland,9
+Woodland Park,9
+Yadkinville,9
+Adams,8
+Alachua,8
+Altamont,8
+Alton,8
+Barnardsville,8
+Bellvue,8
+Buckner,8
+Burlington,8
+Clearwater Beach,8
+Cross Plains,8
+Culleoka,8
+East Spencer,8
+Eaton,8
+Edgerton,8
+Erin,8
+Fort Lawn,8
+Frankewing,8
+Giddings,8
+Green Mountain,8
+Hixson,8
+Jackson,8
+Lake Placid,8
+Larkspur,8
+Laurel Park,8
+Mc Ewen,8
+Ooltewah,8
+Osawatomie,8
+Other,8
+Oxford,8
+Safety Harbor,8
+Seffner,8
+Sharon,8
+Tavares,8
+Topeka,8
+Walsenburg,8
+Weddington,8
+West Jefferson,8
+Wildwood,8
+Arma,7
+Bailey,7
+Beechgrove,7
+Biltmore Lake,7
+Butler,7
+Carolina,7
+Centerview,7
+Conifer,7
+Cotopaxi,7
+Crestone,7
+Dayton,7
+Decaturville,7
+Deer Trail,7
+Dorado,7
+Dresden,7
+Edwardsville,7
+Eureka,7
+Fort Meade,7
+Gold Hill,7
+Granby,7
+Greensboro,7
+Greenwood,7
+Grover,7
+Hillsboro,7
+Holt,7
+Horse Shoe,7
+Humacao,7
+Idaho Springs,7
+Jonesville,7
+Kernersville,7
+Kingston Springs,7
+La Grange,7
+Lake Alfred,7
+Lansing,7
+Lawson,7
+Maitland,7
+Manchaca,7
+Mulberry,7
+Nederland,7
+Niwot,7
+O'Fallon,7
+Olin,7
+Orange City,7
+Pegram,7
+Plattsburg,7
+Poncha Springs,7
+Pueblo West,7
+Ridgeway,7
+Robbinsville,7
+South Pittsburg,7
+Sugar Creek,7
+The Hills,7
+Walling,7
+Woodlawn,7
+Asheboro,6
+Ault,6
+Avon Park,6
+Baldwin City,6
+Bethpage,6
+Big Sandy,6
+Bonner Springs,6
+Briggs,6
+Brush,6
+Carr,6
+Castalian Springs,6
+Castle Pines,6
+Cumberland Furnace,6
+Dillon,6
+Dunlap,6
+Elmhurst,6
+Elmwood,6
+Fischer,6
+Florissant,6
+Freeman,6
+Great Falls,6
+Hamptonville,6
+Henderson,6
+Hernando,6
+High Springs,6
+Highland,6
+Lacygne,6
+Leoma,6
+Lilesville,6
+Lynnville,6
+Mcgrady,6
+Newberry,6
+Normandy,6
+Omak,6
+Palmyra,6
+Paris,6
+Pleasant Shade,6
+Ringgold,6
+River Ranch,6
+Riverside,6
+Rock Island,6
+Spartanburg,6
+St Augustine,6
+Umatilla,6
+Waelder,6
+Williamsport,6
+Woodleaf,6
+Adrian,5
+Bartlett,5
+Baxter,5
+Belvidere,5
+Biltmore Forest,5
+Boiling Springs,5
+Buchanan,5
+Bumpus Mills,5
+Calhan,5
+Caney,5
+Carrollton,5
+Casar,5
+Chapmansboro,5
+Cherokee,5
+Chetopa,5
+Chimney Rock,5
+Clifton,5
+Como,5
+Cripple Creek,5
+Crouse,5
+Crystal Beach,5
+Drexel,5
+Eagleville,5
+Easton,5
+Franktown,5
+Fredonia,5
+Gordonsville,5
+Grand Island,5
+Grassy Creek,5
+Hickory Grove,5
+High Point,5
+Holmes Beach,5
+Indian Rocks Beach,5
+Kankakee,5
+Keenesburg,5
+Kingsville,5
+Knoxville,5
+Lake Panasoffkee,5
+Lake St Louis,5
+Leadville,5
+Livingston,5
+Lometa,5
+Lyles,5
+Mclouth,5
+Merritt Island,5
+Moffat,5
+Mt Ulla,5
+Naperville,5
+North Kansas City,5
+North Venice,5
+Oak Island,5
+Paisley,5
+Pleasanton,5
+Princeton,5
+Purlear,5
+Red Boiling Springs,5
+Red Feather Lakes,5
+Red Rock,5
+Riceville,5
+Rio Grande,5
+Rockingham,5
+Rockledge,5
+Seven Devils,5
+Silver Point,5
+South Pasadena,5
+Stanberry,5
+Strasburg,5
+Tabernash,5
+Temple Terrace,5
+Vero Beach,5
+Volente,5
+Waynesboro,5
+Winter Springs,5
+Alma,4
+Archer,4
+Archie,4
+Beverly Hills,4
+Bloomington,4
+Bradenton Beach,4
+Brasstown,4
+Brenham,4
+Bucyrus,4
+Bushnell,4
+Cadiz,4
+Candor,4
+Chelan,4
+Cherryvale,4
+Clarksdale,4
+Clayton,4
+Clemmons,4
+Cottonwood Shores,4
+Creede,4
+Dalton,4
+Dearborn,4
+Dilley,4
+Drake,4
+Dundee,4
+East Flat Rock,4
+Edwards,4
+Ellenton,4
+Eudora,4
+Federal Heights,4
+Fort Garland,4
+Fort White,4
+Frontenac,4
+Frostproof,4
+Gatesville,4
+Glenville,4
+Gower,4
+Grand Lake,4
+Granite City,4
+Granite Shoals,4
+Guaynabo,4
+Guffey,4
+Harrison,4
+Hawthorne,4
+Hildebran,4
+Holly Hill,4
+Howey In The Hills,4
+Indian Mound,4
+Jasper,4
+Lake Lotawana,4
+Lake Tapps,4
+Landrum,4
+Leeton,4
+Lithia,4
+Lobelville,4
+Lyman,4
+Lyons,4
+Madeira Beach,4
+Mcconnells,4
+Mcdade,4
+Merriam,4
+Minneola,4
+Mission Hills,4
+Monteagle,4
+Monterey,4
+Morriston,4
+Morven,4
+Mosca,4
+Mt Croghan,4
+Myakka City,4
+North Fort Myers,4
+Osprey,4
+Pierce,4
+Pikeville,4
+Polkton,4
+Rhodhiss,4
+Rosanky,4
+Rossville,4
+Sevierville,4
+Somerville,4
+South Fulton,4
+Tacoma,4
+Taft,4
+Thrall,4
+Tracy City,4
+Treasure Island,4
+Urich,4
+Wartrace,4
+Whites Creek,4
+Wichita,4
+Wilkesboro,4
+Alexandria,3
+Almond,3
+Ardmore,3
+Arlington,3
+Athens,3
+Auburn,3
+Badin,3
+Baxter Springs,3
+Belleair,3
+Belleair Beach,3
+Belleville,3
+Biscoe,3
+Black Hawk,3
+Blanca,3
+Bronson,3
+Brush Creek,3
+Bryan,3
+Buffalo Valley,3
+Bulverde,3
+Byrdstown,3
+Cabo Rojo,3
+Caguas,3
+Caldwell,3
+Canon City,3
+Carbondale,3
+Carrabelle,3
+Cherry Hills Village,3
+Chickamauga,3
+Chiefland,3
+Cicero,3
+Cocoa Beach,3
+College Station,3
+Cornersville,3
+Corpus Christi,3
+Coupland,3
+Dandridge,3
+Daytona Beach Shores,3
+Decatur,3
+Dobson,3
+Dolton,3
+Gainesboro,3
+Gerton,3
+Gig Harbor,3
+Girard,3
+Granger,3
+Hamlet,3
+Hampshire,3
+Harker Heights,3
+Hugo,3
+Indian Hills,3
+Iron City,3
+Kelso,3
+King City,3
+La Cygne,3
+La Salle,3
+Labelle,3
+Lake Junaluska,3
+Lehigh Acres,3
+Linwood,3
+Louisiana,3
+Lynchburg,3
+Maysville,3
+Meadowlakes,3
+Milton,3
+Mims,3
+Moravian Falls,3
+Mount Airy,3
+Murphysboro,3
+New Johnsonville,3
+North Wilkesboro,3
+Oak Park,3
+Osage City,3
+Palatine,3
+Palmer Lake,3
+Pensacola,3
+Petersburg,3
+Pfafftown,3
+Polk City,3
+Raleigh,3
+Red Cross,3
+Redington Beach,3
+Rich Hill,3
+Rincon,3
+Rockport,3
+Roeland Park,3
+Rogers,3
+Rosebud,3
+Round Top,3
+Sale Creek,3
+Santa Fe,3
+Sheldon,3
+Silver Springs,3
+Southside,3
+State Road,3
+Stonewall,3
+Sugar Mountain,3
+Sugar Tree,3
+Sultan,3
+Sumterville,3
+Terlingua,3
+Todd,3
+Trinidad,3
+Twin Lakes,3
+Unionville,3
+University Park,3
+Vail,3
+Wallace,3
+Wathena,3
+Weatherby,3
+Weatherby Lake,3
+Weirsdale,3
+West Lake Hills,3
+Wiggins,3
+Winston,3
+Yakima,3
+Yates Center,3
+Zellwood,3
+Adkins,2
+Advance,2
+Akron,2
+Alamosa,2
+Altoona,2
+Anderson,2
+Andrews,2
+Ansonville,2
+Balsam Grove,2
+Barnard,2
+Bates City,2
+Bayamon,2
+Bee Cave,2
+Bellevue,2
+Berwyn,2
+Bethalto,2
+Birch Tree,2
+Blackstock,2
+Blair,2
+Boca Grande,2
+Boerne,2
+Bokeelia,2
+Boonville,2
+Bothell,2
+Brady,2
+Bradyville,2
+Bremerton,2
+Briggsdale,2
+Brookfield,2
+Brownwood,2
+Bunnell,2
+Burgaw,2
+Burr Ridge,2
+Burton,2
+Byers,2
+Cape Girardeau,2
+Cashiers,2
+Cassatt,2
+Cedar Hill,2
+Cedar Key,2
+Chilhowee,2
+Chillicothe,2

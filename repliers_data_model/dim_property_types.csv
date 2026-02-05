@@ -1,0 +1,10 @@
+property_type_id,property_type_name,category
+1,Business Opportunity,Commercial
+2,Commercial Lease,Commercial
+3,Commercial Sale,Commercial
+4,Farm,Land
+5,Land,Land
+6,Manufactured In Park,Other
+7,Residential,Residential
+8,Residential Income,Residential
+9,Residential Lease,Residential
