@@ -1106,12 +1106,19 @@ def get_db():
 
 # Max query execution time (seconds) — prevents runaway queries from locking the server
 _QUERY_TIMEOUT_SECONDS = int(os.environ.get("QUERY_TIMEOUT", "30"))
-_query_start_time = 0.0
+import threading
+_query_start_time = threading.local()
+
+
+def _reset_query_timer():
+    """Reset the per-thread query timer. Call before any DB query."""
+    _query_start_time.t = time.time()
 
 
 def _progress_handler():
     """SQLite progress callback — raises interrupt if query exceeds timeout."""
-    if time.time() - _query_start_time > _QUERY_TIMEOUT_SECONDS:
+    start = getattr(_query_start_time, 't', 0.0)
+    if start > 0 and time.time() - start > _QUERY_TIMEOUT_SECONDS:
         return 1  # non-zero = interrupt the query
     return 0
 
@@ -1345,18 +1352,27 @@ def _generate_sql_from_ast(ast: FilterAST) -> str:
     if not ast.tables:
         return ""
 
-    # Build SELECT clause
+    # Build JOINs FIRST to know which tables are actually reachable
+    base_table = ast.tables[0]
+    join_lines = _build_join_clauses(base_table, ast.tables[1:])
+    joined = {base_table}
+    joined.update(_tables_from_join_lines(join_lines))
+
+    # Drop tables the LLM hallucinated that have no join path
+    reachable_tables = [t for t in ast.tables if t in joined]
+
+    # Build SELECT clause — only from reachable tables
     select_cols = []
-    for table in ast.tables:
+    for table in reachable_tables:
         table_schema = next((t for t in SCHEMA if t["name"] == table), None)
         if table_schema:
             cols = [c["name"] for c in table_schema["columns"][:6]]
             select_cols.extend([f"{table}.{col}" for col in cols])
 
-    # Ensure WHERE columns are included in SELECT (and prioritized)
+    # Ensure WHERE columns are included in SELECT (only from reachable tables)
     where_cols = []
     for node in ast.filters.flatten():
-        if node.table and node.column:
+        if node.table and node.column and node.table in joined:
             where_cols.append(f"{node.table}.{node.column}")
 
     if not select_cols:
@@ -1366,22 +1382,26 @@ def _generate_sql_from_ast(ast: FilterAST) -> str:
     sql = f"SELECT {', '.join(_unique_select_list(final_select))}\n"
 
     # Build FROM clause with JOINs
-    base_table = ast.tables[0]
     sql += f"FROM {base_table}\n"
 
-    joined = {base_table}
-    join_lines = _build_join_clauses(base_table, ast.tables[1:])
     if join_lines:
         sql += "\n".join(join_lines) + "\n"
-        joined.update(_tables_from_join_lines(join_lines))
 
-    # Build WHERE clause from AST
-    if not ast.filters.is_empty():
-        sql += f"WHERE {ast.filters.to_sql()}\n"
+    # Build WHERE clause — drop filters on unreachable tables
+    reachable_filters = []
+    for node in ast.filters.flatten():
+        if not node.table or node.table in joined:
+            reachable_filters.append(node)
 
-    # Add ORDER BY
+    if reachable_filters:
+        where_parts = [node.to_sql() for node in reachable_filters]
+        sql += f"WHERE {' AND '.join(where_parts)}\n"
+
+    # Add ORDER BY (only if column is from a reachable table)
     if ast.order_by:
-        sql += f"ORDER BY {ast.order_by.to_sql()}\n"
+        ob_table = getattr(ast.order_by, 'table', None)
+        if not ob_table or ob_table in joined:
+            sql += f"ORDER BY {ast.order_by.to_sql()}\n"
 
     sql += "LIMIT 100"
 
@@ -1728,7 +1748,6 @@ def _tables_from_join_lines(join_lines: List[str]) -> List[str]:
 @app.post("/api/query")
 async def execute_query(request: ExecuteQueryRequest):
     """Execute SQL query and return results."""
-    global _query_start_time
     db = get_db()
 
     try:
@@ -1736,7 +1755,7 @@ async def execute_query(request: ExecuteQueryRequest):
         if "LIMIT" not in sql.upper():
             sql += f" LIMIT {request.limit}"
 
-        _query_start_time = time.time()
+        _reset_query_timer()
         df = pd.read_sql_query(sql, db)
         data_json = json.loads(df.to_json(orient="records"))
 
@@ -1756,6 +1775,7 @@ async def execute_query(request: ExecuteQueryRequest):
 @app.get("/api/stats")
 async def get_stats():
     """Get database statistics - Dubai Proptech Data."""
+    _reset_query_timer()
     db = get_db()
     cursor = db.cursor()
 
@@ -1859,6 +1879,7 @@ _categorical_cache: Dict[str, Any] = {"data": None}
 
 def _compute_categorical_columns_sync() -> dict:
     """Compute categorical columns once — uses sampling for speed."""
+    _reset_query_timer()
     db = get_db()
     result = {}
     cursor = db.cursor()
@@ -2117,6 +2138,7 @@ async def get_market_trends():
 
 def _compute_temporal_trends() -> Dict:
     """Compute temporal market trends (runs in thread pool)."""
+    _reset_query_timer()
     db = get_db()
     cursor = db.cursor()
 
@@ -2173,10 +2195,18 @@ def _compute_temporal_trends() -> Dict:
         norm_month = f"SUBSTR({date_col},1,7)"
 
     # ---------- Find date range ----------
+    # For ISO dates, MIN/MAX on the raw column works (lexicographic = chronological).
+    # For dmy formats we must still use the normalised expression, but add a LIMIT
+    # to a sampled approach that avoids a full-table scan.
     try:
-        cursor.execute(f"SELECT MIN({norm_date}), MAX({norm_date}) FROM {table_name} WHERE {date_col} IS NOT NULL AND {date_col} != ''")
+        if date_format == 'iso':
+            # Fast path — index-friendly MIN/MAX on raw column
+            cursor.execute(f"SELECT MIN({date_col}), MAX({date_col}) FROM {table_name} WHERE {date_col} IS NOT NULL AND {date_col} != ''")
+        else:
+            # dmy format: normalise then MIN/MAX (unavoidable, but bounded by timeout)
+            cursor.execute(f"SELECT MIN({norm_date}), MAX({norm_date}) FROM {table_name} WHERE {date_col} IS NOT NULL AND {date_col} != ''")
         row = cursor.fetchone()
-        date_min_str, date_max_str = row[0], row[1]
+        date_min_str, date_max_str = str(row[0]).strip()[:10], str(row[1]).strip()[:10]
         trends["date_range"] = {"min": date_min_str, "max": date_max_str}
     except Exception as e:
         trends["error"] = f"Cannot determine date range: {e}"
@@ -2907,6 +2937,7 @@ async def get_map_data():
     - landmarks: Major landmarks
     - transactions: Bayut transactions with lat/lon (sampled)
     """
+    _reset_query_timer()
     # Return cached response if available (GeoJSON doesn't change at runtime)
     if _map_data_cache.get("response"):
         return _map_data_cache["response"]
@@ -2984,6 +3015,7 @@ async def get_map_transactions(
     Get Bayut transactions with lat/lon for map plotting.
     These are actual property transactions with geographic coordinates.
     """
+    _reset_query_timer()
     db = get_db()
 
     try:
@@ -3029,6 +3061,7 @@ async def get_map_query_results(request: ExecuteQueryRequest):
     Execute a SQL query and extract rows with lat/lon for map plotting.
     Automatically detects latitude/longitude columns in the result set.
     """
+    _reset_query_timer()
     db = get_db()
 
     try:
@@ -3048,18 +3081,62 @@ async def get_map_query_results(request: ExecuteQueryRequest):
             elif col_lower in ("longitude", "lng", "lon", "station_location_longitude"):
                 lng_col = col
 
+        # --- Fallback: if no direct lat/lon, look up from area_coordinates ---
+        geocoded_via = None
         if not lat_col or not lng_col:
-            return {"data": [], "count": 0, "message": "No lat/lon columns found in query results"}
+            area_col_candidates = [
+                "area_name_en", "location_area", "area", "lkp_areas_name_en",
+                "name_en", "community", "district",
+            ]
+            area_col_match = None
+            for c in area_col_candidates:
+                if c in df.columns:
+                    area_col_match = c
+                    break
+
+            if area_col_match:
+                try:
+                    coords_df = pd.read_sql_query(
+                        "SELECT area_name, lat, lng FROM area_coordinates", db
+                    )
+                    # Build lookup: lowercase area name -> (lat, lng)
+                    coord_map = {}
+                    for _, r in coords_df.iterrows():
+                        coord_map[str(r["area_name"]).strip().lower()] = (r["lat"], r["lng"])
+
+                    # Map each row's area to coordinates
+                    lats, lngs = [], []
+                    for _, row in df.iterrows():
+                        area_val = str(row.get(area_col_match, "")).strip()
+                        coords = coord_map.get(area_val.lower())
+                        if coords:
+                            lats.append(coords[0])
+                            lngs.append(coords[1])
+                        else:
+                            lats.append(None)
+                            lngs.append(None)
+
+                    df["lat"] = lats
+                    df["lng"] = lngs
+                    lat_col = "lat"
+                    lng_col = "lng"
+                    geocoded_via = area_col_match
+                except Exception:
+                    pass
+
+        if not lat_col or not lng_col:
+            return {"data": [], "count": 0, "message": "No lat/lon columns found and no area column to geocode"}
 
         # Filter to rows with valid coordinates
         geo_df = df[df[lat_col].notna() & df[lng_col].notna()].copy()
         geo_df = geo_df[(geo_df[lat_col] != 0) & (geo_df[lng_col] != 0)]
 
         # Rename to standard lat/lng
-        geo_df = geo_df.rename(columns={lat_col: "lat", lng_col: "lng"})
+        if lat_col != "lat" or lng_col != "lng":
+            geo_df = geo_df.rename(columns={lat_col: "lat", lng_col: "lng"})
 
         # Add a display name from available columns
-        name_candidates = ["name", "location_area", "location_name_english", "area_name_en", "building_name_en", "school_name", "facility_name"]
+        name_candidates = ["name", "location_area", "location_name_english", "area_name_en", "lkp_areas_name_en", "building_name_en", "project_name_en", "school_name", "facility_name"]
         name_col = None
         for candidate in name_candidates:
             if candidate in geo_df.columns:
@@ -3070,12 +3147,15 @@ async def get_map_query_results(request: ExecuteQueryRequest):
 
         data = json.loads(geo_df.to_json(orient="records"))
 
-        return {
+        result = {
             "data": data,
             "count": len(data),
             "lat_column": lat_col,
             "lng_column": lng_col,
         }
+        if geocoded_via:
+            result["geocoded_via"] = geocoded_via
+        return result
     except Exception as e:
         return {"data": [], "count": 0, "error": str(e)}
 
