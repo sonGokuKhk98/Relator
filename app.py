@@ -2209,40 +2209,55 @@ async def get_column_values(table_name: str, column_name: str, limit: int = 100)
 
 @app.get("/api/categorical_columns")
 async def get_categorical_columns():
-    """Get all categorical columns with their distinct values for filter dropdowns."""
+    """Auto-detect categorical columns from ALL tables and return distinct values for filter dropdowns."""
     db = get_db()
-
-    # Define which columns are categorical (good for dropdowns)
-    categorical_columns = {
-        "transactions": ["property_type_en", "trans_group_en", "area_name_en", "property_usage_en", "rooms_en"],
-        "rent_contracts": ["ejari_property_type_en", "property_usage_en", "area_name_en", "tenant_type_en"],
-        "units": ["property_type_en", "property_sub_type_en", "area_name_en", "rooms_en"],
-        "bayut_transactions": ["completion_status", "property_type_id", "location_area", "seller_type", "payment_type"],
-        "lkp_areas": ["name_en"],
-        "lkp_transaction_groups": ["name_en"],
-        "lkp_transaction_procedures": ["name_en"],
-        "developers": ["developer_name_en", "license_source_en"],
-    }
-
     result = {}
     cursor = db.cursor()
 
-    for table, columns in categorical_columns.items():
-        result[table] = {}
-        for column in columns:
+    # Get all tables in the database
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+    tables = [row[0] for row in cursor.fetchall()]
+
+    for table in tables:
+        # Get column info for this table
+        cursor.execute(f"PRAGMA table_info({table})")
+        columns_info = cursor.fetchall()
+        # columns_info: (cid, name, type, notnull, dflt_value, pk)
+
+        table_categoricals = {}
+        for col_info in columns_info:
+            col_name = col_info[1]
+            col_type = (col_info[2] or "").upper()
+
+            # Only consider TEXT/VARCHAR columns as categorical candidates
+            if not any(t in col_type for t in ["TEXT", "VARCHAR", "CHAR"]):
+                continue
+
             try:
+                # Check how many distinct values this column has
                 cursor.execute(f"""
-                    SELECT DISTINCT {column}
-                    FROM {table}
-                    WHERE {column} IS NOT NULL AND {column} != ''
-                    ORDER BY {column}
-                    LIMIT 100
+                    SELECT COUNT(DISTINCT [{col_name}])
+                    FROM [{table}]
+                    WHERE [{col_name}] IS NOT NULL AND [{col_name}] != ''
                 """)
-                values = [row[0] for row in cursor.fetchall()]
-                if values:
-                    result[table][column] = values
-            except:
+                distinct_count = cursor.fetchone()[0]
+
+                # If <= 500 distinct values, treat as categorical (good for dropdown)
+                if 0 < distinct_count <= 500:
+                    cursor.execute(f"""
+                        SELECT DISTINCT [{col_name}]
+                        FROM [{table}]
+                        WHERE [{col_name}] IS NOT NULL AND [{col_name}] != ''
+                        ORDER BY [{col_name}]
+                    """)
+                    values = [row[0] for row in cursor.fetchall()]
+                    if values:
+                        table_categoricals[col_name] = values
+            except Exception:
                 pass
+
+        if table_categoricals:
+            result[table] = table_categoricals
 
     return result
 
