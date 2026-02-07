@@ -14,7 +14,6 @@ import os
 import re
 import time
 import json
-import math
 import sqlite3
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
@@ -716,20 +715,6 @@ def _create_performance_indexes(conn, loaded_tables: dict):
     print(f"Created {idx_count} performance indexes")
 
 
-def _register_haversine(conn):
-    """Register the haversine spatial function on a SQLite connection."""
-    def _sqlite_haversine(lat1, lon1, lat2, lon2):
-        if any(v is None for v in (lat1, lon1, lat2, lon2)):
-            return None
-        R = 6371.0
-        dlat = math.radians(lat2 - lat1)
-        dlon = math.radians(lon2 - lon1)
-        a = (math.sin(dlat / 2) ** 2 +
-             math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) *
-             math.sin(dlon / 2) ** 2)
-        return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    conn.create_function("haversine", 4, _sqlite_haversine)
-
 
 def _create_short_name_views(conn, existing_tables):
     """Create short-name views for long-prefixed tables in production.db.
@@ -795,7 +780,6 @@ def init_database():
         DB_CONNECTION = sqlite3.connect(str(PREBUILT_DB), check_same_thread=False, timeout=30)
         DB_CONNECTION.execute("PRAGMA busy_timeout = 5000")
         DB_CONNECTION.execute("PRAGMA journal_mode = WAL")
-        _register_haversine(DB_CONNECTION)
         _install_query_timeout(DB_CONNECTION)
 
         # Discover tables and auto-generate schema entries
@@ -841,16 +825,13 @@ def init_database():
         else:
             print("area_coordinates table already present in pre-built DB")
 
-        print("Registered haversine() spatial function in SQLite")
         return
 
     # --- SLOW PATH: Build from CSVs (local development) ---
     print("\nNo pre-built DB found, loading from CSVs...")
     DB_CONNECTION = sqlite3.connect(":memory:", check_same_thread=False, timeout=30)
     DB_CONNECTION.execute("PRAGMA busy_timeout = 5000")
-    _register_haversine(DB_CONNECTION)
     _install_query_timeout(DB_CONNECTION)
-    print("Registered haversine() spatial function in SQLite")
 
     # Auto-discover all CSV files in DATA_DIR
     csv_files = sorted(DATA_DIR.rglob("*.csv"))
@@ -1359,238 +1340,10 @@ async def generate_sql(request: GenerateSQLRequest):
     }
 
 
-# Tables that natively have lat/lon columns
-_NATIVE_GEO_COLUMNS = {
-    "bayut_transactions": ("latitude", "longitude"),
-    "bayut_commercial_transactions": ("latitude", "longitude"),
-    "bayut_new_projects": ("latitude", "longitude"),
-    "metro_stations": ("station_location_latitude", "station_location_longitude"),
-    "tram_stations": ("station_location_latitude", "station_location_longitude"),
-    "bus_stop_details": ("stop_location_latitude", "stop_location_longitude"),
-    "marine_stations": ("station_location_latitiude", "station_location_longitiude"),
-    "public_transportation_routes_stops": ("stop_location_latitude", "stop_location_longitude"),
-    "public_transportation_stations": ("station_location_latitude", "station_location_longitude"),
-    "taxi_stand_locations": ("location_latitude", "location_longitude"),
-    "ev_green_charger": ("latitude", "longitude"),
-    "licenced_owner_associations": ("latitude", "longitude"),
-    "hex_master_list": ("lat", "lon"),
-    "school_search": ("lat", "long"),
-    "hep_search": ("lat", "long"),
-    "ti_search": ("lat", "long"),
-    "sheryan_facility_detail": ("x_coordinate", "y_coordinate"),
-}
-
-# Tables that have an area name column (can JOIN to area_coordinates for lat/lon)
-_AREA_NAME_COLUMNS = {
-    "transactions": "area_name_en",
-    "units": "area_name_en",
-    "land_registry": "area_name_en",
-    "rent_contracts": "area_name_en",
-    "buildings": "area_name_en",
-    "projects": "area_name_en",
-    "lkp_areas": "name_en",
-    "sheryan_facility_detail": "area_english",
-    "bayut_transactions": "location_area",
-    "bayut_commercial_transactions": "location_area",
-    "valuation": "area_name_en",
-    "building_permits": "community_name",
-    "building_summary_information": "community_name_english",
-    "consultant_projects": "community_name",
-    "customers_master_data": "community",
-}
-
-
-
-# ---------------------------------------------------------------------------
-# Spatial proximity query generation (properties near POIs via haversine)
-# ---------------------------------------------------------------------------
-
-# Tables that use haversine proximity joins (transit only — they have no area column).
-# Schools & hospitals are EXCLUDED — they join via area name (fast, no haversine).
-_POI_PROXIMITY_TABLES = {
-    # table_name: (lat_col, lng_col, name_col, tag)
-    "metro_stations": ("station_location_latitude", "station_location_longitude", "location_name_english", "metro"),
-    "tram_stations": ("station_location_latitude", "station_location_longitude", "location_name_english", "tram"),
-    "sheryan_facility_detail": ("x_coordinate", "y_coordinate", "f_name_english", "hospital"),
-    "school_search": ("lat", "long", "name_eng", "school"),
-    # NOTE: bus_stop_details excluded — 20K rows makes haversine cross-join too slow
-}
-
-_PROXIMITY_PROPERTY_TABLES = {
-    "transactions", "bayut_transactions", "bayut_commercial_transactions",
-    "units", "rent_contracts", "land_registry",
-}
-
-# Column remap: other property tables -> bayut_transactions
-_COL_REMAP_TO_BAYUT = {
-    "property_type_en": "property_type_id",  # bayut uses property_type_id (text: Villa, Apartment, etc.)
-    "area_name_en": "location_area",
-    "rooms_en": "beds",
-    "actual_worth": "transaction_amount",
-    "trans_group_en": "transaction_category",
-    "procedure_name_en": None,
-    "name_en": "location_area",      # from lkp_areas
-}
-
-_AREA_NAME_REMAP = {
-    "Marsa Dubai": "Dubai Marina",
-    "Burj Khalifa": "Downtown Dubai",
-    "Al Thanyah Third": "Jumeirah Lake Towers (JLT)",
-    "Al Thanyah Fourth": "Jumeirah Islands",
-    "Al Thanyah Fifth": "Dubai Sports City",
-}
-
-
-def _detect_proximity(ast: FilterAST):
-    """Return (poi_table, poi_config) if this is a proximity query, else (None, None)."""
-    tables = set(ast.tables)
-    has_property = bool(tables & _PROXIMITY_PROPERTY_TABLES)
-    for t in tables:
-        if t in _POI_PROXIMITY_TABLES:
-            if has_property or len(tables) > 1:
-                return t, _POI_PROXIMITY_TABLES[t]
-    return None, None
-
-
-def _remap_filter_for_bayut(node) -> Optional[str]:
-    """Remap a filter node to bayut_transactions columns. Returns SQL fragment or None."""
-    col = node.column
-    table = node.table
-
-    # Filters already on bayut_transactions — use as-is with bt alias
-    if table == "bayut_transactions":
-        remapped_col = col
-    elif col in _COL_REMAP_TO_BAYUT:
-        remapped_col = _COL_REMAP_TO_BAYUT[col]
-        if remapped_col is None:
-            return None  # unmappable
-    else:
-        remapped_col = col  # try as-is
-
-    value = node.value
-
-    # Remap DLD area names to Bayut area names
-    if remapped_col == "location_area" and isinstance(value, str):
-        value = _AREA_NAME_REMAP.get(value, value)
-
-    # Remap rooms_en string patterns to integer beds
-    if remapped_col == "beds" and isinstance(value, str):
-        digits = re.findall(r'\d+', value)
-        if digits:
-            return f"bt.beds = {digits[0]}"
-        return None
-
-    # Build SQL fragment
-    if isinstance(value, str):
-        stripped = value.strip()
-        try:
-            num = float(stripped)
-            return f"bt.{remapped_col} {node.operator.value} {int(num) if num == int(num) else num}"
-        except (ValueError, OverflowError):
-            pass
-        escaped = value.replace("'", "''")
-        return f"bt.{remapped_col} {node.operator.value} '{escaped}'"
-    else:
-        return f"bt.{remapped_col} {node.operator.value} {value}"
-
-
-def _generate_proximity_sql(ast: FilterAST, poi_table: str, poi_config: tuple) -> str:
-    """Generate haversine-based proximity SQL for properties near a POI table."""
-    poi_lat, poi_lng, poi_name, poi_tag = poi_config
-
-    # Remap all property/lookup filters to bayut_transactions
-    extra_where = []
-    for node in ast.filters.flatten():
-        if node.table in _POI_PROXIMITY_TABLES:
-            continue  # skip POI-side filters for now
-        remapped = _remap_filter_for_bayut(node)
-        if remapped:
-            extra_where.append(remapped)
-
-    where_clause = ""
-    if extra_where:
-        where_clause = "    AND " + "\n    AND ".join(extra_where) + "\n"
-
-    sql = f"""SELECT
-    bt.location_area,
-    bt.location_building,
-    bt.beds,
-    bt.transaction_amount,
-    bt.property_type_id,
-    poi.{poi_name} AS nearest_{poi_tag},
-    ROUND(haversine(bt.latitude, bt.longitude, poi.{poi_lat}, poi.{poi_lng}), 2) AS distance_km,
-    bt.latitude AS latitude,
-    bt.longitude AS longitude,
-    poi.{poi_lat} AS poi_lat_{poi_tag},
-    poi.{poi_lng} AS poi_lng_{poi_tag},
-    poi.{poi_name} AS poi_name_{poi_tag}
-FROM bayut_transactions bt
-INNER JOIN {poi_table} poi
-    ON haversine(bt.latitude, bt.longitude, poi.{poi_lat}, poi.{poi_lng}) < 2
-WHERE bt.latitude IS NOT NULL AND bt.longitude IS NOT NULL
-    AND poi.{poi_lat} IS NOT NULL AND poi.{poi_lng} IS NOT NULL
-    AND poi.{poi_lat} > 0 AND poi.{poi_lng} > 0
-{where_clause}ORDER BY distance_km ASC
-LIMIT 200"""
-    return sql
-
-
 def _generate_sql_from_ast(ast: FilterAST) -> str:
-    """Generate SQL from FilterAST with automatic lat/lon injection."""
+    """Generate SQL from FilterAST."""
     if not ast.tables:
         return ""
-
-    # ---- Proximity intercept: property table + POI table -> haversine join ----
-    poi_table, poi_config = _detect_proximity(ast)
-    if poi_table and poi_config:
-        return _generate_proximity_sql(ast, poi_table, poi_config)
-
-    # ---- Cleanup: remove lookup tables that break due to NULL foreign keys ----
-    # In production.db, trans_group_id and procedure_id are NULL for most rows,
-    # so JOINing to lkp_transaction_groups / lkp_transaction_procedures yields ~0 rows.
-    # Use the denormalized columns (trans_group_en, procedure_name_en) directly instead.
-    _REDUNDANT_LOOKUPS = {"lkp_transaction_groups", "lkp_transaction_procedures"}
-    filter_tables = {n.table for n in ast.filters.flatten() if n.table}
-    for lkp in list(_REDUNDANT_LOOKUPS):
-        if lkp in ast.tables and lkp not in filter_tables:
-            # No filter references this lookup — safe to remove
-            ast.tables = [t for t in ast.tables if t != lkp]
-        elif lkp in ast.tables and lkp in filter_tables:
-            # Filter references the lookup table — remap to transactions
-            ast.tables = [t for t in ast.tables if t != lkp]
-            for node in ast.filters.flatten():
-                if node.table == lkp:
-                    # Remap column: lkp_transaction_groups.name_en -> transactions.trans_group_en
-                    if lkp == "lkp_transaction_groups":
-                        node.table = "transactions"
-                        node.column = "trans_group_en"
-                    elif lkp == "lkp_transaction_procedures":
-                        node.table = "transactions"
-                        node.column = "procedure_name_en"
-
-    # ---- Remove lkp_areas: remap filters to transactions.area_name_en ----
-    if "lkp_areas" in ast.tables:
-        if "lkp_areas" not in filter_tables:
-            # No filter references lkp_areas — just drop it
-            ast.tables = [t for t in ast.tables if t != "lkp_areas"]
-        else:
-            # Remap lkp_areas filters to the base table's denormalized area column
-            ast.tables = [t for t in ast.tables if t != "lkp_areas"]
-            for node in ast.filters.flatten():
-                if node.table == "lkp_areas":
-                    if node.column in ("name_en", "area_name_en"):
-                        node.table = "transactions"
-                        node.column = "area_name_en"
-                    elif node.column == "area_id":
-                        node.table = "transactions"
-                        node.column = "area_id"
-
-    # ---- Ensure a primary data table is first (base FROM table) ----
-    _PRIMARY_ORDER = ["transactions", "rent_contracts", "bayut_transactions", "units", "land_registry"]
-    for pt in _PRIMARY_ORDER:
-        if pt in ast.tables and ast.tables[0] != pt:
-            ast.tables = [pt] + [t for t in ast.tables if t != pt]
-            break
 
     # Build SELECT clause
     select_cols = []
@@ -1609,136 +1362,18 @@ def _generate_sql_from_ast(ast: FilterAST) -> str:
     if not select_cols:
         select_cols = ["*"]
 
-    # --- Auto-inject lat/lon columns ---
-    geo_source = None       # "native" or "area_join"
-    geo_table = None        # which table provides lat/lon
-    geo_lat_col = None
-    geo_lng_col = None
-    area_join_col = None    # area column used for the JOIN
-
-    # Cross-domain tables whose native lat/lon should NOT be used for the main
-    # map markers (they represent facility locations, not property locations).
-    # Their coordinates are returned as separate poi_lat/poi_lng columns instead.
-    _POI_GEO_TABLES = {"school_search", "sheryan_facility_detail", "metro_stations",
-                        "tram_stations", "bus_stop_details"}
-
-    base_table = ast.tables[0] if ast.tables else None
-
-    # Step 1: Check if the BASE table has native lat/lon (e.g. bayut_transactions)
-    if base_table and base_table in _NATIVE_GEO_COLUMNS and base_table not in _POI_GEO_TABLES:
-        geo_source = "native"
-        geo_table = base_table
-        geo_lat_col, geo_lng_col = _NATIVE_GEO_COLUMNS[base_table]
-
-    # Step 2: If base table has no native geo, try area-based join for it
-    if not geo_source and base_table and base_table in _AREA_NAME_COLUMNS:
-        geo_source = "area_join"
-        geo_table = base_table
-        area_join_col = _AREA_NAME_COLUMNS[base_table]
-        geo_lat_col = "area_coordinates.lat"
-        geo_lng_col = "area_coordinates.lng"
-
-    # Step 3: Fallback — check any non-POI table for native geo
-    if not geo_source:
-        for table in ast.tables:
-            if table in _NATIVE_GEO_COLUMNS and table not in _POI_GEO_TABLES:
-                geo_source = "native"
-                geo_table = table
-                geo_lat_col, geo_lng_col = _NATIVE_GEO_COLUMNS[table]
-                break
-
-    # Step 4: Fallback — any table with area name column
-    if not geo_source:
-        for table in ast.tables:
-            if table in _AREA_NAME_COLUMNS:
-                geo_source = "area_join"
-                geo_table = table
-                area_join_col = _AREA_NAME_COLUMNS[table]
-                geo_lat_col = "area_coordinates.lat"
-                geo_lng_col = "area_coordinates.lng"
-                break
-
-    # Step 5: Last resort — use POI table geo (single-table query on schools etc.)
-    if not geo_source:
-        for table in ast.tables:
-            if table in _NATIVE_GEO_COLUMNS:
-                geo_source = "native"
-                geo_table = table
-                geo_lat_col, geo_lng_col = _NATIVE_GEO_COLUMNS[table]
-                break
-
-    # Build geo columns for main markers
-    geo_cols = []
-    if geo_source == "native":
-        geo_cols = [
-            f"{geo_table}.{geo_lat_col} AS latitude",
-            f"{geo_table}.{geo_lng_col} AS longitude",
-        ]
-    elif geo_source == "area_join":
-        # Jitter area centroids so each row gets a unique position within the area
-        # Random offset of ±0.005 degrees (~500m) around centroid
-        geo_cols = [
-            f"({geo_lat_col} + (RANDOM() % 1000) / 100000.0) AS latitude",
-            f"({geo_lng_col} + (RANDOM() % 1000) / 100000.0) AS longitude",
-        ]
-
-    # Also inject POI (Point of Interest) coordinates for ALL cross-domain tables
-    # so the frontend can render schools/hospitals/bus stops as distinct markers
-    # Each POI table gets its own set of suffixed columns: poi_lat_<tag>, poi_lng_<tag>, etc.
-    _POI_TAG = {
-        "school_search": "school",
-        "sheryan_facility_detail": "hospital",
-        "bus_stop_details": "busstop",
-        "tram_stations": "tram",
-        "metro_stations": "metro",
-    }
-    _POI_NAME_COL = {
-        "school_search": "name_eng",
-        "sheryan_facility_detail": "f_name_english",
-        "bus_stop_details": "stop_name",
-        "tram_stations": "location_name_english",
-        "metro_stations": "location_name_english",
-    }
-    poi_cols = []
-    for table in ast.tables:
-        if table in _POI_GEO_TABLES and table in _NATIVE_GEO_COLUMNS:
-            tag = _POI_TAG.get(table, table)
-            poi_lat, poi_lng = _NATIVE_GEO_COLUMNS[table]
-            poi_cols.append(f"{table}.{poi_lat} AS poi_lat_{tag}")
-            poi_cols.append(f"{table}.{poi_lng} AS poi_lng_{tag}")
-            name_col = _POI_NAME_COL.get(table)
-            if name_col:
-                poi_cols.append(f"{table}.{name_col} AS poi_name_{tag}")
-
     final_select = _prioritized_select_list(where_cols, select_cols, limit=12)
-    # Append geo columns at the end (always present if available)
-    final_select_with_geo = list(_unique_select_list(final_select)) + geo_cols + poi_cols
-    sql = f"SELECT {', '.join(final_select_with_geo)}\n"
+    sql = f"SELECT {', '.join(_unique_select_list(final_select))}\n"
 
     # Build FROM clause with JOINs
     base_table = ast.tables[0]
     sql += f"FROM {base_table}\n"
 
     joined = {base_table}
-
-    # Tables whose join conditions reference area_coordinates (bounding-box joins)
-    _NEEDS_AREA_COORDS = {"bus_stop_details", "tram_stations"}
-    needs_area_coords_early = bool(set(ast.tables) & _NEEDS_AREA_COORDS)
-
-    # If bus_stop_details or tram_stations are in query, inject area_coordinates FIRST
-    if needs_area_coords_early and geo_source == "area_join" and "area_coordinates" not in joined:
-        sql += f"LEFT JOIN area_coordinates ON {geo_table}.{area_join_col} = area_coordinates.area_name\n"
-        joined.add("area_coordinates")
-
     join_lines = _build_join_clauses(base_table, ast.tables[1:])
     if join_lines:
         sql += "\n".join(join_lines) + "\n"
         joined.update(_tables_from_join_lines(join_lines))
-
-    # Auto-add area_coordinates JOIN if still needed (for geo injection)
-    if geo_source == "area_join" and "area_coordinates" not in joined:
-        sql += f"LEFT JOIN area_coordinates ON {geo_table}.{area_join_col} = area_coordinates.area_name\n"
-        joined.add("area_coordinates")
 
     # Build WHERE clause from AST
     if not ast.filters.is_empty():
@@ -1747,16 +1382,8 @@ def _generate_sql_from_ast(ast: FilterAST) -> str:
     # Add ORDER BY
     if ast.order_by:
         sql += f"ORDER BY {ast.order_by.to_sql()}\n"
-    else:
-        # Smart default: sort by price when a price filter is present
-        _PRICE_COLS = {"actual_worth", "transaction_amount", "annual_amount"}
-        for node in ast.filters.flatten():
-            if node.column in _PRICE_COLS:
-                direction = "DESC" if node.operator in (FilterOperator.LT, FilterOperator.LTE) else "ASC"
-                sql += f"ORDER BY {node.table}.{node.column} {direction}\n"
-                break
 
-    sql += "LIMIT 500"
+    sql += "LIMIT 100"
 
     return sql
 
@@ -2013,24 +1640,21 @@ def _join_condition_map() -> Dict[tuple, str]:
         ("real_estate_licenses", "lkp_areas"): "1=1",  # No direct link
 
         # ==========================================
-        # Transport (RTA) joins — area-name based (no haversine)
+        # Transport (RTA) joins
         # ==========================================
         ("metro_stations", "transactions"): "transactions.nearest_metro_en = metro_stations.location_name_english",
+        ("metro_stations", "bayut_transactions"): "1=1",  # Would need geo-spatial join
 
         # ==========================================
         # Education (KHDA) joins
         # ==========================================
-        ("school_search", "lkp_areas"): "UPPER(school_search.area_en) = UPPER(lkp_areas.name_en)",
-        ("school_search", "units"): "UPPER(school_search.area_en) = UPPER(units.area_name_en)",
-        ("school_search", "transactions"): "UPPER(school_search.area_en) = UPPER(transactions.area_name_en)",
-        ("school_search", "bayut_transactions"): "UPPER(school_search.area_en) = UPPER(bayut_transactions.location_area)",
+        ("school_search", "lkp_areas"): "school_search.area_en = lkp_areas.name_en",
+        ("school_search", "units"): "school_search.area_en = units.area_name_en",
 
         # ==========================================
         # Health (DHA) joins
         # ==========================================
-        ("sheryan_facility_detail", "lkp_areas"): "UPPER(sheryan_facility_detail.area_english) = UPPER(lkp_areas.name_en)",
-        ("sheryan_facility_detail", "transactions"): "UPPER(sheryan_facility_detail.area_english) = UPPER(transactions.area_name_en)",
-        ("sheryan_facility_detail", "bayut_transactions"): "UPPER(sheryan_facility_detail.area_english) = UPPER(bayut_transactions.location_area)",
+        ("sheryan_facility_detail", "lkp_areas"): "sheryan_facility_detail.area_english = lkp_areas.name_en",
     }
 
 
