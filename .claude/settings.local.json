@@ -4,7 +4,12 @@
       "Bash(/usr/local/bin/python3:*)",
       "Bash(tee:*)",
       "Bash(/Users/hiteshkaushik/dynamic_filtering/venv/bin/python:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(python3:*)",
+      "Bash(python:*)",
+      "Bash(git push:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }
