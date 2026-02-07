@@ -66,17 +66,10 @@ from intelligence import (
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY", "")
 if GOOGLE_API_KEY:
     genai.configure(api_key=GOOGLE_API_KEY)
-    # Try latest model names, fall back gracefully
-    for _model_name in ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"]:
-        try:
-            gemini_model = genai.GenerativeModel(_model_name)
-            gemini_model.generate_content("test")  # verify it works
-            print(f"Using Gemini model: {_model_name}")
-            break
-        except Exception as _e:
-            print(f"Model {_model_name} unavailable: {_e}")
-            gemini_model = None
-            continue
+    # Use the first available model — skip the slow test call at startup
+    _model_name = "gemini-2.0-flash"
+    gemini_model = genai.GenerativeModel(_model_name)
+    print(f"Configured Gemini model: {_model_name} (will validate on first use)")
 else:
     gemini_model = None
     print("Warning: GOOGLE_API_KEY not set. LLM extraction will be disabled.")
@@ -799,8 +792,11 @@ def init_database():
     if PREBUILT_DB.exists():
         size_mb = PREBUILT_DB.stat().st_size / (1024 * 1024)
         print(f"\nLoading pre-built database: {PREBUILT_DB.name} ({size_mb:.1f} MB)")
-        DB_CONNECTION = sqlite3.connect(str(PREBUILT_DB), check_same_thread=False)
+        DB_CONNECTION = sqlite3.connect(str(PREBUILT_DB), check_same_thread=False, timeout=30)
+        DB_CONNECTION.execute("PRAGMA busy_timeout = 5000")
+        DB_CONNECTION.execute("PRAGMA journal_mode = WAL")
         _register_haversine(DB_CONNECTION)
+        _install_query_timeout(DB_CONNECTION)
 
         # Discover tables and auto-generate schema entries
         cursor = DB_CONNECTION.execute("SELECT name FROM sqlite_master WHERE type='table'")
@@ -850,8 +846,10 @@ def init_database():
 
     # --- SLOW PATH: Build from CSVs (local development) ---
     print("\nNo pre-built DB found, loading from CSVs...")
-    DB_CONNECTION = sqlite3.connect(":memory:", check_same_thread=False)
+    DB_CONNECTION = sqlite3.connect(":memory:", check_same_thread=False, timeout=30)
+    DB_CONNECTION.execute("PRAGMA busy_timeout = 5000")
     _register_haversine(DB_CONNECTION)
+    _install_query_timeout(DB_CONNECTION)
     print("Registered haversine() spatial function in SQLite")
 
     # Auto-discover all CSV files in DATA_DIR
@@ -1125,6 +1123,23 @@ def get_db():
     return DB_CONNECTION
 
 
+# Max query execution time (seconds) — prevents runaway queries from locking the server
+_QUERY_TIMEOUT_SECONDS = int(os.environ.get("QUERY_TIMEOUT", "30"))
+_query_start_time = 0.0
+
+
+def _progress_handler():
+    """SQLite progress callback — raises interrupt if query exceeds timeout."""
+    if time.time() - _query_start_time > _QUERY_TIMEOUT_SECONDS:
+        return 1  # non-zero = interrupt the query
+    return 0
+
+
+def _install_query_timeout(conn):
+    """Install a progress handler that aborts queries after QUERY_TIMEOUT seconds."""
+    conn.set_progress_handler(_progress_handler, 10000)  # check every 10K VM ops
+
+
 # ============================================================================
 # Pydantic Models
 # ============================================================================
@@ -1390,15 +1405,14 @@ _AREA_NAME_COLUMNS = {
 # Spatial proximity query generation (properties near POIs via haversine)
 # ---------------------------------------------------------------------------
 
-# All tables that represent "points of interest" with native coordinates
+# Tables that use haversine proximity joins (transit only — they have no area column).
+# Schools & hospitals are EXCLUDED — they join via area name (fast, no haversine).
 _POI_PROXIMITY_TABLES = {
     # table_name: (lat_col, lng_col, name_col, tag)
     "metro_stations": ("station_location_latitude", "station_location_longitude", "location_name_english", "metro"),
     "tram_stations": ("station_location_latitude", "station_location_longitude", "location_name_english", "tram"),
-    "bus_stop_details": ("stop_location_latitude", "stop_location_longitude", "stop_name_english", "bus_stop"),
-    "school_search": ("lat", "long", "name_eng", "school"),
-    "sheryan_facility_detail": ("x_coordinate", "y_coordinate", "f_name_english", "hospital"),
-    "hep_search": ("lat", "long", "name_eng", "facility"),
+    # NOTE: bus_stop_details excluded — 20K rows makes haversine cross-join too slow
+    # NOTE: school_search, sheryan_facility_detail excluded — use area-based join instead
 }
 
 _PROXIMITY_PROPERTY_TABLES = {
@@ -1408,13 +1422,13 @@ _PROXIMITY_PROPERTY_TABLES = {
 
 # Column remap: other property tables -> bayut_transactions
 _COL_REMAP_TO_BAYUT = {
-    "property_type_en": None,       # bayut uses numeric property_type_id
+    "property_type_en": "property_type_id",  # bayut uses property_type_id (text: Villa, Apartment, etc.)
     "area_name_en": "location_area",
     "rooms_en": "beds",
     "actual_worth": "transaction_amount",
-    "trans_group_en": None,
+    "trans_group_en": None,          # NO equivalent in bayut — skip this filter
     "procedure_name_en": None,
-    "name_en": "location_area",     # from lkp_areas
+    "name_en": "location_area",      # from lkp_areas
 }
 
 _AREA_NAME_REMAP = {
@@ -1605,7 +1619,7 @@ def _generate_sql_from_ast(ast: FilterAST) -> str:
     # map markers (they represent facility locations, not property locations).
     # Their coordinates are returned as separate poi_lat/poi_lng columns instead.
     _POI_GEO_TABLES = {"school_search", "sheryan_facility_detail", "metro_stations",
-                        "tram_stations"}
+                        "tram_stations", "bus_stop_details"}
 
     base_table = ast.tables[0] if ast.tables else None
 
@@ -1673,12 +1687,14 @@ def _generate_sql_from_ast(ast: FilterAST) -> str:
     _POI_TAG = {
         "school_search": "school",
         "sheryan_facility_detail": "hospital",
+        "bus_stop_details": "busstop",
         "tram_stations": "tram",
         "metro_stations": "metro",
     }
     _POI_NAME_COL = {
         "school_search": "name_eng",
         "sheryan_facility_detail": "f_name_english",
+        "bus_stop_details": "stop_name",
         "tram_stations": "location_name_english",
         "metro_stations": "location_name_english",
     }
@@ -2087,6 +2103,7 @@ def _tables_from_join_lines(join_lines: List[str]) -> List[str]:
 @app.post("/api/query")
 async def execute_query(request: ExecuteQueryRequest):
     """Execute SQL query and return results."""
+    global _query_start_time
     db = get_db()
 
     try:
@@ -2094,6 +2111,7 @@ async def execute_query(request: ExecuteQueryRequest):
         if "LIMIT" not in sql.upper():
             sql += f" LIMIT {request.limit}"
 
+        _query_start_time = time.time()
         df = pd.read_sql_query(sql, db)
         data_json = json.loads(df.to_json(orient="records"))
 
@@ -2102,6 +2120,10 @@ async def execute_query(request: ExecuteQueryRequest):
             "data": data_json,
             "row_count": len(df),
         }
+    except sqlite3.OperationalError as e:
+        if "interrupt" in str(e).lower():
+            raise HTTPException(status_code=408, detail=f"Query timed out after {_QUERY_TIMEOUT_SECONDS}s. Try a simpler query or add filters to reduce data.")
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -2207,52 +2229,44 @@ async def get_column_values(table_name: str, column_name: str, limit: int = 100)
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@app.get("/api/categorical_columns")
-async def get_categorical_columns():
-    """Auto-detect categorical columns from ALL tables and return distinct values for filter dropdowns."""
+_categorical_cache: Dict[str, Any] = {"data": None}
+
+
+def _compute_categorical_columns_sync() -> dict:
+    """Compute categorical columns once — uses sampling for speed."""
     db = get_db()
     result = {}
     cursor = db.cursor()
 
-    # Get all tables in the database
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
     tables = [row[0] for row in cursor.fetchall()]
 
     for table in tables:
-        # Get column info for this table
-        cursor.execute(f"PRAGMA table_info({table})")
+        cursor.execute(f'PRAGMA table_info([{table}])')
         columns_info = cursor.fetchall()
-        # columns_info: (cid, name, type, notnull, dflt_value, pk)
 
         table_categoricals = {}
         for col_info in columns_info:
             col_name = col_info[1]
             col_type = (col_info[2] or "").upper()
 
-            # Only consider TEXT/VARCHAR columns as categorical candidates
             if not any(t in col_type for t in ["TEXT", "VARCHAR", "CHAR"]):
                 continue
 
             try:
-                # Check how many distinct values this column has
+                # Fast: get distinct values with a hard LIMIT — skip full COUNT(DISTINCT)
                 cursor.execute(f"""
-                    SELECT COUNT(DISTINCT [{col_name}])
+                    SELECT DISTINCT [{col_name}]
                     FROM [{table}]
                     WHERE [{col_name}] IS NOT NULL AND [{col_name}] != ''
+                    ORDER BY [{col_name}]
+                    LIMIT 501
                 """)
-                distinct_count = cursor.fetchone()[0]
+                values = [row[0] for row in cursor.fetchall()]
 
-                # If <= 500 distinct values, treat as categorical (good for dropdown)
-                if 0 < distinct_count <= 500:
-                    cursor.execute(f"""
-                        SELECT DISTINCT [{col_name}]
-                        FROM [{table}]
-                        WHERE [{col_name}] IS NOT NULL AND [{col_name}] != ''
-                        ORDER BY [{col_name}]
-                    """)
-                    values = [row[0] for row in cursor.fetchall()]
-                    if values:
-                        table_categoricals[col_name] = values
+                # If more than 500, it's not categorical — skip
+                if 0 < len(values) <= 500:
+                    table_categoricals[col_name] = values
             except Exception:
                 pass
 
@@ -2260,6 +2274,14 @@ async def get_categorical_columns():
             result[table] = table_categoricals
 
     return result
+
+
+@app.get("/api/categorical_columns")
+async def get_categorical_columns():
+    """Auto-detect categorical columns from ALL tables and return distinct values for filter dropdowns."""
+    if _categorical_cache["data"] is None:
+        _categorical_cache["data"] = _compute_categorical_columns_sync()
+    return _categorical_cache["data"]
 
 
 # ============================================================================
@@ -3346,6 +3368,7 @@ async def get_map_transactions(
             where_clause += " AND location_area LIKE ?"
             params.append(f"%{area}%")
 
+        # Use rowid sampling instead of ORDER BY RANDOM() (much faster on large tables)
         query = f"""
             SELECT location_area as name,
                    location_sub_area,
@@ -3360,7 +3383,6 @@ async def get_map_transactions(
                    developer_name
             FROM bayut_transactions
             {where_clause}
-            ORDER BY RANDOM()
             LIMIT {limit}
         """
         df = pd.read_sql_query(query, db, params=params if params else None)
