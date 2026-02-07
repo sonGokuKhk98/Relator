@@ -178,10 +178,30 @@ class PromptBuilder:
 - **developers**: Developer information - use when asking about developers
 - **brokers**: Broker information - use when asking about brokers/agents
 
-### Lookup Tables (for JOINs - include when related data is needed):
-- **lkp_areas**: Area/district names - include when query mentions "area info", "area details", "location names", or needs area_name_en
-- **lkp_transaction_groups**: Transaction type groups - include when query needs transaction type details
-- **lkp_transaction_procedures**: Transaction procedures - include when query needs procedure details
+### Lookup Tables (AVOID for simple queries — use denormalized columns instead):
+- **lkp_areas**: Area/district names - ONLY include when query specifically asks for "area info" or "area details" beyond what transactions.area_name_en provides
+- **lkp_transaction_groups**: Transaction type groups - RARELY needed because transactions.trans_group_en already has the type name directly
+- **lkp_transaction_procedures**: Transaction procedures - ONLY when query specifically asks for procedure details
+- **CRITICAL**: The transactions table has denormalized columns (trans_group_en, property_type_en, area_name_en, procedure_name_en) — use these DIRECTLY instead of JOINing to lookup tables. Do NOT include lkp_transaction_groups just to filter by Sales/Mortgages — use transactions.trans_group_en = 'Sales' instead.
+
+### Cross-Domain Tables (Education, Healthcare — JOIN via area name):
+- **school_search**: KHDA school directory — use when query mentions "school", "schools", "education", "KHDA", "outstanding school", "good school"
+  - Key columns: name_eng, overall_performance_en (ratings: Outstanding, Very good, Good, Acceptable, Weak), curriculum_en, area_en, lat, long
+  - JOINs to transactions/bayut_transactions via UPPER(area_en) = UPPER(area_name_en)
+- **sheryan_facility_detail**: DHA healthcare facilities (hospitals, clinics) — use when query mentions "hospital", "clinic", "healthcare", "medical"
+  - Key columns: f_name_english, facility_category_name_english, area_english, x_coordinate, y_coordinate
+  - JOINs to transactions/bayut_transactions via UPPER(area_english) = UPPER(area_name_en)
+
+### Transport Tables:
+- **metro_stations**: Metro station locations - use when query mentions "metro", "near metro"
+  - Key columns: location_name_english, station_location_latitude, station_location_longitude, line_name
+  - JOINs to transactions via transactions.nearest_metro_en = metro_stations.location_name_english
+- **tram_stations**: Tram station locations - use when query mentions "tram", "near tram"
+  - Key columns: location_name_english, station_location_latitude, station_location_longitude, line_name
+- **bus_stop_details**: RTA bus stop locations and routes — use as standalone table only (e.g. "list bus stops", "bus routes in Dubai")
+  - Key columns: stop_name, stop_id, street_name, route_name, stop_location_latitude, stop_location_longitude, bus_stop_type
+  - Do NOT join bus_stop_details with property tables — too expensive
+- **bus_routes**, **bus_ridership**, **bus_network_coverage**: Bus route/ridership data — standalone or join within RTA domain only
 
 ### When to Use Multiple Tables (JOINs):
 - If query asks for "with area info/details" -> add lkp_areas
@@ -191,6 +211,10 @@ class PromptBuilder:
 - If query mentions "property details" with rent -> use rent_contracts + related lookups
 - If query asks for data "across" or "combined" or "joined" -> use multiple tables
 - If query asks for "related" data -> include the related lookup tables
+- **If query mentions "school", "schools", "education", "KHDA", "outstanding", "good rated" -> ALWAYS include school_search + transactions**
+- **If query mentions "hospital", "clinic", "healthcare" -> ALWAYS include sheryan_facility_detail + transactions**
+- **If query mentions "bus stop", "bus route" -> use bus_stop_details as standalone table (no property join)**
+- **If query mentions "tram", "near tram" -> ALWAYS include tram_stations + transactions**
 
 ## Valid Operators:
 - Comparison: =, !=, >, >=, <, <=
@@ -234,16 +258,29 @@ class PromptBuilder:
    - "rent_contracts" for rental/lease/Ejari queries
    - "units" for property unit details
    - "bayut_transactions" for market data with developer info
-   - Include lookup tables (lkp_areas, lkp_transaction_groups, etc.) when query asks for related/detailed info
+   - Include lookup tables (lkp_areas, lkp_transaction_groups, etc.) ONLY when query specifically asks for related/detailed info not available on the main table
 4. **ALWAYS include multiple tables when**:
    - Query asks for "with [X] info/details"
    - Query mentions joining or combining data
    - Query needs data from related entities (areas, transaction types, developers)
-5. Never guess values - only extract what's explicitly stated
-6. Set confidence < 0.7 if interpretation is uncertain
-7. For sorting: "cheapest" -> ASC, "most expensive" -> DESC
-8. **NEVER use LIKE for area names** - always use exact match (=) with correct area name
-9. **Only ONE filter per column** - do not create multiple filters for the same column
+5. **AVOID unnecessary lookup table JOINs** — the transactions table has denormalized columns:
+   - Use `transactions.trans_group_en` for Sales/Mortgages/Gifts filtering (NOT lkp_transaction_groups)
+   - Use `transactions.area_name_en` for area filtering (NOT lkp_areas)
+   - Use `transactions.property_type_en` for property type filtering
+   - Use `transactions.procedure_name_en` for procedure filtering
+   - ONLY include lkp_* tables when the query specifically asks for "details" or "info" from those tables
+6. Never guess values - only extract what's explicitly stated
+7. Set confidence < 0.7 if interpretation is uncertain
+8. For sorting: "cheapest" -> ASC, "most expensive" -> DESC
+9. **NEVER use LIKE for area names** - always use exact match (=) with correct area name
+10. **Only ONE filter per column** - do not create multiple filters for the same column
+11. **CROSS-DOMAIN QUERIES (Schools / Healthcare)**: When query mentions "school", "education", "hospital", "clinic":
+   - Include **school_search** table for school queries — use overall_performance_en for ratings (Outstanding, Very good, Good, Acceptable, Weak)
+   - Include **sheryan_facility_detail** table for healthcare queries
+   - Use **transactions** as the base property table (joined via area name)
+   - ALWAYS include BOTH the domain table AND the property table
+   - Do NOT add lkp_transaction_groups or lkp_areas — use transactions.trans_group_en and transactions.area_name_en directly
+12. **TRANSPORT QUERIES**: metro_stations can join to transactions via nearest_metro_en. bus_stop_details should only be used standalone (no property joins).
 
 Return ONLY the JSON object, no markdown, no explanation."""
 
@@ -333,11 +370,11 @@ Query: "Show all rental contracts with area names"
 
 Query: "transactions with area details and transaction type information"
 {{
-  "tables": ["transactions", "lkp_areas", "lkp_transaction_groups"],
+  "tables": ["transactions", "lkp_areas"],
   "filters": [],
   "order_by": null,
   "confidence": 0.9,
-  "interpretation": "Property transactions joined with area and transaction type lookups"
+  "interpretation": "Property transactions with area details — trans_group_en already has type info directly on transactions table"
 }}
 
 Query: "sales transactions in Dubai Marina with area info"
@@ -466,6 +503,66 @@ Query: "transaction types and procedures"
   "confidence": 0.9,
   "interpretation": "Transaction groups joined with procedures"
 }}
+
+### Metro / Transport Queries — JOIN via nearest_metro_en or area name:
+
+Query: "properties near metro stations"
+{{
+  "tables": ["transactions", "metro_stations"],
+  "filters": [],
+  "order_by": null,
+  "confidence": 0.92,
+  "interpretation": "Transactions joined with metro stations via nearest_metro_en"
+}}
+
+Query: "list all bus stops in Dubai"
+{{
+  "tables": ["bus_stop_details"],
+  "filters": [],
+  "order_by": null,
+  "confidence": 0.95,
+  "interpretation": "Standalone bus stop listing — no property join needed"
+}}
+
+### Cross-Domain Queries (Education, Healthcare + Property) — JOIN via area name:
+
+Query: "areas with Good or Outstanding schools and sales under 3 million"
+{{
+  "tables": ["transactions", "school_search"],
+  "filters": [
+    {{"table": "school_search", "column": "overall_performance_en", "operator": "IN", "value": ["Good", "Outstanding", "Very good"]}},
+    {{"table": "transactions", "column": "trans_group_en", "operator": "=", "value": "Sales"}},
+    {{"table": "transactions", "column": "actual_worth", "operator": "<", "value": 3000000}}
+  ],
+  "order_by": null,
+  "confidence": 0.92,
+  "interpretation": "Transactions joined with KHDA school data via area name — areas with Good/Outstanding schools and affordable sales"
+}}
+
+Query: "show me areas with hospitals that have property transactions above 5 million"
+{{
+  "tables": ["transactions", "sheryan_facility_detail"],
+  "filters": [
+    {{"table": "transactions", "column": "trans_group_en", "operator": "=", "value": "Sales"}},
+    {{"table": "transactions", "column": "actual_worth", "operator": ">", "value": 5000000}}
+  ],
+  "order_by": null,
+  "confidence": 0.9,
+  "interpretation": "Transactions joined with DHA healthcare facilities via area — areas with hospitals and high-value transactions"
+}}
+
+Query: "outstanding schools in areas with villas"
+{{
+  "tables": ["transactions", "school_search"],
+  "filters": [
+    {{"table": "school_search", "column": "overall_performance_en", "operator": "=", "value": "Outstanding"}},
+    {{"table": "transactions", "column": "property_type_en", "operator": "=", "value": "Villa"}}
+  ],
+  "order_by": null,
+  "confidence": 0.9,
+  "interpretation": "KHDA Outstanding schools in areas with villa transactions"
+}}
+
 """
         if not self.feedback_store:
             return base_examples
@@ -540,6 +637,34 @@ class RegexExtractor:
         "palm jumeirah": ("transactions", "area_name_en", "=", "Palm Jumeirah"),
         "mirdif": ("transactions", "area_name_en", "=", "Mirdif"),
         "business bay": ("transactions", "area_name_en", "=", "Business Bay"),
+
+        # Metro station filters - map areas to nearest metro stations
+        # Note: CSV column is "location_name_english", not "station_name"
+        "metro near marina": ("metro_stations", "location_name_english", "=", "DMCC Metro Station"),
+        "metro marina": ("metro_stations", "location_name_english", "=", "DMCC Metro Station"),
+        "metro near jlt": ("metro_stations", "location_name_english", "=", "DMCC Metro Station"),
+        "metro near downtown": ("metro_stations", "location_name_english", "LIKE", "%Burj Khalifa%"),
+        "metro downtown": ("metro_stations", "location_name_english", "LIKE", "%Burj Khalifa%"),
+        "metro near business bay": ("metro_stations", "location_name_english", "LIKE", "%Business Bay%"),
+        "metro business bay": ("metro_stations", "location_name_english", "LIKE", "%Business Bay%"),
+        "metro near palm": ("metro_stations", "location_name_english", "LIKE", "%Jumeirah%"),
+        "red line": ("metro_stations", "line_name", "=", "Red Metro line"),
+        "green line": ("metro_stations", "line_name", "=", "Green Metro line"),
+
+        # School ratings (KHDA)
+        "outstanding school": ("school_search", "overall_performance_en", "=", "Outstanding"),
+        "outstanding schools": ("school_search", "overall_performance_en", "=", "Outstanding"),
+        "very good school": ("school_search", "overall_performance_en", "=", "Very good"),
+        "very good schools": ("school_search", "overall_performance_en", "=", "Very good"),
+        "good school": ("school_search", "overall_performance_en", "=", "Good"),
+        "good schools": ("school_search", "overall_performance_en", "=", "Good"),
+        "good rated school": ("school_search", "overall_performance_en", "=", "Good"),
+        "good rated schools": ("school_search", "overall_performance_en", "=", "Good"),
+        "good or outstanding": ("school_search", "overall_performance_en", "IN", ["Good", "Outstanding", "Very good"]),
+        "top rated school": ("school_search", "overall_performance_en", "IN", ["Outstanding", "Very good"]),
+
+        # Healthcare facility types
+        "general hospital": ("sheryan_facility_detail", "facility_category_name_english", "LIKE", "%Hospital%"),
     }
 
     # Keywords that trigger specific primary tables
@@ -578,11 +703,19 @@ class RegexExtractor:
         "brokers": "brokers",
         "agent": "brokers",
 
-        # Lookup table keywords
-        "areas": "lkp_areas",
-        "districts": "lkp_areas",
-        "transaction types": "lkp_transaction_groups",
-        "procedures": "lkp_transaction_procedures",
+        # NOTE: Lookup tables, school, healthcare, and transport should NOT be primary tables.
+        # They are added as JOIN tables via JOIN_KEYWORDS instead.
+        # "areas", "school", "hospital", "metro" etc. are intentionally excluded here.
+        "health facility": "sheryan_facility_detail",
+        "pharmacy": "sheryan_facility_detail",
+        "medical": "sheryan_facility_detail",
+
+        # Bus — standalone queries only (no property joins)
+        "bus stop": "bus_stop_details",
+        "bus stops": "bus_stop_details",
+        "bus station": "bus_stop_details",
+        "bus route": "bus_stop_details",
+        "rta bus": "bus_stop_details",
     }
 
     # Keywords that trigger additional tables for JOINs
@@ -602,6 +735,37 @@ class RegexExtractor:
         "full details": ["lkp_areas", "lkp_transaction_groups", "lkp_transaction_procedures"],
         "project data": ["lkp_areas"],
         "property details": ["lkp_areas"],
+
+        # Metro/Transport joins
+        "metro info": ["metro_stations"],
+        "near metro": ["metro_stations"],
+        "metro station": ["metro_stations"],
+        "nearest metro": ["metro_stations"],
+        "with metro": ["metro_stations"],
+        "tram info": ["tram_stations"],
+        "near tram": ["tram_stations"],
+        "tram station": ["tram_stations"],
+        "tram stations": ["tram_stations"],
+        "with tram": ["tram_stations"],
+
+        # School/Education joins
+        "school": ["school_search"],
+        "schools": ["school_search"],
+        "good school": ["school_search"],
+        "outstanding school": ["school_search"],
+        "rated school": ["school_search"],
+        "with school": ["school_search"],
+        "near school": ["school_search"],
+        "khda": ["school_search"],
+
+        # Healthcare joins
+        "hospital": ["sheryan_facility_detail"],
+        "hospitals": ["sheryan_facility_detail"],
+        "clinic": ["sheryan_facility_detail"],
+        "healthcare": ["sheryan_facility_detail"],
+        "health facilit": ["sheryan_facility_detail"],
+        "medical": ["sheryan_facility_detail"],
+        "near hospital": ["sheryan_facility_detail"],
     }
 
     # Order patterns
@@ -643,19 +807,36 @@ class RegexExtractor:
                     tables.add(t)
 
         # Step 3: Extract filters from keywords
+        # First pass: collect all matching keyword filters
+        candidate_filters = []
         for keyword, (table, column, op, value) in self.KEYWORD_FILTERS.items():
             if keyword in query_lower:
-                # Only add filter if the table is relevant to the primary table
-                # or if it's the transactions table (default)
                 if table == primary_table or table == "transactions" or table in tables:
-                    tables.add(table)
-                    filters.add(FilterNode(
-                        table=table,
-                        column=column,
-                        operator=FilterOperator.from_string(op),
-                        value=value,
-                        original_text=keyword,
-                    ))
+                    candidate_filters.append((keyword, table, column, op, value))
+
+        # Deduplicate: for each (table, column), prefer IN/broader filter over single-value EQ
+        seen_columns = {}  # (table, column) -> (op, value, keyword)
+        for keyword, table, column, op, value in candidate_filters:
+            key = (table, column)
+            if key in seen_columns:
+                existing_op = seen_columns[key][0]
+                # Prefer IN over EQ (broader filter), or keep the first IN
+                if op == "IN" and existing_op != "IN":
+                    seen_columns[key] = (op, value, keyword)
+                # If existing is already IN, skip
+            else:
+                seen_columns[key] = (op, value, keyword)
+
+        # Add deduplicated filters
+        for (table, column), (op, value, keyword) in seen_columns.items():
+            tables.add(table)
+            filters.add(FilterNode(
+                table=table,
+                column=column,
+                operator=FilterOperator.from_string(op),
+                value=value,
+                original_text=keyword,
+            ))
 
         # Extract bedrooms/rooms
         bed_match = re.search(r'(\d+)\+?\s*(?:bed|bedroom|br|b/r|room)', query_lower)
@@ -724,8 +905,21 @@ class RegexExtractor:
                 order_by = OrderByClause(column=column, direction=direction, table="transactions")
                 break
 
+        # Ensure proper table ordering: primary data table first, then JOINs
+        # transactions/rent_contracts/bayut_transactions should always be the FROM table
+        _PRIMARY_TABLES_ORDER = ["transactions", "rent_contracts", "bayut_transactions", "units", "land_registry"]
+        ordered_tables = []
+        remaining = set(tables)
+        for pt in _PRIMARY_TABLES_ORDER:
+            if pt in remaining:
+                ordered_tables.append(pt)
+                remaining.discard(pt)
+                break  # Only one primary base table
+        # Add the rest (cross-domain, lookups, etc.)
+        ordered_tables.extend(sorted(remaining))
+
         return FilterAST(
-            tables=list(tables),
+            tables=ordered_tables,
             filters=filters,
             order_by=order_by,
             original_query=query,
@@ -1079,8 +1273,8 @@ class SmartExtractor:
         # Deduplicate filters before returning
         result.ast = self._deduplicate_ast_filters(result.ast)
 
-        # Cache result
-        if self.cache and result.confidence >= 0.7:
+        # Cache result (lower threshold to avoid repeated LLM calls on re-type)
+        if self.cache and result.confidence >= 0.3:
             self.cache.set(query, result)
 
         return result

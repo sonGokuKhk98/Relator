@@ -1,6 +1,8 @@
-# Data folders
+# Data folders and large files
 data/
 data_demo/
+data_variable/
+data_demo.zip
 *.db
 *.sqlite
 *.sqlite3

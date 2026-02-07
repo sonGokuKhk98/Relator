@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: nexus-ai
+    runtime: python
+    buildCommand: bash build.sh
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: GDRIVE_FILE_ID
+        sync: false
+      - key: DATA_MODE
+        value: variable
+      - key: PYTHON_VERSION
+        value: "3.11.6"

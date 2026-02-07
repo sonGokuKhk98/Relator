@@ -1,0 +1,446 @@
+[
+  {
+    "name": "Dubai Marina",
+    "lat": 25.0805,
+    "lng": 55.1403,
+    "category": "residential"
+  },
+  {
+    "name": "Palm Jumeirah",
+    "lat": 25.1124,
+    "lng": 55.139,
+    "category": "residential"
+  },
+  {
+    "name": "Downtown Dubai",
+    "lat": 25.1972,
+    "lng": 55.2744,
+    "category": "residential"
+  },
+  {
+    "name": "Business Bay",
+    "lat": 25.1851,
+    "lng": 55.2719,
+    "category": "residential"
+  },
+  {
+    "name": "Jumeirah Beach Residence JBR",
+    "lat": 25.078,
+    "lng": 55.134,
+    "category": "residential"
+  },
+  {
+    "name": "Dubai Hills Estate",
+    "lat": 25.1355,
+    "lng": 55.2428,
+    "category": "residential"
+  },
+  {
+    "name": "Arabian Ranches",
+    "lat": 25.0597,
+    "lng": 55.2636,
+    "category": "residential"
+  },
+  {
+    "name": "The Springs Dubai",
+    "lat": 25.0636,
+    "lng": 55.1919,
+    "category": "residential"
+  },
+  {
+    "name": "The Meadows Dubai",
+    "lat": 25.049,
+    "lng": 55.173,
+    "category": "residential"
+  },
+  {
+    "name": "Emirates Hills",
+    "lat": 25.0694,
+    "lng": 55.1575,
+    "category": "residential"
+  },
+  {
+    "name": "Jumeirah Village Circle JVC",
+    "lat": 25.0591,
+    "lng": 55.2098,
+    "category": "residential"
+  },
+  {
+    "name": "Jumeirah Lake Towers JLT",
+    "lat": 25.072,
+    "lng": 55.146,
+    "category": "residential"
+  },
+  {
+    "name": "Dubai Sports City",
+    "lat": 25.0361,
+    "lng": 55.2209,
+    "category": "residential"
+  },
+  {
+    "name": "Motor City Dubai",
+    "lat": 25.0467,
+    "lng": 55.2349,
+    "category": "residential"
+  },
+  {
+    "name": "International City Dubai",
+    "lat": 25.1599,
+    "lng": 55.3993,
+    "category": "residential"
+  },
+  {
+    "name": "Discovery Gardens Dubai",
+    "lat": 25.0351,
+    "lng": 55.1307,
+    "category": "residential"
+  },
+  {
+    "name": "Al Barsha Dubai",
+    "lat": 25.0993,
+    "lng": 55.1894,
+    "category": "residential"
+  },
+  {
+    "name": "Deira Dubai",
+    "lat": 25.272,
+    "lng": 55.3273,
+    "category": "residential"
+  },
+  {
+    "name": "Bur Dubai",
+    "lat": 25.2557,
+    "lng": 55.3004,
+    "category": "residential"
+  },
+  {
+    "name": "Karama Dubai",
+    "lat": 25.2405,
+    "lng": 55.3047,
+    "category": "residential"
+  },
+  {
+    "name": "Al Quoz Dubai",
+    "lat": 25.1491,
+    "lng": 55.227,
+    "category": "residential"
+  },
+  {
+    "name": "Jumeirah Dubai",
+    "lat": 25.2063,
+    "lng": 55.2457,
+    "category": "residential"
+  },
+  {
+    "name": "Umm Suqeim Dubai",
+    "lat": 25.1371,
+    "lng": 55.2044,
+    "category": "residential"
+  },
+  {
+    "name": "Al Nahda Dubai",
+    "lat": 25.2937,
+    "lng": 55.3705,
+    "category": "residential"
+  },
+  {
+    "name": "Al Rashidiya Dubai",
+    "lat": 25.2301,
+    "lng": 55.3931,
+    "category": "residential"
+  },
+  {
+    "name": "Al Warqaa Dubai",
+    "lat": 25.2033,
+    "lng": 55.3915,
+    "category": "residential"
+  },
+  {
+    "name": "Mirdif Dubai",
+    "lat": 25.2181,
+    "lng": 55.417,
+    "category": "residential"
+  },
+  {
+    "name": "Silicon Oasis Dubai",
+    "lat": 25.1253,
+    "lng": 55.3782,
+    "category": "residential"
+  },
+  {
+    "name": "Academic City Dubai",
+    "lat": 25.102,
+    "lng": 55.391,
+    "category": "residential"
+  },
+  {
+    "name": "Dubai Production City IMPZ",
+    "lat": 25.0412,
+    "lng": 55.1874,
+    "category": "residential"
+  },
+  {
+    "name": "Al Furjan Dubai",
+    "lat": 25.0232,
+    "lng": 55.1472,
+    "category": "residential"
+  },
+  {
+    "name": "Town Square Dubai",
+    "lat": 25.025,
+    "lng": 55.268,
+    "category": "residential"
+  },
+  {
+    "name": "Damac Hills Dubai",
+    "lat": 25.029,
+    "lng": 55.2411,
+    "category": "residential"
+  },
+  {
+    "name": "Tilal Al Ghaf Dubai",
+    "lat": 25.04,
+    "lng": 55.255,
+    "category": "residential"
+  },
+  {
+    "name": "Dubai Creek Harbour",
+    "lat": 25.1942,
+    "lng": 55.3423,
+    "category": "residential"
+  },
+  {
+    "name": "Sobha Hartland Dubai",
+    "lat": 25.176,
+    "lng": 55.312,
+    "category": "residential"
+  },
+  {
+    "name": "MBR City District One Dubai",
+    "lat": 25.163,
+    "lng": 55.308,
+    "category": "residential"
+  },
+  {
+    "name": "City Walk Dubai",
+    "lat": 25.2081,
+    "lng": 55.2617,
+    "category": "residential"
+  },
+  {
+    "name": "La Mer Dubai",
+    "lat": 25.231,
+    "lng": 55.265,
+    "category": "residential"
+  },
+  {
+    "name": "Bluewaters Island Dubai",
+    "lat": 25.0789,
+    "lng": 55.122,
+    "category": "residential"
+  },
+  {
+    "name": "The Greens Dubai",
+    "lat": 25.051,
+    "lng": 55.164,
+    "category": "residential"
+  },
+  {
+    "name": "The Views Dubai",
+    "lat": 25.059,
+    "lng": 55.1681,
+    "category": "residential"
+  },
+  {
+    "name": "DIFC Dubai",
+    "lat": 25.2105,
+    "lng": 55.2795,
+    "category": "commercial"
+  },
+  {
+    "name": "World Trade Centre Dubai",
+    "lat": 25.2245,
+    "lng": 55.285,
+    "category": "commercial"
+  },
+  {
+    "name": "Al Satwa Dubai",
+    "lat": 25.22,
+    "lng": 55.266,
+    "category": "residential"
+  },
+  {
+    "name": "Oud Metha Dubai",
+    "lat": 25.236,
+    "lng": 55.3118,
+    "category": "residential"
+  },
+  {
+    "name": "Healthcare City Dubai",
+    "lat": 25.2304,
+    "lng": 55.32,
+    "category": "commercial"
+  },
+  {
+    "name": "Festival City Dubai",
+    "lat": 25.2219,
+    "lng": 55.3538,
+    "category": "residential"
+  },
+  {
+    "name": "Al Jaddaf Dubai",
+    "lat": 25.215,
+    "lng": 55.33,
+    "category": "residential"
+  },
+  {
+    "name": "Culture Village Dubai",
+    "lat": 25.225,
+    "lng": 55.335,
+    "category": "residential"
+  },
+  {
+    "name": "Dubai Mall",
+    "lat": 25.1972,
+    "lng": 55.2795,
+    "category": "landmark"
+  },
+  {
+    "name": "Mall of the Emirates Dubai",
+    "lat": 25.1177,
+    "lng": 55.2008,
+    "category": "landmark"
+  },
+  {
+    "name": "Ibn Battuta Mall Dubai",
+    "lat": 25.0441,
+    "lng": 55.1189,
+    "category": "landmark"
+  },
+  {
+    "name": "Burj Khalifa",
+    "lat": 25.1972,
+    "lng": 55.2744,
+    "category": "landmark"
+  },
+  {
+    "name": "Burj Al Arab",
+    "lat": 25.1413,
+    "lng": 55.1853,
+    "category": "landmark"
+  },
+  {
+    "name": "Dubai Frame",
+    "lat": 25.2348,
+    "lng": 55.3003,
+    "category": "landmark"
+  },
+  {
+    "name": "Museum of the Future Dubai",
+    "lat": 25.2197,
+    "lng": 55.2806,
+    "category": "landmark"
+  },
+  {
+    "name": "Dubai Expo City",
+    "lat": 24.9668,
+    "lng": 55.156,
+    "category": "landmark"
+  },
+  {
+    "name": "Dubai Airport Terminal 3",
+    "lat": 25.2528,
+    "lng": 55.3644,
+    "category": "transport"
+  },
+  {
+    "name": "Al Maktoum International Airport",
+    "lat": 24.8967,
+    "lng": 55.1582,
+    "category": "transport"
+  },
+  {
+    "name": "Rashidiya Metro Station Dubai",
+    "lat": 25.0654907,
+    "lng": 55.148544,
+    "url": "https://www.google.com/maps/search/Rashidiya+Metro+Station+Dubai/@25.0654907,55.148544,14z?entry=ttu&g_ep=EgoyMDI2MDIwNC4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "name": "Airport Terminal 1 Metro Dubai",
+    "lat": 25.2483925,
+    "lng": 55.3525074,
+    "url": "https://www.google.com/maps/place/DXB+Terminal+1+Metro+Station+-+Terminal+1+Departures+Landside+-+opposite+Entrance+5+-+%D9%85%D8%B7%D8%A7%D8%B1+%D8%AF%D8%A8%D9%8A+%D8%A7%D9%84%D8%AF%D9%88%D9%84%D9%8A+-+%D8%AF%D8%A8%D9%8A%E2%80%AD/@25.2287943,55.4014577,16z/data=!4m6!3m5!1s0x3e5f5d0f562250f9:0x4b668311b2f94376!8m2!3d25.2483925!4d55.3525074!16s%2Fg%2F11bw4qf1kz?entry=ttu&g_ep=EgoyMDI2MDIwNC4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "name": "GGICO Metro Station Dubai",
+    "lat": 25.2494833,
+    "lng": 55.3399688,
+    "url": "https://www.google.com/maps/place/GGICO+Metro+Station/@25.2483925,55.3550823,17z/data=!4m6!3m5!1s0x3e5f5d193ae98731:0x6922941ecfae7fa9!8m2!3d25.2494833!4d55.3399688!16s%2Fg%2F1pxy2pd2x?entry=ttu&g_ep=EgoyMDI2MDIwNC4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "name": "Deira City Centre Metro Dubai",
+    "lat": 25.2536673,
+    "lng": 55.3324437,
+    "url": "https://www.google.com/maps/search/Deira+City+Centre+Metro+Dubai/@25.2536673,55.3324437,18z/data=!3m1!4b1?entry=ttu&g_ep=EgoyMDI2MDIwNC4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "name": "Union Metro Station Dubai",
+    "lat": 25.2663361,
+    "lng": 55.3145054,
+    "url": "https://www.google.com/maps/place/%D8%A7%D8%AA%D8%AD%D8%A7%D8%AF%E2%80%AD/@25.2536673,55.3324437,18z/data=!4m6!3m5!1s0x3e5f4334d0cc2af5:0x465ec499445a690c!8m2!3d25.2663361!4d55.3145054!16s%2Fm%2F09thbxd?entry=ttu&g_ep=EgoyMDI2MDIwNC4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "name": "BurJuman Metro Station Dubai",
+    "lat": 25.2547185,
+    "lng": 55.3042717,
+    "url": "https://www.google.com/maps/place/%D9%85%D8%AD%D8%B7%D8%A9+%D9%85%D8%AA%D8%B1%D9%88+%D8%A8%D8%B1%D8%AC%D9%85%D8%A7%D9%86%E2%80%AD/@25.2663361,55.3170803,17z/data=!4m6!3m5!1s0x3e5f432febf51e1b:0x64662d6ca066ade1!8m2!3d25.2547185!4d55.3042717!16s%2Fg%2F1thx2j0m?entry=ttu&g_ep=EgoyMDI2MDIwNC4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "name": "ADCB Metro Station Dubai",
+    "lat": 25.2547185,
+    "lng": 55.3068466,
+    "url": "https://www.google.com/maps/search/ADCB+Metro+Station+Dubai/@25.2547185,55.3068466,17z?entry=ttu&g_ep=EgoyMDI2MDIwNC4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "name": "Sharaf DG Metro Station Dubai",
+    "lat": 25.2438129,
+    "lng": 55.3009197,
+    "url": "https://www.google.com/maps/search/Sharaf+DG+Metro+Station+Dubai/@25.2438129,55.3009197,17z?entry=ttu&g_ep=EgoyMDI2MDIwNC4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "name": "Mall of the Emirates Metro Dubai",
+    "lat": 25.2581019,
+    "lng": 55.2997551,
+    "url": "https://www.google.com/maps/search/Mall+of+the+Emirates+Metro+Dubai/@25.2581019,55.2997551,17z?entry=ttu&g_ep=EgoyMDI2MDIwNC4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "name": "Nakheel Metro Station Dubai",
+    "lat": 25.0888349,
+    "lng": 55.1580819,
+    "url": "https://www.google.com/maps/place/%D9%85%D8%AD%D8%B7%D8%A9+%D9%85%D8%AA%D8%B1%D9%88+%D8%A7%D9%84%D8%AE%D9%8A%D9%84%E2%80%AD/@25.1197018,55.2017937,18z/data=!4m6!3m5!1s0x3e5f6b5dc1153e91:0x9f480948d5a39244!8m2!3d25.0888349!4d55.1580819!16s%2Fm%2F0pc5zn1?entry=ttu&g_ep=EgoyMDI2MDIwNC4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "name": "Ibn Battuta Metro Station Dubai",
+    "lat": 25.0888349,
+    "lng": 55.1606568,
+    "url": "https://www.google.com/maps/search/Ibn+Battuta+Metro+Station+Dubai/@25.0888349,55.1606568,17z?entry=ttu&g_ep=EgoyMDI2MDIwNC4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "name": "UAE Exchange Metro Station Dubai",
+    "lat": 25.0466971,
+    "lng": 55.1200708,
+    "url": "https://www.google.com/maps/search/UAE+Exchange+Metro+Station+Dubai/@25.0466971,55.1200708,17z?entry=ttu&g_ep=EgoyMDI2MDIwNC4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "name": "Expo 2020 Metro Station Dubai",
+    "lat": 25.0242776,
+    "lng": 55.1562292,
+    "url": "https://www.google.com/maps/search/Expo+2020+Metro+Station+Dubai/@25.0242776,55.1562292,13z?entry=ttu&g_ep=EgoyMDI2MDIwNC4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "name": "Jebel Ali Metro Station Dubai",
+    "lat": 24.9633299,
+    "lng": 55.1488657,
+    "url": "https://www.google.com/maps/search/Jebel+Ali+Metro+Station+Dubai/@24.9633299,55.1488657,17z?entry=ttu&g_ep=EgoyMDI2MDIwNC4wIKXMDSoASAFQAw%3D%3D"
+  }
+]

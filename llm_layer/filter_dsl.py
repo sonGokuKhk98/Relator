@@ -130,6 +130,16 @@ class FilterNode:
 
         # Standard comparison
         if isinstance(self.value, str):
+            # Numeric strings should not be quoted (avoids string comparison in SQLite)
+            stripped = self.value.strip()
+            try:
+                num = float(stripped)
+                # Use int form if it's a whole number
+                if num == int(num):
+                    return f"{col_ref} {self.operator.value} {int(num)}"
+                return f"{col_ref} {self.operator.value} {num}"
+            except (ValueError, OverflowError):
+                pass
             escaped_value = self.value.replace("'", "''")
             return f"{col_ref} {self.operator.value} '{escaped_value}'"
 

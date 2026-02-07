@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dubai Proptech Explorer</title>
+    <title>NEXUS AI — Enterprise Intelligence</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -50,6 +50,14 @@
             }
         }
     </script>
+
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Leaflet MarkerCluster -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
     <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -115,6 +123,88 @@
             top: 0;
             background: #0f172a;
             z-index: 10;
+        }
+
+        /* Leaflet dark theme overrides */
+        .leaflet-container {
+            background: #0f172a;
+        }
+        .leaflet-popup-content-wrapper {
+            background: #1e293b;
+            color: #f8fafc;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        .leaflet-popup-tip {
+            background: #1e293b;
+        }
+        .leaflet-popup-content {
+            margin: 10px 14px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        .leaflet-control-zoom a {
+            background: #1e293b !important;
+            color: #94a3b8 !important;
+            border-color: #334155 !important;
+        }
+        .leaflet-control-zoom a:hover {
+            background: #334155 !important;
+            color: #fff !important;
+        }
+        .leaflet-control-attribution {
+            background: rgba(15, 23, 42, 0.8) !important;
+            color: #475569 !important;
+            font-size: 9px !important;
+        }
+        .leaflet-control-attribution a {
+            color: #6366f1 !important;
+        }
+        .marker-cluster-small {
+            background-color: rgba(99, 102, 241, 0.3) !important;
+        }
+        .marker-cluster-small div {
+            background-color: rgba(99, 102, 241, 0.7) !important;
+            color: #fff !important;
+        }
+        .marker-cluster-medium {
+            background-color: rgba(245, 158, 11, 0.3) !important;
+        }
+        .marker-cluster-medium div {
+            background-color: rgba(245, 158, 11, 0.7) !important;
+            color: #fff !important;
+        }
+        .marker-cluster-large {
+            background-color: rgba(239, 68, 68, 0.3) !important;
+        }
+        .marker-cluster-large div {
+            background-color: rgba(239, 68, 68, 0.7) !important;
+            color: #fff !important;
+        }
+        .map-legend-item {
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .map-legend-item.disabled {
+            opacity: 0.35;
+        }
+        /* Leaflet area label tooltips */
+        .leaflet-tooltip.area-label {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: #e2e8f0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            letter-spacing: 0.3px;
+        }
+        .leaflet-tooltip.area-label::before {
+            border-top-color: rgba(15, 23, 42, 0.85);
         }
     </style>
 </head>
@@ -307,7 +397,7 @@
                         onClick={handleClick}
                     />
                     <div className="absolute bottom-4 left-4 text-[10px] text-slate-500 font-mono tracking-wider opacity-60 pointer-events-none">
-                        DUBAI PROPTECH GRAPH
+                        NEXUS KNOWLEDGE GRAPH
                     </div>
                 </div>
             );
@@ -365,9 +455,652 @@
             );
         }
 
+        // --- Interactive Map Component (Leaflet) ---
+        // Areas = polygons, query results auto-populate lat/lon markers
+        function MapView({ queryResults, generatedSql, queryResetKey }) {
+            const mapRef = useRef(null);
+            const mapInstanceRef = useRef(null);
+            const layerGroupsRef = useRef({});
+            const clusterGroupRef = useRef(null);
+            const queryClusterRef = useRef(null);
+            const [mapLayers, setMapLayers] = useState({});
+            const [visibleLayers, setVisibleLayers] = useState(new Set(["areas", "landmarks", "metro"]));
+            const [mapLoading, setMapLoading] = useState(true);
+            const [showTransactions, setShowTransactions] = useState(false);
+            const [transactionData, setTransactionData] = useState(null);
+            const [queryMapData, setQueryMapData] = useState(null);
+            const [mapStats, setMapStats] = useState({ total: 0 });
+            const [queryActive, setQueryActive] = useState(false);  // dims base layers when results plotted
+            const savedLayersRef = useRef(null);  // remembers which layers were on before query
+
+            // When parent signals a reset (new query typed or clear), reset map overlay
+            const prevResetKey = useRef(queryResetKey);
+            useEffect(() => {
+                if (queryResetKey !== prevResetKey.current) {
+                    prevResetKey.current = queryResetKey;
+                    setQueryMapData(null);
+                    setQueryActive(false);
+                    if (savedLayersRef.current) {
+                        setVisibleLayers(savedLayersRef.current);
+                        savedLayersRef.current = null;
+                    }
+                }
+            }, [queryResetKey]);
+
+            // Color palette for area polygons (cycle through)
+            // Bright, high-contrast colors that pop on dark maps
+            const AREA_COLORS = [
+                '#22d3ee','#38bdf8','#60a5fa','#818cf8','#a78bfa',
+                '#34d399','#4ade80','#a3e635','#facc15','#fb923c',
+                '#f472b6','#e879f9','#c084fc','#67e8f9','#2dd4bf',
+                '#86efac','#fde047','#fdba74','#f9a8d4','#d8b4fe',
+            ];
+
+            // Initialize map
+            useEffect(() => {
+                if (mapInstanceRef.current) return;
+
+                const map = L.map(mapRef.current, {
+                    center: [25.1500, 55.2500],
+                    zoom: 11,
+                    zoomControl: true,
+                    attributionControl: true,
+                });
+
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+                    subdomains: 'abcd',
+                    maxZoom: 19,
+                }).addTo(map);
+
+                mapInstanceRef.current = map;
+
+                fetch(`${API_URL}/map_data`)
+                    .then(res => res.json())
+                    .then(data => {
+                        setMapLayers(data.layers || {});
+                        setMapLoading(false);
+                    })
+                    .catch(() => setMapLoading(false));
+
+                return () => {
+                    if (mapInstanceRef.current) {
+                        mapInstanceRef.current.remove();
+                        mapInstanceRef.current = null;
+                    }
+                };
+            }, []);
+
+            // Create marker icon
+            const createIcon = useCallback((color, size = 8) => {
+                return L.divIcon({
+                    className: '',
+                    html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};border:2px solid rgba(255,255,255,0.8);box-shadow:0 0 8px ${color}80;"></div>`,
+                    iconSize: [size, size],
+                    iconAnchor: [size/2, size/2],
+                });
+            }, []);
+
+            // Render base layers: AREAS as polygons, others as markers
+            useEffect(() => {
+                const map = mapInstanceRef.current;
+                if (!map || !mapLayers) return;
+
+                // Remove old base layers (not query/transaction layers)
+                ["areas","landmarks","metro","transport"].forEach(k => {
+                    if (layerGroupsRef.current[k]) {
+                        map.removeLayer(layerGroupsRef.current[k]);
+                        delete layerGroupsRef.current[k];
+                    }
+                });
+
+                let totalItems = 0;
+
+                Object.entries(mapLayers).forEach(([key, layer]) => {
+                    const layerGroup = L.layerGroup();
+
+                    // ---- AREAS: Skip polygon rendering (removed) ----
+                    if (key === "areas") {
+                        // Community polygons removed — too much visual clutter
+                    }
+                    // ---- LANDMARKS: Point markers only (square polygons removed) ----
+                    else if (key === "landmarks") {
+                        // Point markers for individual landmarks
+                        (layer.data || []).forEach(item => {
+                            if (!item.lat || !item.lng) return;
+                            const marker = L.marker([item.lat, item.lng], { icon: createIcon('#f59e0b', 12) });
+                            marker.bindPopup(`<div style="min-width:160px">
+                                <div style="font-weight:700;font-size:13px;color:#f59e0b">${item.name}</div>
+                                <div style="color:#94a3b8;font-size:10px;text-transform:uppercase">${item.category || ''}</div>
+                                <div style="color:#475569;font-size:10px;margin-top:4px">${Number(item.lat).toFixed(4)}, ${Number(item.lng).toFixed(4)}</div>
+                                <a href="https://www.google.com/maps?q=${item.lat},${item.lng}" target="_blank" style="color:#6366f1;font-size:10px;text-decoration:none">Google Maps &rarr;</a>
+                            </div>`);
+                            layerGroup.addLayer(marker);
+                            totalItems++;
+                        });
+                    }
+                    // ---- METRO / TRANSPORT: Point markers ----
+                    else {
+                        (layer.data || []).forEach(item => {
+                            if (!item.lat || !item.lng) return;
+                            const size = key === "metro" ? 7 : 9;
+                            const marker = L.marker([item.lat, item.lng], { icon: createIcon(layer.color, size) });
+                            let popup = `<div style="min-width:160px">
+                                <div style="font-weight:700;font-size:13px;color:${layer.color}">${item.name || 'Unknown'}</div>`;
+                            if (item.line_name) popup += `<div style="color:#10b981;font-size:11px">${item.line_name}</div>`;
+                            popup += `<div style="color:#475569;font-size:10px;margin-top:4px">${Number(item.lat).toFixed(4)}, ${Number(item.lng).toFixed(4)}</div>`;
+                            popup += `<a href="https://www.google.com/maps?q=${item.lat},${item.lng}" target="_blank" style="color:#6366f1;font-size:10px;text-decoration:none">Google Maps &rarr;</a></div>`;
+                            marker.bindPopup(popup);
+                            layerGroup.addLayer(marker);
+                            totalItems++;
+                        });
+                    }
+
+                    layerGroupsRef.current[key] = layerGroup;
+                    if (visibleLayers.has(key)) {
+                        layerGroup.addTo(map);
+                    }
+                });
+
+                setMapStats(prev => ({ ...prev, total: totalItems }));
+            }, [mapLayers, visibleLayers, createIcon]);
+
+            // Load transaction data
+            useEffect(() => {
+                if (!showTransactions || transactionData) return;
+                fetch(`${API_URL}/map_data/transactions?limit=1000`)
+                    .then(res => res.json())
+                    .then(data => setTransactionData(data))
+                    .catch(console.error);
+            }, [showTransactions, transactionData]);
+
+            // Render transaction markers — exact positions
+            useEffect(() => {
+                const map = mapInstanceRef.current;
+                if (!map) return;
+                if (clusterGroupRef.current) {
+                    map.removeLayer(clusterGroupRef.current);
+                    clusterGroupRef.current = null;
+                }
+                if (!showTransactions || !transactionData || !transactionData.data) return;
+
+                const group = L.layerGroup();
+
+                transactionData.data.forEach(tx => {
+                    if (!tx.lat || !tx.lng) return;
+                    const marker = L.circleMarker([tx.lat, tx.lng], {
+                        radius: 4,
+                        fillColor: "#ef4444",
+                        color: "#ffffff",
+                        weight: 1,
+                        opacity: 0.8,
+                        fillOpacity: 0.75,
+                    });
+                    const amount = tx.transaction_amount ? `AED ${Number(tx.transaction_amount).toLocaleString()}` : 'N/A';
+                    marker.bindPopup(`<div style="min-width:180px">
+                        <div style="font-weight:700;font-size:12px;color:#fff">${tx.name || 'Transaction'}</div>
+                        ${tx.location_sub_area ? `<div style="color:#94a3b8;font-size:11px">${tx.location_sub_area}</div>` : ''}
+                        ${tx.location_building ? `<div style="color:#64748b;font-size:10px">${tx.location_building}</div>` : ''}
+                        <div style="color:#ef4444;font-weight:600;font-size:12px;margin-top:4px">${amount}</div>
+                        <div style="display:flex;gap:8px;margin-top:4px;color:#94a3b8;font-size:10px">
+                            ${tx.beds ? `<span>${tx.beds} bed</span>` : ''}
+                            ${tx.builtup_area_sqm ? `<span>${Math.round(tx.builtup_area_sqm)} sqm</span>` : ''}
+                            ${tx.completion_status ? `<span>${tx.completion_status}</span>` : ''}
+                        </div>
+                        ${tx.developer_name ? `<div style="color:#6366f1;font-size:10px;margin-top:2px">${tx.developer_name}</div>` : ''}
+                    </div>`);
+                    group.addLayer(marker);
+                });
+
+                group.addTo(map);
+                clusterGroupRef.current = group;
+            }, [showTransactions, transactionData, createIcon]);
+
+            // ---- QUERY RESULTS: auto-populate lat/lon from results ----
+            useEffect(() => {
+                if (!queryResults || !queryResults.data || queryResults.data.length === 0) {
+                    // No results → restore base layers
+                    setQueryMapData(null);
+                    if (queryActive) {
+                        setQueryActive(false);
+                        // Restore previously visible layers
+                        if (savedLayersRef.current) {
+                            setVisibleLayers(savedLayersRef.current);
+                            savedLayersRef.current = null;
+                        }
+                    }
+                    return;
+                }
+
+                // Detect lat/lon columns in results (backend now auto-injects them)
+                const cols = (queryResults.columns || []).map(c => c.toLowerCase());
+                const latCol = queryResults.columns?.[cols.indexOf('latitude')]
+                    ?? queryResults.columns?.[cols.indexOf('lat')]
+                    ?? queryResults.columns?.[cols.indexOf('station_location_latitude')];
+                const lngCol = queryResults.columns?.[cols.indexOf('longitude')]
+                    ?? queryResults.columns?.[cols.indexOf('lng')]
+                    ?? queryResults.columns?.[cols.indexOf('lon')]
+                    ?? queryResults.columns?.[cols.indexOf('station_location_longitude')];
+
+                if (latCol && lngCol) {
+                    let geoRows = queryResults.data
+                        .filter(row => row[latCol] != null && row[lngCol] != null && row[latCol] !== 0 && row[lngCol] !== 0)
+                        .map(row => {
+                            const mapped = { ...row, lat: Number(row[latCol]), lng: Number(row[lngCol]) };
+                            const nameCandidates = ['name','name_eng','f_name_english','stop_name','location_area','location_name_english','area_name_en','building_name_en','school_name','facility_name','area_name','route_name','street_name'];
+                            for (const nc of nameCandidates) {
+                                if (row[nc]) { mapped._display_name = row[nc]; break; }
+                            }
+                            return mapped;
+                        });
+
+                    // Detect area centroids (many rows sharing same coords) and add jitter
+                    if (geoRows.length > 3) {
+                        const coordCounts = {};
+                        geoRows.forEach(r => {
+                            const key = `${r.lat.toFixed(4)},${r.lng.toFixed(4)}`;
+                            coordCounts[key] = (coordCounts[key] || 0) + 1;
+                        });
+                        const maxDupes = Math.max(...Object.values(coordCounts));
+                        if (maxDupes > geoRows.length * 0.3) {
+                            // More than 30% of rows share the same coords — jitter them
+                            geoRows = geoRows.map(r => ({
+                                ...r,
+                                lat: r.lat + (Math.random() - 0.5) * 0.01,
+                                lng: r.lng + (Math.random() - 0.5) * 0.01,
+                            }));
+                        }
+                    }
+
+                    if (geoRows.length > 0) {
+                        // Save current visible layers then dim them
+                        if (!queryActive) {
+                            savedLayersRef.current = new Set(visibleLayers);
+                        }
+                        setQueryActive(true);
+                        setQueryMapData({ data: geoRows, count: geoRows.length, source: 'direct' });
+                        return;
+                    }
+                }
+
+                // Fallback: backend detection
+                if (generatedSql) {
+                    fetch(`${API_URL}/map_data/query_results`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ sql: generatedSql, limit: 500 }),
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.data && data.data.length > 0) {
+                            if (!queryActive) savedLayersRef.current = new Set(visibleLayers);
+                            setQueryActive(true);
+                            setQueryMapData({ ...data, source: 'backend' });
+                        } else {
+                            setQueryMapData(null);
+                        }
+                    })
+                    .catch(() => setQueryMapData(null));
+                } else {
+                    setQueryMapData(null);
+                }
+            }, [queryResults, generatedSql]);
+
+            // When query becomes active, hide non-essential base layers but KEEP metro + areas
+            useEffect(() => {
+                const map = mapInstanceRef.current;
+                if (!map) return;
+
+                // Layers that should ALWAYS stay visible
+                const alwaysVisible = new Set(["areas", "metro"]);
+
+                if (queryActive) {
+                    // Only remove layers that are NOT always-visible
+                    ["areas","landmarks","metro","transport"].forEach(k => {
+                        if (alwaysVisible.has(k)) return; // keep metro & areas
+                        if (layerGroupsRef.current[k] && map.hasLayer(layerGroupsRef.current[k])) {
+                            map.removeLayer(layerGroupsRef.current[k]);
+                        }
+                    });
+                    if (clusterGroupRef.current && map.hasLayer(clusterGroupRef.current)) {
+                        map.removeLayer(clusterGroupRef.current);
+                    }
+                    // Ensure metro + areas ARE on map
+                    alwaysVisible.forEach(k => {
+                        if (layerGroupsRef.current[k] && !map.hasLayer(layerGroupsRef.current[k])) {
+                            layerGroupsRef.current[k].addTo(map);
+                        }
+                    });
+                } else {
+                    // Restore visible layers
+                    visibleLayers.forEach(k => {
+                        if (layerGroupsRef.current[k] && !map.hasLayer(layerGroupsRef.current[k])) {
+                            layerGroupsRef.current[k].addTo(map);
+                        }
+                    });
+                }
+            }, [queryActive]);
+
+            // Render query result markers — exact positions, NO clustering
+            useEffect(() => {
+                const map = mapInstanceRef.current;
+                if (!map) return;
+
+                // Remove old query layers
+                if (layerGroupsRef.current._queryResults) {
+                    map.removeLayer(layerGroupsRef.current._queryResults);
+                    delete layerGroupsRef.current._queryResults;
+                }
+                if (queryClusterRef.current) {
+                    map.removeLayer(queryClusterRef.current);
+                    queryClusterRef.current = null;
+                }
+
+                if (!queryMapData || !queryMapData.data || queryMapData.data.length === 0) return;
+
+                const bounds = [];
+                const container = L.layerGroup();
+
+                // --- Multi-POI system: detect all POI types present in data ---
+                // POI columns follow pattern: poi_lat_<tag>, poi_lng_<tag>, poi_name_<tag>
+                const POI_CONFIG = {
+                    school:   { color: '#22d3ee', icon: '🎓', label: 'Schools' },
+                    hospital: { color: '#f472b6', icon: '🏥', label: 'Hospitals' },
+                    busstop:  { color: '#fb923c', icon: '🚌', label: 'Bus Stops' },
+                    tram:     { color: '#a3e635', icon: '🚊', label: 'Tram Stations' },
+                    metro:    { color: '#818cf8', icon: '🚇', label: 'Metro Stations' },
+                };
+
+                // Detect which POI types are in the data
+                const firstRow = queryMapData.data[0] || {};
+                const activePois = Object.keys(POI_CONFIG).filter(tag => firstRow[`poi_lat_${tag}`] != null);
+
+                // Collect unique POIs per type
+                const poiByType = {};
+                activePois.forEach(tag => { poiByType[tag] = new Map(); });
+
+                queryMapData.data.forEach(item => {
+                    if (!item.lat || !item.lng) return;
+                    bounds.push([item.lat, item.lng]);
+
+                    // Collect unique POIs for each active type
+                    activePois.forEach(tag => {
+                        const pLat = item[`poi_lat_${tag}`];
+                        const pLng = item[`poi_lng_${tag}`];
+                        if (pLat && pLng) {
+                            const poiKey = `${Number(pLat).toFixed(5)},${Number(pLng).toFixed(5)}`;
+                            if (!poiByType[tag].has(poiKey)) {
+                                const poiName = item[`poi_name_${tag}`] || item.name_eng || item.f_name_english || item.stop_name || item.location_name_english || 'Facility';
+                                poiByType[tag].set(poiKey, {
+                                    lat: Number(pLat), lng: Number(pLng), name: poiName,
+                                    rating: item.overall_performance_en || '',
+                                    curriculum: item.curriculum_en || '',
+                                    category: item.facility_category_name_english || '',
+                                    route: item.route_name || '',
+                                    street: item.street_name || '',
+                                });
+                            }
+                        }
+                    });
+
+                    // --- Regular transaction marker (purple dot) ---
+                    const marker = L.circleMarker([item.lat, item.lng], {
+                        radius: 4,
+                        fillColor: "#a855f7",
+                        color: "#ffffff",
+                        weight: 1,
+                        opacity: 0.7,
+                        fillOpacity: 0.65,
+                    });
+
+                    // Build popup from all available fields
+                    const displayName = item._display_name || item.name || 'Query Result';
+                    let popup = `<div style="min-width:180px;max-height:220px;overflow-y:auto">
+                        <div style="font-weight:700;font-size:13px;color:#a855f7;margin-bottom:4px">${displayName}</div>`;
+
+                    const skipKeys = new Set(['lat','lng','latitude','longitude','station_location_latitude','station_location_longitude','_display_name']);
+                    // Also skip all poi_* columns
+                    Object.keys(item).forEach(k => { if (k.startsWith('poi_')) skipKeys.add(k); });
+                    Object.entries(item).forEach(([k, v]) => {
+                        if (skipKeys.has(k) || v === null || v === undefined || v === '') return;
+                        let displayVal = v;
+                        if (typeof v === 'number') {
+                            if (k.toLowerCase().includes('amount') || k.toLowerCase().includes('worth') || k.toLowerCase().includes('price') || k.toLowerCase().includes('value')) {
+                                displayVal = 'AED ' + Number(v).toLocaleString();
+                            } else if (k === 'distance_km') {
+                                displayVal = v + ' km';
+                            } else if (v > 1000) {
+                                displayVal = Number(v).toLocaleString();
+                            }
+                        } else {
+                            displayVal = String(v).substring(0, 60);
+                        }
+                        const isHighlight = k === 'distance_km' || k === 'nearest_station';
+                        const style = isHighlight
+                            ? 'font-size:11px;color:#22d3ee;font-weight:600'
+                            : 'font-size:10px;color:#cbd5e1';
+                        popup += `<div style="${style}"><span style="color:#64748b">${k.replace(/_/g,' ')}:</span> ${displayVal}</div>`;
+                    });
+                    popup += `<div style="margin-top:6px;padding-top:4px;border-top:1px solid #334155">
+                        <a href="https://www.google.com/maps?q=${item.lat},${item.lng}" target="_blank" style="color:#6366f1;font-size:10px;text-decoration:none">Google Maps &rarr;</a>
+                    </div></div>`;
+                    marker.bindPopup(popup);
+                    container.addLayer(marker);
+                });
+
+                // --- Render distinct POI markers for each type ---
+                const poiCountByType = {};
+                activePois.forEach(tag => {
+                    const cfg = POI_CONFIG[tag];
+                    const poiMap = poiByType[tag];
+                    poiCountByType[tag] = poiMap.size;
+
+                    poiMap.forEach(poi => {
+                        bounds.push([poi.lat, poi.lng]);
+                        const ratingColorMap = {'Outstanding':'#10b981','Very good':'#22d3ee','Good':'#3b82f6','Acceptable':'#f59e0b','Weak':'#ef4444'};
+                        const ratingColor = ratingColorMap[poi.rating] || '#6366f1';
+
+                        const poiIcon = L.divIcon({
+                            className: '',
+                            iconSize: [36, 36],
+                            iconAnchor: [18, 18],
+                            html: `<div style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:${cfg.color}22;border:2px solid ${cfg.color};box-shadow:0 0 12px ${cfg.color}66;font-size:18px;cursor:pointer">${cfg.icon}</div>`,
+                        });
+
+                        const poiMarker = L.marker([poi.lat, poi.lng], { icon: poiIcon, zIndexOffset: 1000 });
+                        let poiPopup = `<div style="min-width:200px">
+                            <div style="font-weight:800;font-size:14px;color:${cfg.color};margin-bottom:2px">${cfg.icon} ${poi.name}</div>`;
+
+                        // School-specific fields
+                        if (tag === 'school' && poi.rating) poiPopup += `<div style="font-size:12px;font-weight:600;color:${ratingColor}">KHDA Rating: ${poi.rating}</div>`;
+                        if (tag === 'school' && poi.curriculum) poiPopup += `<div style="font-size:11px;color:#94a3b8">Curriculum: ${poi.curriculum.trim()}</div>`;
+                        // Hospital-specific fields
+                        if (tag === 'hospital' && poi.category) poiPopup += `<div style="font-size:12px;font-weight:600;color:${cfg.color}">Type: ${poi.category}</div>`;
+                        // Bus stop-specific fields
+                        if (tag === 'busstop' && poi.route) poiPopup += `<div style="font-size:12px;font-weight:600;color:${cfg.color}">Route: ${poi.route}</div>`;
+                        if (tag === 'busstop' && poi.street) poiPopup += `<div style="font-size:11px;color:#94a3b8">Street: ${poi.street.trim()}</div>`;
+                        // Tram/Metro
+                        if ((tag === 'tram' || tag === 'metro') && poi.name) poiPopup += `<div style="font-size:12px;color:${cfg.color}">Station</div>`;
+
+                        poiPopup += `<div style="margin-top:6px;padding-top:4px;border-top:1px solid #334155">
+                            <a href="https://www.google.com/maps?q=${poi.lat},${poi.lng}" target="_blank" style="color:#6366f1;font-size:10px;text-decoration:none">Google Maps &rarr;</a>
+                        </div></div>`;
+                        poiMarker.bindPopup(poiPopup);
+                        container.addLayer(poiMarker);
+                    });
+                });
+
+                // Store POI counts for legend display
+                container._poiCounts = poiCountByType;
+                container._activePois = activePois;
+
+                container.addTo(map);
+                layerGroupsRef.current._queryResults = container;
+
+                // Auto-zoom to fit all results
+                if (bounds.length > 1) {
+                    map.fitBounds(bounds, { padding: [40, 40], maxZoom: 16 });
+                } else if (bounds.length === 1) {
+                    map.setView(bounds[0], 15);
+                }
+            }, [queryMapData, createIcon]);
+
+            const toggleLayer = (key) => {
+                setVisibleLayers(prev => {
+                    const next = new Set(prev);
+                    const map = mapInstanceRef.current;
+                    if (next.has(key)) {
+                        next.delete(key);
+                        if (map && layerGroupsRef.current[key]) map.removeLayer(layerGroupsRef.current[key]);
+                    } else {
+                        next.add(key);
+                        if (map && layerGroupsRef.current[key]) layerGroupsRef.current[key].addTo(map);
+                    }
+                    return next;
+                });
+            };
+
+            return (
+                <div className="panel rounded-2xl overflow-hidden relative" style={{ height: '360px' }}>
+                    <div ref={mapRef} className="w-full h-full" style={{ zIndex: 1 }}></div>
+
+                    {mapLoading && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-surface/80 z-10">
+                            <div className="text-slate-400 text-sm animate-pulse">Loading map data...</div>
+                        </div>
+                    )}
+
+                    {/* Layer controls */}
+                    <div className="absolute top-3 right-3 z-[1000] bg-[#0f172a]/90 backdrop-blur-md border border-slate-700/50 rounded-xl p-2.5 space-y-1.5" style={{ minWidth: '155px' }}>
+
+                        {/* Query-active banner */}
+                        {queryActive && queryMapData && (
+                            <div className="bg-purple-500/15 border border-purple-500/30 rounded-lg p-2 mb-1">
+                                <div className="flex items-center gap-2 mb-1.5">
+                                    <div className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ background: '#a855f7' }}></div>
+                                    <span className="text-[10px] text-purple-300 font-bold">Query Results</span>
+                                    <span className="text-[10px] text-purple-400 ml-auto font-mono">{queryMapData.count} pts</span>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        setQueryActive(false);
+                                        setQueryMapData(null);
+                                        if (savedLayersRef.current) {
+                                            setVisibleLayers(savedLayersRef.current);
+                                            savedLayersRef.current = null;
+                                        } else {
+                                            setVisibleLayers(new Set(["areas","landmarks","metro"]));
+                                        }
+                                        // Remove query markers
+                                        const map = mapInstanceRef.current;
+                                        if (map) {
+                                            if (layerGroupsRef.current._queryResults) { map.removeLayer(layerGroupsRef.current._queryResults); delete layerGroupsRef.current._queryResults; }
+                                            if (queryClusterRef.current) { map.removeLayer(queryClusterRef.current); queryClusterRef.current = null; }
+                                        }
+                                    }}
+                                    className="w-full text-[9px] py-1 bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white rounded transition-colors"
+                                >
+                                    Show All Layers
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Base layers — metro & areas always visible */}
+                        <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                            Map Layers
+                        </div>
+                        {Object.entries(mapLayers).filter(([key]) => key !== 'areas').map(([key, layer]) => {
+                            const isPinned = key === 'metro';
+                            const isDimmed = queryActive && !isPinned;
+                            const layerIcons = { metro: '🚇', transport: '🚌', landmarks: '📍' };
+                            const emoji = layerIcons[key];
+                            return (
+                            <div
+                                key={key}
+                                className={`map-legend-item flex items-center gap-2 px-1.5 py-0.5 rounded hover:bg-slate-800/50 ${isDimmed ? 'opacity-30 pointer-events-none' : ''} ${!visibleLayers.has(key) ? 'disabled' : ''}`}
+                                onClick={() => !isDimmed && toggleLayer(key)}
+                            >
+                                {emoji ? (
+                                    <span className="flex-shrink-0 text-xs leading-none" style={{ opacity: visibleLayers.has(key) ? 1 : 0.3, width: '14px', textAlign: 'center' }}>{emoji}</span>
+                                ) : (
+                                    <div className={`w-2.5 h-2.5 flex-shrink-0 ${layer.type === 'polygon' || layer.type === 'geojson' ? 'rounded-sm border' : 'rounded-full'}`}
+                                         style={{ background: visibleLayers.has(key) ? layer.color + '40' : 'transparent', borderColor: layer.color, opacity: visibleLayers.has(key) ? 1 : 0.3 }}></div>
+                                )}
+                                <span className="text-[10px] text-slate-300">{layer.label}{isPinned && queryActive ? ' ✓' : ''}</span>
+                                <span className="text-[9px] text-slate-600 ml-auto">
+                                    {layer.type === 'geojson' ? (layer.geojson?.features?.length || 0) + ' zones' : (layer.data || []).length + (layer.type === 'polygon' ? ' zones' : '')}
+                                </span>
+                            </div>
+                            );
+                        })}
+                        {/* Transactions toggle */}
+                        <div
+                            className={`map-legend-item flex items-center gap-2 px-1.5 py-0.5 rounded hover:bg-slate-800/50 ${queryActive ? 'opacity-30 pointer-events-none' : ''} ${!showTransactions ? 'disabled' : ''}`}
+                            onClick={() => !queryActive && setShowTransactions(prev => !prev)}
+                        >
+                            <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: '#ef4444', opacity: showTransactions ? 1 : 0.3 }}></div>
+                            <span className="text-[10px] text-slate-300">Transactions</span>
+                            <span className="text-[9px] text-slate-600 ml-auto">{transactionData ? transactionData.count : '-'}</span>
+                        </div>
+
+                        {/* POI Legend — only shown during active query with POIs */}
+                        {queryActive && (() => {
+                            const poiCfg = {
+                                school:   { color: '#22d3ee', icon: '🎓', label: 'Schools' },
+                                hospital: { color: '#f472b6', icon: '🏥', label: 'Hospitals' },
+                                busstop:  { color: '#fb923c', icon: '🚌', label: 'Bus Stops' },
+                                tram:     { color: '#a3e635', icon: '🚊', label: 'Tram' },
+                                metro:    { color: '#818cf8', icon: '🚇', label: 'Metro' },
+                            };
+                            const firstRow = queryMapData?.data?.[0] || {};
+                            const poiTags = Object.keys(poiCfg).filter(tag => firstRow[`poi_lat_${tag}`] != null);
+                            if (poiTags.length === 0) return null;
+                            return (
+                                <React.Fragment>
+                                    <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mt-2 mb-1">Points of Interest</div>
+                                    {/* Query results marker */}
+                                    <div className="map-legend-item flex items-center gap-2 px-1.5 py-0.5 rounded">
+                                        <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: '#a855f7' }}></div>
+                                        <span className="text-[10px] text-slate-300">Properties</span>
+                                        <span className="text-[9px] text-slate-600 ml-auto">{queryMapData?.count || 0}</span>
+                                    </div>
+                                    {poiTags.map(tag => {
+                                        const cfg = poiCfg[tag];
+                                        // Count unique POIs from the layer group
+                                        const qrLayer = layerGroupsRef.current._queryResults;
+                                        const count = qrLayer?._poiCounts?.[tag] || '—';
+                                        return (
+                                            <div key={tag} className="map-legend-item flex items-center gap-2 px-1.5 py-0.5 rounded">
+                                                <div className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-[11px]" style={{ background: cfg.color + '22', border: `1.5px solid ${cfg.color}` }}>
+                                                    {cfg.icon}
+                                                </div>
+                                                <span className="text-[10px] text-slate-300">{cfg.label}</span>
+                                                <span className="text-[9px] ml-auto" style={{ color: cfg.color }}>{count}</span>
+                                            </div>
+                                        );
+                                    })}
+                                </React.Fragment>
+                            );
+                        })()}
+                    </div>
+
+                    {/* Map stats bar */}
+                    <div className="absolute bottom-3 left-3 z-[1000] px-2.5 py-1.5 bg-[#0f172a]/90 backdrop-blur-md rounded-lg border border-slate-700/50">
+                        <div className="text-[9px] text-slate-500 font-mono tracking-wider">
+                            {queryActive
+                                ? `QUERY RESULTS — ${queryMapData?.count || 0} locations plotted`
+                                : `NEXUS MAP — ${mapStats.total} locations`
+                            }
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
         // --- Main App Component ---
         function App() {
             const [query, setQuery] = useState("");
+            const [isThinking, setIsThinking] = useState(false); // LLM is processing the query
             const [schema, setSchema] = useState([]);
             const [edges, setEdges] = useState([]);
             const [activeTables, setActiveTables] = useState(new Set());
@@ -378,8 +1111,18 @@
             const [queryResults, setQueryResults] = useState(null);
             const [isLoading, setIsLoading] = useState(false);
             const [error, setError] = useState("");
+            const [queryResetKey, setQueryResetKey] = useState(0); // bumped to tell MapView to clear overlays
             const [stats, setStats] = useState(null);
-            const [activeTab, setActiveTab] = useState("sql"); // "sql" or "results"
+            const [activeTab, setActiveTab] = useState("sql"); // "sql", "results", "intelligence"
+            const [briefing, setBriefing] = useState(null);
+            const [briefingLoading, setBriefingLoading] = useState(false);
+            const [localInsights, setLocalInsights] = useState(null);
+            const [localInsightsLoading, setLocalInsightsLoading] = useState(false);
+            const [localOpen, setLocalOpen] = useState(true);   // toggle for local intelligence section
+            const [globalOpen, setGlobalOpen] = useState(true);  // toggle for global intelligence section
+            const [trendsOpen, setTrendsOpen] = useState(true);  // toggle for market trends section
+            const [trends, setTrends] = useState(null);
+            const [trendsLoading, setTrendsLoading] = useState(false);
 
             useEffect(() => {
                 fetch(`${API_URL}/init`)
@@ -403,41 +1146,135 @@
                     .catch(() => {});
             }, []);
 
-            const lastQueryRef = useRef("");
+            const loadBriefing = useCallback(() => {
+                setBriefingLoading(true);
+                fetch(`${API_URL}/intelligence/briefing`)
+                    .then(res => res.json())
+                    .then(data => {
+                        setBriefing(data);
+                        setBriefingLoading(false);
+                    })
+                    .catch(err => {
+                        console.error("Failed to load briefing:", err);
+                        setBriefingLoading(false);
+                    });
+            }, []);
 
+            const loadTrends = useCallback((force = false) => {
+                if (!force && (trends || trendsLoading)) return;
+                setTrendsLoading(true);
+                fetch(`${API_URL}/intelligence/trends`)
+                    .then(res => res.json())
+                    .then(data => {
+                        setTrends(data);
+                        setTrendsLoading(false);
+                    })
+                    .catch(err => {
+                        console.error("Failed to load trends:", err);
+                        setTrendsLoading(false);
+                    });
+            }, [trends, trendsLoading]);
+
+            // Defer global briefing — load 8s after mount so it doesn't fight with initial queries
+            useEffect(() => {
+                const t = setTimeout(() => { if (!briefing) loadBriefing(); }, 8000);
+                return () => clearTimeout(t);
+            }, []);
+
+            // Defer trends — load 12s after mount
+            useEffect(() => {
+                const t = setTimeout(() => { if (!trends) loadTrends(); }, 12000);
+                return () => clearTimeout(t);
+            }, []);
+
+            // Fetch local insights AFTER query results render (non-blocking, low priority)
+            useEffect(() => {
+                if (!queryResults || !queryResults.data || queryResults.data.length === 0) {
+                    setLocalInsights(null);
+                    return;
+                }
+                // Small delay so results + map render first, then insights load in background
+                const t = setTimeout(() => {
+                    setLocalInsightsLoading(true);
+                    fetch(`${API_URL}/intelligence/local`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            query: query,
+                            sql: generatedSql,
+                            columns: queryResults.columns || [],
+                            data: queryResults.data.slice(0, 200),
+                            row_count: queryResults.row_count || queryResults.data.length,
+                        }),
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        setLocalInsights(data);
+                        setLocalInsightsLoading(false);
+                    })
+                    .catch(err => {
+                        console.error("Local insights failed:", err);
+                        setLocalInsightsLoading(false);
+                    });
+                }, 500); // 500ms delay — let results + map paint first
+                return () => clearTimeout(t);
+            }, [queryResults]);
+
+            const lastQueryRef = useRef("");
+            const abortRef = useRef(null);    // AbortController for in-flight requests
+            const queryVersionRef = useRef(0); // Version counter to discard stale responses
+
+            // Reset everything when the query text changes significantly
             useEffect(() => {
                 const timer = setTimeout(() => {
                     if (query.length > 2 && query !== lastQueryRef.current) {
                         lastQueryRef.current = query;
 
+                        // Cancel any in-flight requests
+                        if (abortRef.current) abortRef.current.abort();
+                        abortRef.current = new AbortController();
+                        const signal = abortRef.current.signal;
+                        const version = ++queryVersionRef.current;
+
+                        // Clear stale results immediately so UI doesn't show old data
+                        setActiveTables(new Set());
+                        setActiveFilters([]);
+                        setOrderBy(null);
+                        setGeneratedSql("");
+                        setQueryResults(null);
+                        setError("");
+                        setIsThinking(true);
+                        // Signal MapView to clear query overlay
+                        setQueryResetKey(k => k + 1);
+
                         fetch(`${API_URL}/suggest_filters`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ query })
+                            body: JSON.stringify({ query }),
+                            signal,
                         })
                         .then(res => res.json())
                         .then(data => {
-                            setActiveTables(prev => {
-                                const newTables = new Set(prev);
-                                data.detected_tables.forEach(t => newTables.add(t));
-                                return newTables;
-                            });
+                            if (queryVersionRef.current !== version) return; // stale
+                            setActiveTables(new Set(data.detected_tables || []));
 
                             if (data.chips && data.chips.length > 0) {
-                                setActiveFilters(prev => {
-                                    const existingIds = new Set(prev.map(f => f.id).filter(Boolean));
-                                    const newChips = data.chips.filter(chip => !existingIds.has(chip.id));
-                                    return newChips.length > 0 ? [...prev, ...newChips] : prev;
-                                });
+                                setActiveFilters(data.chips);
                             }
-
                             if (data.order_by) {
                                 setOrderBy(data.order_by);
                             }
+                            setIsThinking(false);
                         })
-                        .catch(console.error);
+                        .catch(e => { if (e.name !== 'AbortError') { console.error(e); setIsThinking(false); } });
+                    } else if (query.length <= 2) {
+                        setActiveTables(new Set());
+                        setActiveFilters([]);
+                        setGeneratedSql("");
+                        setQueryResults(null);
+                        setError("");
                     }
-                }, 500);
+                }, 400);
                 return () => clearTimeout(timer);
             }, [query]);
 
@@ -454,27 +1291,42 @@
                     })
                     .filter(Boolean);
 
+                if (abortRef.current) abortRef.current.abort();
+                abortRef.current = new AbortController();
+                const signal = abortRef.current.signal;
+
                 fetch(`${API_URL}/generate_sql`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ tables: Array.from(activeTables), filters: normalizedFilters, order_by: orderBy })
+                    body: JSON.stringify({ tables: Array.from(activeTables), filters: normalizedFilters, order_by: orderBy }),
+                    signal,
                 })
                 .then(res => res.json())
                 .then(data => setGeneratedSql(data.sql))
-                .catch(console.error);
+                .catch(e => { if (e.name !== 'AbortError') console.error(e); });
             }, [activeTables, activeFilters, orderBy]);
 
             const executeQuery = async () => {
                 if (!generatedSql) return;
 
+                // Clear previous results and map state immediately
                 setIsLoading(true);
+                setError("");
+                setQueryResults(null);
+                setQueryResetKey(k => k + 1); // tell MapView to clear overlay
                 setActiveTab("results");
+
+                // Cancel previous in-flight query
+                if (abortRef.current) abortRef.current.abort();
+                abortRef.current = new AbortController();
+                const signal = abortRef.current.signal;
 
                 try {
                     const res = await fetch(`${API_URL}/query`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ sql: generatedSql, limit: 100 })
+                        body: JSON.stringify({ sql: generatedSql, limit: 500 }),
+                        signal,
                     });
                     const data = await res.json();
 
@@ -486,11 +1338,37 @@
                         setError("");
                     }
                 } catch (e) {
-                    setError(e.message);
-                    setQueryResults(null);
+                    if (e.name !== 'AbortError') {
+                        setError(e.message);
+                        setQueryResults(null);
+                    }
                 } finally {
                     setIsLoading(false);
                 }
+            };
+
+            // Auto-execute: when SQL is generated from a natural language query, run it immediately
+            const autoExecSqlRef = useRef("");
+            useEffect(() => {
+                if (generatedSql && generatedSql !== autoExecSqlRef.current && query.length > 2) {
+                    autoExecSqlRef.current = generatedSql;
+                    // Small delay to let UI update with the new SQL before executing
+                    const t = setTimeout(() => executeQuery(), 200);
+                    return () => clearTimeout(t);
+                }
+            }, [generatedSql]);
+
+            const clearQuery = () => {
+                setQuery("");
+                lastQueryRef.current = "";
+                setActiveTables(new Set());
+                setActiveFilters([]);
+                setOrderBy(null);
+                setGeneratedSql("");
+                setQueryResults(null);
+                setError("");
+                setQueryResetKey(k => k + 1); // tell MapView to clear overlay
+                autoExecSqlRef.current = "";
             };
 
             const toggleTable = (name) => {
@@ -499,7 +1377,7 @@
                 setActiveTables(s);
             };
 
-            // Smart suggestions based on Dubai Proptech data
+            // Smart suggestions based on NEXUS data
             const COLUMN_SUGGESTIONS = {
                 'actual_worth': { q: "Transaction value?", table: "transactions", type: "numeric" },
                 'area_name_en': { q: "Filter by area?", table: "transactions", type: "categorical" },
@@ -551,10 +1429,10 @@
                     <div className="w-64 border-r border-slate-800 bg-[#02040a]/80 flex flex-col z-20">
                         <div className="p-5">
                             <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                                <div className="w-6 h-6 rounded bg-gradient-to-tr from-primary to-accent"></div>
-                                Dubai Proptech
+                                <div className="w-6 h-6 rounded bg-gradient-to-tr from-primary to-accent flex items-center justify-center text-[10px] font-black">N</div>
+                                NEXUS AI
                             </h1>
-                            <div className="mt-1 text-xs text-slate-500">Property Data Explorer</div>
+                            <div className="mt-1 text-xs text-slate-500">Enterprise Intelligence Agent</div>
                         </div>
 
                         {/* Stats */}
@@ -615,9 +1493,19 @@
                                     type="text"
                                     value={query}
                                     onChange={e => setQuery(e.target.value)}
-                                    placeholder="Try: 'villas in Dubai Marina' or '2 bedroom apartments in Business Bay'"
-                                    className="w-full bg-slate-900/50 border border-slate-700 rounded-full py-2.5 px-5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all shadow-lg"
+                                    onKeyDown={e => { if (e.key === 'Enter' && generatedSql && !isLoading) executeQuery(); }}
+                                    placeholder="Ask anything — 'villas in Dubai Marina', '2 bedroom apartments in Business Bay' (auto-runs)"
+                                    className="w-full bg-slate-900/50 border border-slate-700 rounded-full py-2.5 px-5 pr-24 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all shadow-lg"
                                 />
+                                {(isThinking || isLoading) && (
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2 text-xs text-primary-300">
+                                        <svg className="animate-spin h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        <span className="text-slate-400">{isThinking ? 'Analyzing...' : 'Running...'}</span>
+                                    </div>
+                                )}
                             </div>
                             <button
                                 onClick={executeQuery}
@@ -626,6 +1514,15 @@
                             >
                                 {isLoading ? 'Running...' : 'Run Query'}
                             </button>
+                            {(query || queryResults || error) && (
+                                <button
+                                    onClick={clearQuery}
+                                    className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 rounded-full text-slate-400 hover:text-white text-sm transition-all border border-slate-700"
+                                    title="Clear query and results"
+                                >
+                                    Clear
+                                </button>
+                            )}
                         </div>
 
                         {/* Split View */}
@@ -814,6 +1711,11 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* Map Section - Below Filters */}
+                                <div className="mt-6">
+                                    <MapView queryResults={queryResults} generatedSql={generatedSql} queryResetKey={queryResetKey} />
+                                </div>
                             </div>
 
                             {/* Right: SQL & Results */}
@@ -833,10 +1735,27 @@
                                     >
                                         Results {queryResults && `(${queryResults.row_count})`}
                                     </button>
+                                    <button
+                                        onClick={() => { setActiveTab("intelligence"); if (!briefing) loadBriefing(); if (!trends && !trendsLoading) loadTrends(); }}
+                                        className={`flex-1 py-3 text-sm font-medium transition-colors relative ${activeTab === "intelligence" ? "text-white border-b-2 border-emerald-500" : "text-slate-500 hover:text-slate-300"}`}
+                                    >
+                                        Intelligence
+                                        {localInsights?.insights?.length > 0 && activeTab !== "intelligence" && (
+                                            <span className="absolute -top-1 right-1 min-w-[18px] h-[18px] bg-gradient-to-r from-purple-600 to-purple-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-1 shadow-lg shadow-purple-500/30">
+                                                {localInsights.insights.length}
+                                            </span>
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveTab("architecture")}
+                                        className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === "architecture" ? "text-white border-b-2 border-cyan-500" : "text-slate-500 hover:text-slate-300"}`}
+                                    >
+                                        How It Works
+                                    </button>
                                 </div>
 
                                 <div className="flex-1 overflow-auto p-6">
-                                    {activeTab === "sql" ? (
+                                    {activeTab === "sql" && (
                                         <div className="rounded-xl bg-[#050505] border border-slate-800 p-5 font-mono text-sm leading-relaxed overflow-auto h-full">
                                             {generatedSql ? (
                                                 <div className="animate-fade-in">
@@ -855,7 +1774,9 @@
                                                 </div>
                                             )}
                                         </div>
-                                    ) : (
+                                    )}
+
+                                    {activeTab === "results" && (
                                         <div className="h-full">
                                             {isLoading ? (
                                                 <div className="flex items-center justify-center h-full">
@@ -871,6 +1792,595 @@
                                             )}
                                         </div>
                                     )}
+
+                                    {activeTab === "architecture" && (
+                                        <div className="h-full overflow-auto px-1 py-2 space-y-4 animate-fade-in">
+                                            {/* --- HEADER --- */}
+                                            <div className="text-center pb-3 border-b border-slate-800/50">
+                                                <h2 className="text-base font-bold text-white tracking-wide">NEXUS AI Architecture</h2>
+                                                <p className="text-[10px] text-slate-500 mt-1">LLM-Powered Intelligence Pipeline with Graceful Fallbacks</p>
+                                            </div>
+
+                                            {/* --- PIPELINE FLOW --- */}
+                                            <div className="space-y-2">
+                                                <div className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">Query Pipeline</div>
+
+                                                {/* Step 1 */}
+                                                <div className="relative">
+                                                    <div className="rounded-lg border border-indigo-500/30 bg-gradient-to-r from-indigo-950/40 to-[#0d1117] p-3">
+                                                        <div className="flex items-center gap-2 mb-2">
+                                                            <span className="w-5 h-5 rounded-full bg-indigo-600 flex items-center justify-center text-[9px] font-bold text-white shrink-0">1</span>
+                                                            <span className="text-[11px] font-bold text-white">Natural Language Query</span>
+                                                            <span className="ml-auto text-[8px] px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-mono">USER INPUT</span>
+                                                        </div>
+                                                        <p className="text-[10px] text-slate-400 leading-relaxed pl-7">"Show me areas with Good or Outstanding schools and property sales under 3 million"</p>
+                                                    </div>
+                                                    <div className="absolute left-[18px] -bottom-2 w-px h-2 bg-slate-700"></div>
+                                                </div>
+
+                                                {/* Step 2: LLM Extraction */}
+                                                <div className="relative">
+                                                    <div className="rounded-lg border border-purple-500/30 bg-gradient-to-r from-purple-950/40 to-[#0d1117] p-3">
+                                                        <div className="flex items-center gap-2 mb-2">
+                                                            <span className="w-5 h-5 rounded-full bg-purple-600 flex items-center justify-center text-[9px] font-bold text-white shrink-0">2</span>
+                                                            <span className="text-[11px] font-bold text-white">LLM Filter Extraction</span>
+                                                            <span className="ml-auto text-[8px] px-1.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono">GEMINI</span>
+                                                        </div>
+                                                        <div className="pl-7 space-y-1.5">
+                                                            <p className="text-[10px] text-slate-400 leading-relaxed">Gemini receives a rich prompt containing:</p>
+                                                            <div className="grid grid-cols-2 gap-1">
+                                                                {["Full DB Schema (30+ tables)", "Table Selection Guide", "Value Conversion Rules", "Cross-Domain Join Hints", "Few-Shot Examples", "Entity Resolution"].map(item => (
+                                                                    <div key={item} className="flex items-center gap-1">
+                                                                        <span className="w-1 h-1 rounded-full bg-purple-400 shrink-0"></span>
+                                                                        <span className="text-[9px] text-slate-500">{item}</span>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                            <div className="mt-2 rounded bg-[#0a0a0a] border border-slate-800/50 p-2 font-mono text-[9px] text-slate-500 leading-relaxed">
+                                                                <span className="text-purple-400">Output:</span> {`{ tables: ["transactions","school_search"], filters: [...], confidence: 0.92 }`}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="absolute left-[18px] -bottom-2 w-px h-2 bg-slate-700"></div>
+                                                </div>
+
+                                                {/* Step 2b: Regex Fallback */}
+                                                <div className="relative">
+                                                    <div className="rounded-lg border border-amber-500/20 bg-gradient-to-r from-amber-950/20 to-[#0d1117] p-3">
+                                                        <div className="flex items-center gap-2 mb-2">
+                                                            <span className="w-5 h-5 rounded-full bg-amber-700 flex items-center justify-center text-[9px] font-bold text-white shrink-0">2b</span>
+                                                            <span className="text-[11px] font-bold text-white">Regex Fallback</span>
+                                                            <span className="ml-auto text-[8px] px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-mono">NO LLM</span>
+                                                        </div>
+                                                        <div className="pl-7 space-y-1">
+                                                            <p className="text-[10px] text-slate-400 leading-relaxed">If LLM is unavailable or low-confidence, deterministic extraction kicks in:</p>
+                                                            <div className="grid grid-cols-2 gap-1">
+                                                                {["200+ keyword mappings", "Price regex patterns", "Room/bedroom extraction", "Area entity resolution", "Table auto-selection", "Order-by detection"].map(item => (
+                                                                    <div key={item} className="flex items-center gap-1">
+                                                                        <span className="w-1 h-1 rounded-full bg-amber-400 shrink-0"></span>
+                                                                        <span className="text-[9px] text-slate-500">{item}</span>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="absolute left-[18px] -bottom-2 w-px h-2 bg-slate-700"></div>
+                                                </div>
+
+                                                {/* Step 3: SQL Generation */}
+                                                <div className="relative">
+                                                    <div className="rounded-lg border border-emerald-500/30 bg-gradient-to-r from-emerald-950/40 to-[#0d1117] p-3">
+                                                        <div className="flex items-center gap-2 mb-2">
+                                                            <span className="w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center text-[9px] font-bold text-white shrink-0">3</span>
+                                                            <span className="text-[11px] font-bold text-white">SQL Generation & Execution</span>
+                                                            <span className="ml-auto text-[8px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono">NO LLM</span>
+                                                        </div>
+                                                        <div className="pl-7 space-y-1">
+                                                            <p className="text-[10px] text-slate-400 leading-relaxed">Deterministic AST-to-SQL compiler. Auto-discovers JOIN paths via BFS graph traversal, injects geo-coordinates, and validates against schema.</p>
+                                                            <div className="rounded bg-[#0a0a0a] border border-slate-800/50 p-2 font-mono text-[9px] text-emerald-400/60 leading-relaxed">
+                                                                SELECT ... FROM transactions<br/>
+                                                                INNER JOIN school_search ON UPPER(area_en) = UPPER(area_name_en)<br/>
+                                                                WHERE trans_group_en = 'Sales' AND actual_worth &lt; 3000000
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="absolute left-[18px] -bottom-2 w-px h-2 bg-slate-700"></div>
+                                                </div>
+
+                                                {/* Step 4: Intelligence */}
+                                                <div>
+                                                    <div className="rounded-lg border border-cyan-500/30 bg-gradient-to-r from-cyan-950/40 to-[#0d1117] p-3">
+                                                        <div className="flex items-center gap-2 mb-2">
+                                                            <span className="w-5 h-5 rounded-full bg-cyan-600 flex items-center justify-center text-[9px] font-bold text-white shrink-0">4</span>
+                                                            <span className="text-[11px] font-bold text-white">Intelligence Layer</span>
+                                                            <span className="ml-auto text-[8px] px-1.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-mono">GEMINI</span>
+                                                        </div>
+                                                        <div className="pl-7 space-y-1.5">
+                                                            <p className="text-[10px] text-slate-400 leading-relaxed">Post-query analysis and market intelligence:</p>
+                                                            <div className="space-y-1">
+                                                                {[
+                                                                    { label: "Local Insights", desc: "LLM analyzes query results to find hidden patterns, pricing anomalies, and investment signals", llm: true },
+                                                                    { label: "Market Signals", desc: "Anomaly detection + LLM causal explanation for price spikes, volume changes", llm: true },
+                                                                    { label: "Executive Briefing", desc: "LLM generates natural-language executive summary from market metrics", llm: true },
+                                                                    { label: "Market Trends", desc: "Period-over-period comparison and area momentum computed via SQL aggregation", llm: false },
+                                                                ].map(item => (
+                                                                    <div key={item.label} className="flex items-start gap-2">
+                                                                        <span className={`mt-0.5 shrink-0 text-[8px] px-1 py-px rounded font-mono ${item.llm ? 'bg-purple-500/20 text-purple-300' : 'bg-slate-700/50 text-slate-400'}`}>
+                                                                            {item.llm ? 'LLM' : 'SQL'}
+                                                                        </span>
+                                                                        <div>
+                                                                            <span className="text-[10px] font-semibold text-white">{item.label}</span>
+                                                                            <span className="text-[9px] text-slate-500 ml-1">- {item.desc}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* --- STRATEGY DECISION --- */}
+                                            <div className="space-y-2 pt-2 border-t border-slate-800/50">
+                                                <div className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">Extraction Strategy Decision Tree</div>
+                                                <div className="rounded-lg bg-[#0a0a0a] border border-slate-800/40 p-3 space-y-2">
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-[9px] font-mono font-bold w-12 text-right text-emerald-400">≥ 85%</span>
+                                                        <span className="text-slate-700">|</span>
+                                                        <span className="text-[10px] font-semibold w-20 text-emerald-400">LLM Full</span>
+                                                        <span className="text-[9px] text-slate-500">LLM result used directly - high confidence extraction</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-[9px] font-mono font-bold w-12 text-right text-amber-400">60-85%</span>
+                                                        <span className="text-slate-700">|</span>
+                                                        <span className="text-[10px] font-semibold w-20 text-amber-400">Hybrid</span>
+                                                        <span className="text-[9px] text-slate-500">LLM + Regex merged - validates and supplements LLM output</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-[9px] font-mono font-bold w-12 text-right text-red-400">&lt; 60%</span>
+                                                        <span className="text-slate-700">|</span>
+                                                        <span className="text-[10px] font-semibold w-20 text-red-400">Regex Only</span>
+                                                        <span className="text-[9px] text-slate-500">Pure keyword/pattern matching - no LLM dependency</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-[9px] font-mono font-bold w-12 text-right text-slate-400">Error</span>
+                                                        <span className="text-slate-700">|</span>
+                                                        <span className="text-[10px] font-semibold w-20 text-slate-400">Fallback</span>
+                                                        <span className="text-[9px] text-slate-500">LLM unavailable (quota/API) - deterministic regex takes over</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* --- PROMPT ANATOMY --- */}
+                                            <div className="space-y-2 pt-2 border-t border-slate-800/50">
+                                                <div className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">Prompt Anatomy (Filter Extraction)</div>
+                                                <div className="rounded-lg bg-[#0a0a0a] border border-slate-800/40 p-3 space-y-1.5 font-mono text-[9px] leading-relaxed">
+                                                    <div className="text-purple-400"># System Role</div>
+                                                    <div className="text-slate-500 pl-2">"You are a precise SQL filter extraction system for Dubai real estate data."</div>
+                                                    <div className="text-purple-400 mt-1"># Dynamic Context Injected</div>
+                                                    <div className="text-slate-500 pl-2">
+                                                        <div>Schema: <span className="text-slate-400">30+ table definitions with columns & types</span></div>
+                                                        <div>Value Lookups: <span className="text-slate-400">229 distinct areas, property types, groups</span></div>
+                                                        <div>Join Hints: <span className="text-slate-400">Cross-domain relationships (schools, hospitals, metro)</span></div>
+                                                        <div>Entity Resolution: <span className="text-slate-400">Pre-resolved @mentions and aliases</span></div>
+                                                    </div>
+                                                    <div className="text-purple-400 mt-1"># Few-Shot Examples</div>
+                                                    <div className="text-slate-500 pl-2">15+ curated examples: single-table, multi-join, proximity, cross-domain</div>
+                                                    <div className="text-purple-400 mt-1"># Critical Rules</div>
+                                                    <div className="text-slate-500 pl-2">12 rules: table selection, denormalized columns, area matching, proximity</div>
+                                                    <div className="text-purple-400 mt-1"># Output Format</div>
+                                                    <div className="text-slate-500 pl-2">Strict JSON: {`{ tables, filters, order_by, confidence, interpretation }`}</div>
+                                                </div>
+                                            </div>
+
+                                            {/* --- LLM vs NO-LLM GRID --- */}
+                                            <div className="space-y-2 pt-2 border-t border-slate-800/50">
+                                                <div className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">LLM vs Deterministic Components</div>
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    {/* LLM Column */}
+                                                    <div className="rounded-lg border border-purple-500/20 bg-purple-950/10 p-2.5">
+                                                        <div className="text-[9px] font-bold text-purple-400 uppercase tracking-wider mb-2 flex items-center gap-1">
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                                                            Uses LLM (Gemini)
+                                                        </div>
+                                                        <div className="space-y-1.5">
+                                                            {[
+                                                                "Query -> Filter extraction",
+                                                                "Local insight generation",
+                                                                "Anomaly explanation",
+                                                                "Executive briefing",
+                                                                "Market Q&A",
+                                                            ].map(item => (
+                                                                <div key={item} className="text-[9px] text-slate-400 flex items-center gap-1.5">
+                                                                    <span className="text-purple-400 text-[8px]">*</span>{item}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                    {/* No LLM Column */}
+                                                    <div className="rounded-lg border border-slate-600/20 bg-slate-950/30 p-2.5">
+                                                        <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1">
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                                            No LLM Needed
+                                                        </div>
+                                                        <div className="space-y-1.5">
+                                                            {[
+                                                                "SQL generation (AST compiler)",
+                                                                "JOIN path discovery (BFS)",
+                                                                "Regex filter fallback",
+                                                                "Market trends (SQL agg)",
+                                                                "Schema validation",
+                                                                "Geo-coordinate injection",
+                                                                "Area polygon rendering",
+                                                                "Knowledge graph viz",
+                                                            ].map(item => (
+                                                                <div key={item} className="text-[9px] text-slate-400 flex items-center gap-1.5">
+                                                                    <span className="text-slate-500 text-[8px]">*</span>{item}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* --- MODEL INFO --- */}
+                                            <div className="rounded-lg bg-[#0a0a0a] border border-slate-800/40 p-3 mt-1">
+                                                <div className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest mb-2">Model Configuration</div>
+                                                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[9px]">
+                                                    <div className="text-slate-500">Primary Model</div><div className="text-white font-mono">gemini-2.0-flash</div>
+                                                    <div className="text-slate-500">Fallback Models</div><div className="text-white font-mono">1.5-flash, 1.5-pro</div>
+                                                    <div className="text-slate-500">Execution</div><div className="text-white font-mono">ThreadPool (4 workers)</div>
+                                                    <div className="text-slate-500">Cache TTL</div><div className="text-white font-mono">30 min (briefing)</div>
+                                                    <div className="text-slate-500">Database</div><div className="text-white font-mono">SQLite in-memory</div>
+                                                    <div className="text-slate-500">Tables Loaded</div><div className="text-white font-mono">102 tables, 1.8M rows</div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    )}
+
+                                    {activeTab === "intelligence" && (
+                                        <div className="h-full overflow-auto px-1 py-2 space-y-3">
+
+                                            {/* ====== LOCAL INTELLIGENCE ====== */}
+                                            {(localInsights || localInsightsLoading) && (
+                                                <div>
+                                                    <button
+                                                        onClick={() => setLocalOpen(!localOpen)}
+                                                        className="w-full flex items-center gap-2 py-2 text-left group"
+                                                    >
+                                                        <svg className={`w-3 h-3 text-slate-600 transition-transform ${localOpen ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7"/></svg>
+                                                        <span className="text-xs font-bold text-white tracking-wide uppercase">Query Insights</span>
+                                                        {localInsightsLoading ? (
+                                                            <span className="ml-auto flex items-center gap-1.5 text-[10px] text-purple-400">
+                                                                <span className="animate-spin inline-block w-2.5 h-2.5 border-[1.5px] border-purple-400/30 border-t-purple-400 rounded-full"></span>
+                                                                Analyzing
+                                                            </span>
+                                                        ) : (
+                                                            <span className="ml-auto text-[10px] text-slate-600">
+                                                                {localInsights?.row_count || 0} rows &middot; {localInsights?.insights?.length || 0} found
+                                                            </span>
+                                                        )}
+                                                    </button>
+
+                                                    {localOpen && (
+                                                        <div className="space-y-2 mt-1">
+                                                            {localInsightsLoading ? (
+                                                                <div className="rounded-lg bg-purple-500/5 border border-purple-500/10 p-4 text-center">
+                                                                    <div className="animate-pulse text-[11px] text-purple-300">Scanning for patterns in your results...</div>
+                                                                </div>
+                                                            ) : localInsights?.insights?.length > 0 ? (
+                                                                localInsights.insights.map((insight, i) => {
+                                                                    const sev = insight.severity;
+                                                                    const borderColor = sev === 'high' ? 'border-l-red-500' : sev === 'medium' ? 'border-l-amber-500' : 'border-l-slate-600';
+                                                                    const iconBg = sev === 'high' ? 'bg-red-500/10 text-red-400' : sev === 'medium' ? 'bg-amber-500/10 text-amber-400' : 'bg-slate-800 text-slate-400';
+                                                                    return (
+                                                                        <div key={i} className={`rounded-lg bg-[#0d1117] border border-slate-800/60 border-l-2 ${borderColor} p-3 hover:bg-[#111820] transition-colors`}>
+                                                                            <div className="flex items-start gap-2.5">
+                                                                                <span className={`w-6 h-6 rounded-md flex items-center justify-center text-[12px] flex-shrink-0 ${iconBg}`}>
+                                                                                    {insight.icon || (sev === 'high' ? '!' : sev === 'medium' ? '~' : 'i')}
+                                                                                </span>
+                                                                                <div className="min-w-0 flex-1">
+                                                                                    <div className="text-[12px] font-semibold text-slate-100 leading-snug">{insight.title}</div>
+                                                                                    {insight.detail && (
+                                                                                        <div className="text-[11px] text-slate-500 leading-relaxed mt-1">{insight.detail}</div>
+                                                                                    )}
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    );
+                                                                })
+                                                            ) : (
+                                                                <div className="text-[11px] text-slate-600 py-3 text-center">No notable patterns in this result set.</div>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {/* ====== MARKET TRENDS — temporal ====== */}
+                                            <div>
+                                                <button
+                                                    onClick={() => { setTrendsOpen(!trendsOpen); if (!trends && !trendsLoading) loadTrends(); }}
+                                                    className="w-full flex items-center gap-2 py-2 text-left group"
+                                                >
+                                                    <svg className={`w-3 h-3 text-slate-600 transition-transform ${trendsOpen ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7"/></svg>
+                                                    <span className="text-xs font-bold text-white tracking-wide uppercase">Market Trends</span>
+                                                    {trends ? (
+                                                        <span className="ml-auto text-[10px] text-slate-600">
+                                                            {trends.parsed_range ? `${trends.parsed_range.min} → ${trends.parsed_range.max}` : ''}
+                                                        </span>
+                                                    ) : trendsLoading ? (
+                                                        <span className="ml-auto flex items-center gap-1.5 text-[10px] text-blue-400">
+                                                            <span className="animate-spin inline-block w-2.5 h-2.5 border-[1.5px] border-blue-400/30 border-t-blue-400 rounded-full"></span>
+                                                            Computing
+                                                        </span>
+                                                    ) : (
+                                                        <span className="ml-auto text-[10px] text-slate-700 group-hover:text-slate-400 transition-colors">Click to load</span>
+                                                    )}
+                                                </button>
+
+                                                {trendsOpen && (
+                                                    <div className="mt-1">
+                                                        {trendsLoading ? (
+                                                            <div className="rounded-lg bg-blue-500/5 border border-blue-500/10 p-4 text-center">
+                                                                <div className="animate-pulse text-[11px] text-blue-300">Computing period-over-period trends...</div>
+                                                            </div>
+                                                        ) : trends && !trends.error ? (
+                                                            <div className="space-y-3">
+
+                                                                {/* Period comparison cards — skip "Recent Half" as it's not meaningful */}
+                                                                {trends.periods?.length > 0 && trends.periods
+                                                                    .filter(p => !p.label.includes('Half'))
+                                                                    .map((period, pi) => {
+                                                                    const m = period.metrics;
+                                                                    const fmtVal = (v) => {
+                                                                        if (Math.abs(v) >= 1e9) return (v/1e9).toFixed(1) + 'B';
+                                                                        if (Math.abs(v) >= 1e6) return (v/1e6).toFixed(1) + 'M';
+                                                                        if (Math.abs(v) >= 1e3) return (v/1e3).toFixed(0) + 'K';
+                                                                        return v.toLocaleString();
+                                                                    };
+                                                                    const fmtPct = (pct) => Math.abs(pct) >= 1000 ? (Math.abs(pct)/1000).toFixed(1) + 'K' : Math.abs(pct).toFixed(1);
+                                                                    const arrow = (pct) => pct > 0 ? '↑' : pct < 0 ? '↓' : '→';
+                                                                    const color = (pct) => pct > 2 ? 'text-emerald-400' : pct < -2 ? 'text-red-400' : 'text-slate-400';
+                                                                    const bgTint = (pct) => pct > 2 ? 'bg-emerald-500/5' : pct < -2 ? 'bg-red-500/5' : 'bg-slate-800/30';
+                                                                    const dateLabel = period.recent_range.replace(/ to /, ' — ');
+
+                                                                    return (
+                                                                        <div key={pi} className="rounded-xl bg-[#0d1117] border border-slate-800/50 p-4">
+                                                                            <div className="flex items-baseline justify-between mb-4">
+                                                                                <span className="text-sm font-bold text-white">{period.label}</span>
+                                                                                <span className="text-[11px] text-slate-500">{dateLabel}</span>
+                                                                            </div>
+                                                                            <div className="grid grid-cols-3 gap-2">
+                                                                                {[
+                                                                                    { label: 'Transactions', data: m.transactions, fmt: (v) => v.toLocaleString(), prefix: '' },
+                                                                                    { label: 'Avg Price', data: m.avg_price, fmt: fmtVal, prefix: 'AED ' },
+                                                                                    { label: 'Total Value', data: m.total_value, fmt: fmtVal, prefix: 'AED ' },
+                                                                                ].map((metric, mi) => (
+                                                                                    <div key={mi} className={`rounded-lg ${bgTint(metric.data.change_pct)} p-2.5 text-center`}>
+                                                                                        <div className="text-[11px] text-slate-400 font-medium mb-1.5">{metric.label}</div>
+                                                                                        <div className="text-[15px] font-bold text-white leading-tight">
+                                                                                            {metric.prefix}{metric.fmt(metric.data.recent)}
+                                                                                        </div>
+                                                                                        <div className={`text-[13px] font-bold mt-1 ${color(metric.data.change_pct)}`}>
+                                                                                            {arrow(metric.data.change_pct)} {fmtPct(metric.data.change_pct)}%
+                                                                                        </div>
+                                                                                        <div className="text-[10px] text-slate-600 mt-1">
+                                                                                            prev: {metric.prefix}{metric.fmt(metric.data.prior)}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                        </div>
+                                                                    );
+                                                                })}
+
+                                                                {/* Area momentum — top movers */}
+                                                                {trends.area_momentum?.length > 0 && (
+                                                                    <div className="rounded-xl bg-[#0d1117] border border-slate-800/50 p-4">
+                                                                        <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">Top Movers by Price</div>
+                                                                        <div className="space-y-2.5">
+                                                                            {trends.area_momentum.slice(0, 6).map((area, ai) => {
+                                                                                const pc = area.price_change_pct;
+                                                                                const vc = area.volume_change_pct;
+                                                                                const isUp = pc > 0;
+                                                                                const barWidth = Math.min(Math.abs(pc) / (Math.abs(trends.area_momentum[0]?.price_change_pct) || 1) * 100, 100);
+                                                                                const fmtPc = Math.abs(pc) >= 1000 ? (Math.abs(pc)/1000).toFixed(1) + 'K' : Math.abs(pc).toFixed(0);
+                                                                                const fmtPrice = (v) => v >= 1e6 ? (v/1e6).toFixed(1) + 'M' : v >= 1e3 ? (v/1e3).toFixed(0) + 'K' : v;
+                                                                                return (
+                                                                                    <div key={ai}>
+                                                                                        <div className="flex items-center justify-between mb-1">
+                                                                                            <span className="text-[13px] font-medium text-slate-200">{area.area}</span>
+                                                                                            <div className="flex items-center gap-3">
+                                                                                                <span className="text-[11px] text-slate-500">AED {fmtPrice(area.recent_avg_price)}</span>
+                                                                                                <span className={`text-[13px] font-bold ${isUp ? 'text-emerald-400' : 'text-red-400'}`}>
+                                                                                                    {isUp ? '+' : '-'}{fmtPc}%
+                                                                                                </span>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div className="flex items-center gap-2">
+                                                                                            <div className="flex-1 h-1.5 bg-slate-800/80 rounded-full overflow-hidden">
+                                                                                                <div
+                                                                                                    className={`h-full rounded-full transition-all ${isUp ? 'bg-emerald-500/50' : 'bg-red-500/50'}`}
+                                                                                                    style={{width: `${Math.max(barWidth, 3)}%`}}
+                                                                                                ></div>
+                                                                                            </div>
+                                                                                            <span className={`text-[10px] w-[55px] text-right ${vc > 0 ? 'text-emerald-600' : vc < 0 ? 'text-red-600' : 'text-slate-700'}`}>
+                                                                                                vol {vc > 0 ? '+' : ''}{Math.abs(vc) >= 1000 ? (vc/1000).toFixed(1) + 'K' : vc}%
+                                                                                            </span>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                );
+                                                                            })}
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+
+                                                                {/* Monthly sparkline — show only last 36 months for readability */}
+                                                                {trends.monthly_series?.length > 3 && (() => {
+                                                                    const allSeries = trends.monthly_series;
+                                                                    const series = allSeries.slice(-36); // Last 3 years
+                                                                    const maxTx = Math.max(...series.map(s => s.transactions));
+                                                                    const fmtMonth = (m) => {
+                                                                        const [y, mo] = m.split('-');
+                                                                        const months = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                                                                        return `${months[parseInt(mo)] || mo} '${y.slice(2)}`;
+                                                                    };
+                                                                    const midIdx = Math.floor(series.length / 2);
+                                                                    return (
+                                                                        <div className="rounded-xl bg-[#0d1117] border border-slate-800/50 p-4">
+                                                                            <div className="flex items-center justify-between mb-3">
+                                                                                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Monthly Volume</span>
+                                                                                <span className="text-[10px] text-slate-600">Last 3 years</span>
+                                                                            </div>
+                                                                            <div className="flex items-end gap-[3px] h-[80px]">
+                                                                                {series.map((s, si) => {
+                                                                                    const h = maxTx > 0 ? (s.transactions / maxTx * 100) : 0;
+                                                                                    const isLast = si === series.length - 1;
+                                                                                    return (
+                                                                                        <div key={si} className="flex-1 flex flex-col items-center group relative cursor-pointer" title={`${fmtMonth(s.month)}\n${s.transactions.toLocaleString()} transactions\nAvg: AED ${(s.avg_price/1e6).toFixed(1)}M`}>
+                                                                                            <div
+                                                                                                className={`w-full rounded-t transition-colors ${isLast ? 'bg-cyan-400' : 'bg-slate-600 group-hover:bg-cyan-500/70'}`}
+                                                                                                style={{height: `${Math.max(h, 3)}%`}}
+                                                                                            ></div>
+                                                                                        </div>
+                                                                                    );
+                                                                                })}
+                                                                            </div>
+                                                                            <div className="flex justify-between mt-2">
+                                                                                <span className="text-[10px] text-slate-600">{fmtMonth(series[0].month)}</span>
+                                                                                <span className="text-[10px] text-slate-600">{fmtMonth(series[midIdx].month)}</span>
+                                                                                <span className="text-[10px] text-slate-500 font-medium">{fmtMonth(series[series.length - 1].month)}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    );
+                                                                })()}
+
+                                                                <button onClick={() => loadTrends(true)} className="text-[10px] text-slate-700 hover:text-slate-400 transition-colors mt-1">
+                                                                    ↻ Refresh trends
+                                                                </button>
+                                                            </div>
+                                                        ) : trends?.error ? (
+                                                            <div className="text-[11px] text-slate-600 py-3 text-center">{trends.error}</div>
+                                                        ) : !trends && !trendsLoading ? (
+                                                            <div className="rounded-lg bg-[#0d1117] border border-slate-800/40 p-6 text-center">
+                                                                <div className="text-slate-600 text-sm mb-1">No trends loaded</div>
+                                                                <div className="text-[10px] text-slate-700">Click the header above to compute market trends</div>
+                                                            </div>
+                                                        ) : null}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* ====== GLOBAL INTELLIGENCE ====== */}
+                                            <div>
+                                                <button
+                                                    onClick={() => { setGlobalOpen(!globalOpen); if (!briefing && !briefingLoading) loadBriefing(); }}
+                                                    className="w-full flex items-center gap-2 py-2 text-left group"
+                                                >
+                                                    <svg className={`w-3 h-3 text-slate-600 transition-transform ${globalOpen ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7"/></svg>
+                                                    <span className="text-xs font-bold text-white tracking-wide uppercase">Market Signals</span>
+                                                    {briefing ? (
+                                                        <span className="ml-auto text-[10px] text-slate-600">
+                                                            {(briefing.attention_required?.length || 0) + (briefing.risks?.length || 0) + (briefing.opportunities?.length || 0)} signals &middot; {new Date(briefing.generated_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}
+                                                        </span>
+                                                    ) : briefingLoading ? (
+                                                        <span className="ml-auto flex items-center gap-1.5 text-[10px] text-emerald-400">
+                                                            <span className="animate-spin inline-block w-2.5 h-2.5 border-[1.5px] border-emerald-400/30 border-t-emerald-400 rounded-full"></span>
+                                                            Loading
+                                                        </span>
+                                                    ) : (
+                                                        <span className="ml-auto text-[10px] text-slate-700 group-hover:text-slate-400 transition-colors">Click to load</span>
+                                                    )}
+                                                </button>
+
+                                                {globalOpen && (
+                                                    <div className="mt-1">
+                                                        {briefingLoading ? (
+                                                            <div className="rounded-lg bg-emerald-500/5 border border-emerald-500/10 p-4 text-center">
+                                                                <div className="animate-pulse text-[11px] text-emerald-300">Generating market intelligence...</div>
+                                                            </div>
+                                                        ) : briefing ? (
+                                                            <div className="space-y-3">
+                                                                {/* Executive Summary — as a readable brief */}
+                                                                <div className="rounded-lg bg-[#0d1117] border border-slate-800/50 p-3.5">
+                                                                    <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Executive Brief</div>
+                                                                    <p className="text-[12px] text-slate-300 leading-[1.7]">
+                                                                        {briefing.executive_summary}
+                                                                    </p>
+                                                                </div>
+
+                                                                {/* Signal cards — grouped by category */}
+                                                                {[
+                                                                    { items: briefing.attention_required, label: 'Attention', icon: '🔴', border: 'border-l-red-500', accent: 'text-red-400', badge: 'bg-red-500/10 text-red-400' },
+                                                                    { items: briefing.risks, label: 'Risks', icon: '🟡', border: 'border-l-amber-500', accent: 'text-amber-400', badge: 'bg-amber-500/10 text-amber-400' },
+                                                                    { items: briefing.opportunities, label: 'Opportunities', icon: '🟢', border: 'border-l-emerald-500', accent: 'text-emerald-400', badge: 'bg-emerald-500/10 text-emerald-400' },
+                                                                ].filter(g => g.items?.length > 0).map((group, gi) => (
+                                                                    <div key={gi} className="space-y-1.5">
+                                                                        <div className="flex items-center gap-2 pt-1">
+                                                                            <span className={`text-[10px] font-bold ${group.accent} uppercase tracking-wider`}>{group.label}</span>
+                                                                            <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${group.badge}`}>{group.items.length}</span>
+                                                                        </div>
+                                                                        {group.items.map((insight, i) => {
+                                                                            /* Parse the metric from the title e.g. "Palm Jumeirah — Prices ↑155%" */
+                                                                            const titleParts = (insight.title || '').split(' — ');
+                                                                            const entity = titleParts[0] || '';
+                                                                            const metricRaw = titleParts[1] || insight.title;
+                                                                            const arrowMatch = metricRaw.match(/([↑↓])(\d+%?)/);
+                                                                            const arrow = arrowMatch ? arrowMatch[1] : '';
+                                                                            const pctVal = arrowMatch ? arrowMatch[2] : '';
+                                                                            const metricLabel = metricRaw.replace(/[↑↓]\d+%?/, '').trim();
+                                                                            const isUp = arrow === '↑';
+
+                                                                            return (
+                                                                                <div key={i} className={`rounded-lg bg-[#0d1117] border border-slate-800/40 border-l-2 ${group.border} overflow-hidden hover:bg-[#111820] transition-colors`}>
+                                                                                    <div className="p-3">
+                                                                                        <div className="flex items-center gap-3 mb-2">
+                                                                                            {/* Metric badge */}
+                                                                                            {pctVal && (
+                                                                                                <div className={`flex items-center gap-0.5 text-sm font-bold ${isUp ? 'text-emerald-400' : 'text-red-400'}`}>
+                                                                                                    <span className="text-base">{arrow}</span>
+                                                                                                    <span>{pctVal}</span>
+                                                                                                </div>
+                                                                                            )}
+                                                                                            <div className="min-w-0 flex-1">
+                                                                                                <div className="text-[12px] font-semibold text-white leading-tight">{entity}</div>
+                                                                                                {metricLabel && <div className="text-[10px] text-slate-500 mt-0.5">{metricLabel}</div>}
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        {/* Explanation */}
+                                                                                        <p className="text-[11px] text-slate-400 leading-relaxed">{insight.explanation}</p>
+                                                                                        {/* Action */}
+                                                                                        {insight.suggested_action && (
+                                                                                            <div className="flex items-start gap-1.5 mt-2 pt-2 border-t border-slate-800/40">
+                                                                                                <span className="text-[10px] text-cyan-500 mt-px">→</span>
+                                                                                                <span className="text-[10px] text-cyan-400/80 leading-relaxed">{insight.suggested_action}</span>
+                                                                                            </div>
+                                                                                        )}
+                                                                                    </div>
+                                                                                </div>
+                                                                            );
+                                                                        })}
+                                                                    </div>
+                                                                ))}
+
+                                                                <button onClick={loadBriefing} className="text-[10px] text-slate-700 hover:text-slate-400 transition-colors mt-1">
+                                                                    ↻ Refresh signals
+                                                                </button>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="rounded-lg bg-[#0d1117] border border-slate-800/40 p-6 text-center">
+                                                                <div className="text-slate-600 text-sm mb-1">No signals loaded</div>
+                                                                <div className="text-[10px] text-slate-700">Click the header above to generate today's market briefing</div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+
                                 </div>
                             </div>
 
