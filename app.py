@@ -1411,8 +1411,9 @@ _POI_PROXIMITY_TABLES = {
     # table_name: (lat_col, lng_col, name_col, tag)
     "metro_stations": ("station_location_latitude", "station_location_longitude", "location_name_english", "metro"),
     "tram_stations": ("station_location_latitude", "station_location_longitude", "location_name_english", "tram"),
+    "sheryan_facility_detail": ("x_coordinate", "y_coordinate", "f_name_english", "hospital"),
+    "school_search": ("lat", "long", "name_eng", "school"),
     # NOTE: bus_stop_details excluded — 20K rows makes haversine cross-join too slow
-    # NOTE: school_search, sheryan_facility_detail excluded — use area-based join instead
 }
 
 _PROXIMITY_PROPERTY_TABLES = {
@@ -1426,7 +1427,7 @@ _COL_REMAP_TO_BAYUT = {
     "area_name_en": "location_area",
     "rooms_en": "beds",
     "actual_worth": "transaction_amount",
-    "trans_group_en": None,          # NO equivalent in bayut — skip this filter
+    "trans_group_en": "transaction_category",
     "procedure_name_en": None,
     "name_en": "location_area",      # from lkp_areas
 }
