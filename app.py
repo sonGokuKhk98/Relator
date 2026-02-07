@@ -1128,6 +1128,47 @@ def _install_query_timeout(conn):
     conn.set_progress_handler(_progress_handler, 10000)  # check every 10K VM ops
 
 
+# Tables that natively have lat/lon columns
+_NATIVE_GEO_COLUMNS = {
+    "bayut_transactions": ("latitude", "longitude"),
+    "bayut_commercial_transactions": ("latitude", "longitude"),
+    "bayut_new_projects": ("latitude", "longitude"),
+    "metro_stations": ("station_location_latitude", "station_location_longitude"),
+    "tram_stations": ("station_location_latitude", "station_location_longitude"),
+    "bus_stop_details": ("stop_location_latitude", "stop_location_longitude"),
+    "marine_stations": ("station_location_latitiude", "station_location_longitiude"),
+    "public_transportation_routes_stops": ("stop_location_latitude", "stop_location_longitude"),
+    "public_transportation_stations": ("station_location_latitude", "station_location_longitude"),
+    "taxi_stand_locations": ("location_latitude", "location_longitude"),
+    "ev_green_charger": ("latitude", "longitude"),
+    "licenced_owner_associations": ("latitude", "longitude"),
+    "hex_master_list": ("lat", "lon"),
+    "school_search": ("lat", "long"),
+    "hep_search": ("lat", "long"),
+    "ti_search": ("lat", "long"),
+    "sheryan_facility_detail": ("x_coordinate", "y_coordinate"),
+}
+
+# Tables that have an area name column (can JOIN to area_coordinates for lat/lon)
+_AREA_NAME_COLUMNS = {
+    "transactions": "area_name_en",
+    "units": "area_name_en",
+    "land_registry": "area_name_en",
+    "rent_contracts": "area_name_en",
+    "buildings": "area_name_en",
+    "projects": "area_name_en",
+    "lkp_areas": "name_en",
+    "sheryan_facility_detail": "area_english",
+    "bayut_transactions": "location_area",
+    "bayut_commercial_transactions": "location_area",
+    "valuation": "area_name_en",
+    "building_permits": "community_name",
+    "building_summary_information": "community_name_english",
+    "consultant_projects": "community_name",
+    "customers_master_data": "community",
+}
+
+
 # ============================================================================
 # Pydantic Models
 # ============================================================================
@@ -1348,7 +1389,7 @@ async def generate_sql(request: GenerateSQLRequest):
 
 
 def _generate_sql_from_ast(ast: FilterAST) -> str:
-    """Generate SQL from FilterAST."""
+    """Generate SQL from FilterAST with automatic lat/lon injection."""
     if not ast.tables:
         return ""
 
@@ -1378,14 +1419,88 @@ def _generate_sql_from_ast(ast: FilterAST) -> str:
     if not select_cols:
         select_cols = ["*"]
 
+    # --- Auto-inject lat/lon columns ---
+    geo_source = None       # "native" or "area_join"
+    geo_table = None        # which table provides lat/lon
+    geo_lat_col = None
+    geo_lng_col = None
+    area_join_col = None    # area column used for the JOIN
+
+    # Cross-domain tables whose native lat/lon should NOT be used for the main
+    # map markers (they represent facility locations, not property locations).
+    _POI_GEO_TABLES = {"school_search", "sheryan_facility_detail", "metro_stations",
+                        "tram_stations", "bus_stop_details"}
+
+    # Step 1: Check if the BASE table has native lat/lon (e.g. bayut_transactions)
+    if base_table and base_table in _NATIVE_GEO_COLUMNS and base_table not in _POI_GEO_TABLES:
+        geo_source = "native"
+        geo_table = base_table
+        geo_lat_col, geo_lng_col = _NATIVE_GEO_COLUMNS[base_table]
+
+    # Step 2: If base table has no native geo, try area-based join for it
+    if not geo_source and base_table and base_table in _AREA_NAME_COLUMNS:
+        geo_source = "area_join"
+        geo_table = base_table
+        area_join_col = _AREA_NAME_COLUMNS[base_table]
+        geo_lat_col = "area_coordinates.lat"
+        geo_lng_col = "area_coordinates.lng"
+
+    # Step 3: Fallback — check any non-POI table for native geo
+    if not geo_source:
+        for table in reachable_tables:
+            if table in _NATIVE_GEO_COLUMNS and table not in _POI_GEO_TABLES:
+                geo_source = "native"
+                geo_table = table
+                geo_lat_col, geo_lng_col = _NATIVE_GEO_COLUMNS[table]
+                break
+
+    # Step 4: Fallback — any table with area name column
+    if not geo_source:
+        for table in reachable_tables:
+            if table in _AREA_NAME_COLUMNS:
+                geo_source = "area_join"
+                geo_table = table
+                area_join_col = _AREA_NAME_COLUMNS[table]
+                geo_lat_col = "area_coordinates.lat"
+                geo_lng_col = "area_coordinates.lng"
+                break
+
+    # Step 5: Last resort — use POI table geo (single-table query on schools etc.)
+    if not geo_source:
+        for table in reachable_tables:
+            if table in _NATIVE_GEO_COLUMNS:
+                geo_source = "native"
+                geo_table = table
+                geo_lat_col, geo_lng_col = _NATIVE_GEO_COLUMNS[table]
+                break
+
+    # Build geo columns for main markers
+    geo_cols = []
+    if geo_source == "native":
+        geo_cols = [
+            f"{geo_table}.{geo_lat_col} AS latitude",
+            f"{geo_table}.{geo_lng_col} AS longitude",
+        ]
+    elif geo_source == "area_join":
+        geo_cols = [
+            f"({geo_lat_col} + (RANDOM() % 1000) / 100000.0) AS latitude",
+            f"({geo_lng_col} + (RANDOM() % 1000) / 100000.0) AS longitude",
+        ]
+
     final_select = _prioritized_select_list(where_cols, select_cols, limit=12)
-    sql = f"SELECT {', '.join(_unique_select_list(final_select))}\n"
+    final_select_with_geo = list(_unique_select_list(final_select)) + geo_cols
+    sql = f"SELECT {', '.join(final_select_with_geo)}\n"
 
     # Build FROM clause with JOINs
     sql += f"FROM {base_table}\n"
 
     if join_lines:
         sql += "\n".join(join_lines) + "\n"
+
+    # Auto-add area_coordinates JOIN if needed (for geo injection)
+    if geo_source == "area_join" and "area_coordinates" not in joined:
+        sql += f"LEFT JOIN area_coordinates ON {geo_table}.{area_join_col} = area_coordinates.area_name\n"
+        joined.add("area_coordinates")
 
     # Build WHERE clause — drop filters on unreachable tables
     reachable_filters = []
@@ -1403,7 +1518,7 @@ def _generate_sql_from_ast(ast: FilterAST) -> str:
         if not ob_table or ob_table in joined:
             sql += f"ORDER BY {ast.order_by.to_sql()}\n"
 
-    sql += "LIMIT 100"
+    sql += "LIMIT 500"
 
     return sql
 
